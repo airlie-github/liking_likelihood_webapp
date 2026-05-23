@@ -1,0 +1,12 @@
+pages:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - mkdir -p public
+    - cp liking_likelihood.html public/index.html
+    - cp liking_likelihood.html public/liking_likelihood.html
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
