@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Liking Likelihood</title>
+<style>
+/* ===== RESET & BASE ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+html{height:100%}
+body{height:100%;min-height:100vh;min-height:100dvh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:#f5f5f5;color:#222;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px;font-size:18px;
+  padding:14px 20px;font-weight:600;transition:all .15s;-webkit-tap-highlight-color:transparent}
+button:active{transform:scale(.95)}
+
+/* ===== LAYOUT ===== */
+.page{display:none;min-height:100vh;max-width:480px;margin:0 auto;padding:16px;position:relative}
+.page.active{display:flex;flex-direction:column}
+.game-screen{display:none;min-height:100vh;min-height:100dvh;max-width:480px;margin:0 auto;padding:0;
+  flex-direction:column}
+.game-screen.active{display:flex}
+.game-screen.active .game-layout{min-height:calc(100vh - 50px);min-height:calc(100dvh - 50px)}
+
+/* ===== TITLE PAGE ===== */
+#title-page{align-items:center;justify-content:center;text-align:center;gap:24px;
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff}
+#title-page h1{font-size:36px;font-weight:800;letter-spacing:-1px}
+#title-page h2{font-size:18px;font-weight:400;opacity:.8}
+.mode-toggle{display:flex;background:rgba(255,255,255,.15);border-radius:16px;overflow:hidden;
+  width:100%}
+.mode-toggle button{flex:1;background:transparent;color:rgba(255,255,255,.6);padding:16px;
+  border-radius:16px;font-size:16px}
+.mode-toggle button.selected{background:rgba(255,255,255,.25);color:#fff}
+.room-input{width:100%;padding:14px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.1);color:#fff;font-size:18px;text-align:center;
+  text-transform:uppercase;letter-spacing:3px}
+.room-input::placeholder{color:rgba(255,255,255,.4);text-transform:none;letter-spacing:0}
+#start-btn{width:100%;padding:18px;background:#e94560;color:#fff;font-size:20px;font-weight:700;
+  border-radius:16px;margin-top:8px}
+#start-btn:hover{background:#d63851}
+.dice-icons-title{font-size:48px;letter-spacing:8px;margin:8px 0}
+
+/* ===== GAME LIST PAGE ===== */
+#game-list{gap:12px;padding-bottom:32px}
+.game-list-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.game-list-header h2{font-size:24px;font-weight:700}
+.back-home{background:none;color:#222;font-size:24px;padding:8px;width:40px;height:40px;
+  display:flex;align-items:center;justify-content:center;border-radius:50%}
+.game-card{background:#fff;border-radius:16px;padding:16px;display:flex;align-items:center;
+  gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;transition:all .15s;
+  border:2px solid transparent}
+.game-card:active{transform:scale(.98);border-color:#e94560}
+.game-card .num{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-weight:800;font-size:18px;color:#fff;flex-shrink:0}
+.game-card .info{flex:1;min-width:0}
+.game-card .info h3{font-size:16px;font-weight:700;margin-bottom:2px}
+.game-card .info p{font-size:13px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-card .score-badge{background:#f0f0f0;border-radius:10px;padding:6px 12px;font-size:14px;
+  font-weight:600;color:#222;flex-shrink:0}
+.game-card .score-badge.done{background:#d4edda;color:#155724}
+
+/* ===== GAME SCREEN COMMON ===== */
+.game-header{display:flex;align-items:center;padding:10px 16px;background:#fff;
+  border-bottom:1px solid #eee;flex-shrink:0}
+.game-header .back-btn{background:none;font-size:24px;padding:4px 8px;color:#222}
+.game-header .title{flex:1;font-size:16px;font-weight:700;margin-left:8px}
+.game-header .round-info{font-size:14px;color:#222;font-weight:600}
+.game-layout{flex:1;display:flex;flex-direction:column}
+.game-zone-top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 16px;gap:4px;overflow:hidden;min-height:0;position:relative}
+.game-zone-text{flex:0 0 80px;text-align:center;padding:4px 16px;font-size:15px;color:#222;
+  display:flex;align-items:center;justify-content:center;width:100%;overflow:visible}
+.game-zone-buttons{flex:0 0 60px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:4px 16px}
+.game-zone-next{flex:0 0 52px;width:100%;display:flex;align-items:center}
+.game-zone-next .next-btn{width:auto}
+.game-zone-next .next-btn:disabled{opacity:.35;pointer-events:none}
+.game-zone-table{flex:0 0 160px;background:#fff;border-top:1px solid #eee;padding:6px 12px 8px;overflow-y:auto}
+.stats-table{width:100%;border-collapse:collapse;font-size:12px}
+.stats-table th{padding:3px 4px;color:#222;font-weight:600;text-align:center;white-space:nowrap;
+  position:sticky;left:0;background:#fff;z-index:1;text-align:right;min-width:44px}
+.stats-table td{padding:3px 6px;text-align:center;border-left:1px solid #f0f0f0;min-width:28px}
+.stats-table .correct{color:#27ae60;font-weight:700}
+.stats-table .incorrect{color:#e74c3c;font-weight:700}
+.stats-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.score-line{display:flex;justify-content:space-between;align-items:center;margin-top:8px;
+  font-weight:700;font-size:16px}
+.next-btn{background:#e94560;color:#fff;padding:12px 24px;font-size:16px;margin-top:12px}
+.next-game-btn{background:#3498db;color:#fff;padding:12px 24px;font-size:16px;margin-top:8px;width:100%}
+.back-games-btn{background:#eee;color:#222;padding:12px 24px;font-size:16px;margin-top:8px;width:100%}
+
+/* ===== REEL SPINNER ===== */
+.reel-container{display:flex;gap:8px;justify-content:center}
+.reel-window{width:72px;height:80px;overflow:hidden;border-radius:12px;background:#fff;
+  border:3px solid #333;position:relative;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.reel-window::before,.reel-window::after{content:'';position:absolute;left:0;right:0;height:20px;
+  z-index:2;pointer-events:none}
+.reel-window::before{top:0;background:linear-gradient(#fff,transparent)}
+.reel-window::after{bottom:0;background:linear-gradient(transparent,#fff)}
+.reel-strip{transition:transform 2s cubic-bezier(.15,.85,.35,1);will-change:transform}
+.reel-strip.spinning{filter:blur(2px)}
+.reel-num{height:80px;display:flex;align-items:center;justify-content:center;font-size:42px;
+  font-weight:800;color:#333}
+.reel-sm{width:52px;height:52px}
+.reel-sm .reel-num{height:52px;font-size:28px}
+.reel-sm::before,.reel-sm::after{height:12px}
+
+/* ===== TUTORIAL TOGGLE ===== */
+.tut-toggle{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#222}
+.tut-switch{position:relative;width:36px;height:20px;background:#ccc;border-radius:10px;cursor:pointer;
+  transition:background .2s;flex-shrink:0}
+.tut-switch.on{background:#27ae60}
+.tut-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;
+  background:#fff;border-radius:50%;transition:left .2s}
+.tut-switch.on::after{left:18px}
+
+/* ===== GUESS BUTTONS ===== */
+.guess-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;width:100%;max-width:320px}
+.guess-btn{font-size:22px;font-weight:800;border-radius:14px;color:#fff;
+  height:56px;width:56px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.guess-btn[data-die="4"]{background:#e74c3c;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);
+  border-radius:0}
+.guess-btn[data-die="6"]{background:#3498db;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);
+  border-radius:0}
+.guess-btn[data-die="8"]{background:#27ae60;clip-path:polygon(30% 0%,70% 0%,100% 30%,100% 70%,70% 100%,30% 100%,0% 70%,0% 30%);
+  border-radius:0}
+.guess-btn[data-die="10"]{background:#8e44ad;clip-path:polygon(50% 0%,79% 10%,100% 38%,97% 69%,79% 95%,50% 100%,21% 95%,3% 69%,0% 38%,21% 10%);
+  border-radius:0}
+.guess-btn:disabled{opacity:.4;transform:none!important}
+.guess-btn:hover:not(:disabled):not(.selected){transform:scale(1.15);filter:brightness(1.3)}
+.guess-btn.selected{transform:scale(1.15);filter:brightness(1.4)}
+
+/* ===== CONFIDENCE BUTTONS ===== */
+.confidence-row{display:flex;gap:8px;width:100%;max-width:300px}
+.conf-btn{flex:1;padding:12px;font-size:14px;font-weight:700;border-radius:12px;color:#fff}
+.conf-btn[data-conf="low"]{background:#f39c12}
+.conf-btn[data-conf="medium"]{background:#e67e22}
+.conf-btn[data-conf="high"]{background:#e74c3c}
+.conf-btn:disabled{opacity:.4}
+.conf-btn.selected{box-shadow:0 0 0 3px gold}
+
+/* ===== GAME 3 LAYOUT ===== */
+.g3-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;width:100%;max-width:320px;margin:0 auto}
+.g3-conf-wrap{grid-column:3/5;display:flex;flex-direction:column;gap:2px;justify-content:center}
+.g3-conf-label{font-size:14px;font-weight:600;color:#222;text-align:center}
+.g3-conf-btn{padding:3px 6px;font-size:11px;font-weight:700;border-radius:6px;color:#fff;text-align:center;
+  width:100%;transition:all .15s}
+.g3-conf-btn[data-conf="low"]{background:#f39c12}
+.g3-conf-btn[data-conf="medium-high"]{background:#e67e22}
+.g3-conf-btn[data-conf="certain"]{background:#e74c3c}
+.g3-conf-btn.selected{box-shadow:0 0 0 3px gold;transform:scale(1.05)}
+.g3-bars-wrap{grid-column:1/3}
+.g3-bars-wrap .likelihood-bars{max-width:none}
+.g3-ratio-info{grid-column:3/5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+
+/* ===== GAME 5 VALUE BOXES ===== */
+.g5-val-box{width:100%;background:#fff;border:2px solid #eee;border-radius:10px;padding:4px 2px;
+  text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  overflow:hidden}
+.g5-track{height:60px;background:#f0f0f0;border-radius:6px;position:relative;border:1px solid #ddd}
+.g5-marker{position:absolute;left:0;right:0;height:3px;border-radius:2px;top:0;transition:top .3s}
+.g5-marker.d4{background:#e74c3c}.g5-marker.d6{background:#3498db}
+.g5-marker.d8{background:#27ae60}.g5-marker.d10{background:#8e44ad}
+.g5-val-label{font-size:9px;color:#222;font-weight:600}
+.g5-val-box.underflow{background:#111;border-color:#111}
+.g5-val-box.underflow .g5-val-label{color:#555}
+.g5-die-val{font-size:12px;font-weight:700;line-height:1.2;text-align:center;min-height:28px;
+  display:flex;align-items:center;justify-content:center}
+
+/* ===== LIKELIHOOD BARS (vertical) ===== */
+.likelihood-bars{display:flex;gap:8px;justify-content:center;align-items:flex-end;width:100%;max-width:320px}
+.lbar-col{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
+.lbar-track-v{width:100%;height:60px;background:#f0f0f0;border-radius:6px 6px 0 0;position:relative;
+  display:flex;align-items:flex-end;overflow:hidden}
+.lbar-fill-v{width:100%;border-radius:6px 6px 0 0;transition:height .6s ease-out;height:0}
+.lbar-fill-v.d4{background:#e74c3c}.lbar-fill-v.d6{background:#3498db}
+.lbar-fill-v.d8{background:#27ae60}.lbar-fill-v.d10{background:#8e44ad}
+.lbar-fill-v.best{box-shadow:0 0 8px gold}
+.lbar-val{font-size:10px;color:#222;font-weight:600;text-align:center}
+.lbar-star{color:gold;font-size:14px}
+.die-chip{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
+  font-size:12px;font-weight:800;color:#fff}
+.die-chip.d4{background:#e74c3c;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%)}
+.die-chip.d6{background:#3498db;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%)}
+.die-chip.d8{background:#27ae60;clip-path:polygon(30% 0%,70% 0%,100% 30%,100% 70%,70% 100%,30% 100%,0% 70%,0% 30%)}
+.die-chip.d10{background:#8e44ad;clip-path:polygon(50% 0%,79% 10%,100% 38%,97% 69%,79% 95%,50% 100%,21% 95%,3% 69%,0% 38%,21% 10%)}
+
+/* ===== FEEDBACK ===== */
+.feedback{font-size:18px;font-weight:700;padding:12px;border-radius:12px;text-align:center;
+  width:100%;max-width:320px;animation:fadeIn .3s}
+.feedback.correct{background:#d4edda;color:#155724}
+.feedback.incorrect{background:#f8d7da;color:#721c24}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.shake{animation:shake .4s}
+
+/* ===== BAYES VISUAL ===== */
+/* ===== GAME 6 BAYES BARS ===== */
+.b6-die-col{flex:1}
+.b6-bars{display:flex;gap:0;align-items:flex-end;height:120px;width:100%}
+.b6-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:120px;position:relative}
+.b6-bar{width:100%;border-radius:3px 3px 0 0;transition:height .6s ease-out;position:relative;overflow:hidden;min-width:20px;height:0}
+.b6-bar.post{background:#999}
+.b6-vlabel{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-90deg);
+  font-size:16px;font-weight:700;color:#222;white-space:nowrap;pointer-events:none;z-index:2}
+.b6-vals{display:flex;width:100%}
+.b6-vals span{flex:1;text-align:center;font-size:14px;font-weight:600;color:#222}
+
+/* ===== MARGINALIZATION ===== */
+.marg-bars{display:flex;gap:16px;justify-content:center;width:100%;max-width:300px}
+.marg-box{flex:1;text-align:center}
+.marg-box-label{font-size:14px;font-weight:700;margin-bottom:6px}
+.marg-bar-container{height:100px;background:#f0f0f0;border-radius:8px;position:relative;
+  display:flex;align-items:flex-end;justify-content:center;overflow:hidden;padding:0 4px}
+.marg-bar{border-radius:4px 4px 0 0;transition:height .6s ease-out;width:100%}
+.marg-bar.amber{background:#f39c12}
+.marg-bar.blue{background:#3498db}
+.marg-bar.best{box-shadow:0 0 8px gold}
+.marg-value{font-size:12px;font-weight:600;margin-top:4px}
+
+/* ===== CRT CRASH SCREEN ===== */
+.crt-screen{position:fixed;inset:0;background:#000;z-index:1000;display:none;padding:20px;
+  overflow:auto;font-family:'Courier New',monospace;color:#33ff33;font-size:14px;line-height:1.6}
+.crt-screen.active{display:block}
+.crt-screen::before{content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.3) 0px,rgba(0,0,0,.3) 1px,transparent 1px,transparent 3px);
+  pointer-events:none;z-index:1001}
+.crt-screen pre{position:relative;z-index:1002;white-space:pre-wrap;word-break:break-all}
+.crt-cursor{display:inline-block;width:10px;height:16px;background:#33ff33;
+  animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.crt-btn{display:none;margin-top:20px;padding:14px 24px;background:#33ff33;color:#000;
+  font-family:'Courier New',monospace;font-size:16px;font-weight:700;border:none;border-radius:4px;
+  cursor:pointer;z-index:1002;position:relative}
+@keyframes crtShake{0%,100%{transform:translate(0)}25%{transform:translate(-2px,1px)}
+  50%{transform:translate(1px,-2px)}75%{transform:translate(-1px,2px)}}
+.crt-shaking{animation:crtShake .1s linear 5}
+
+/* ===== BOX ANIMATION ===== */
+.box-scene{position:relative;width:200px;height:180px;margin:0 auto}
+.box-body{position:absolute;bottom:0;left:30px;width:140px;height:90px;
+  background:linear-gradient(145deg,#d4a574,#c4956a);border-radius:8px 8px 4px 4px;
+  border:3px solid #a0764a;overflow:hidden}
+.box-body::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 30%,rgba(255,255,255,.15) 50%,transparent 70%)}
+.box-lid{position:absolute;bottom:88px;left:26px;width:148px;height:20px;
+  background:linear-gradient(145deg,#c4956a,#b8895e);border-radius:6px 6px 2px 2px;
+  border:3px solid #a0764a;transform-origin:bottom left;z-index:3;transition:transform .4s ease-out}
+.box-lid.open{transform:rotate(-95deg)}
+.g7-lid{position:absolute;bottom:60px;left:4px;width:112px;height:18px;border-radius:5px 5px 2px 2px;
+  border:3px solid;z-index:3;transition:transform .4s ease-out}
+.g7-lid-l{transform-origin:bottom left}
+.g7-lid-l.open{transform:rotate(-95deg)}
+.g7-lid-r{transform-origin:bottom right}
+.g7-lid-r.open{transform:rotate(95deg)}
+.box-dice{position:absolute;bottom:10px;display:flex;gap:6px;justify-content:center;width:100%;
+  padding:0 12px;z-index:1}
+.box-die{width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;color:#fff;transition:all .4s}
+.box-die.d4{background:#e74c3c;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%)}
+.box-die.d6{background:#3498db;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%)}
+.box-die.d8{background:#27ae60;clip-path:polygon(30% 0%,70% 0%,100% 30%,100% 70%,70% 100%,30% 100%,0% 70%,0% 30%)}
+.box-die.d10{background:#8e44ad;clip-path:polygon(50% 0%,79% 10%,100% 38%,97% 69%,79% 95%,50% 100%,21% 95%,3% 69%,0% 38%,21% 10%)}
+.hand-arm{position:absolute;top:-60px;left:50%;transform:translateX(-50%);z-index:4;
+  transition:top .5s cubic-bezier(.34,1.56,.64,1);opacity:0}
+.hand-arm.reaching{top:30px;opacity:1}
+.hand-arm.pulling{top:-40px;opacity:1}
+.hand-arm.revealing{top:-55px;opacity:1}
+.reveal-msg-slot{position:absolute;top:12px;right:12px;z-index:7;
+  opacity:0;transition:opacity .3s;white-space:nowrap;pointer-events:none}
+.reveal-msg-slot.shown{opacity:1}
+.reveal-msg{font-size:15px;font-weight:700;padding:6px 12px;border-radius:8px}
+.reveal-msg.correct{background:#d4edda;color:#155724}
+.reveal-msg.incorrect{background:#f8d7da;color:#721c24}
+.hand-shape{font-size:40px;text-align:center;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));
+  transform:rotate(180deg)}
+.hand-held{position:absolute;top:0;left:50%;transform:translateX(-50%) translateY(60px);
+  font-size:36px;font-weight:800;opacity:0;transition:all .4s;z-index:5}
+.hand-held.shown{opacity:1;transform:translateX(-50%) translateY(0)}
+@keyframes boxShake{0%,100%{transform:rotate(0)}15%{transform:rotate(-3deg)}30%{transform:rotate(3deg)}
+  45%{transform:rotate(-2deg)}60%{transform:rotate(2deg)}75%{transform:rotate(-1deg)}90%{transform:rotate(1deg)}}
+.box-shaking{animation:boxShake .6s ease-in-out}
+.box-scene .question-mark{width:52px;height:52px;border-radius:50%;background:#d4a017;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;
+  box-shadow:0 4px 12px rgba(212,160,23,.4);overflow:hidden;position:relative}
+.question-mark .qm-text{position:relative;z-index:1}
+.question-mark .qm-reel{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;
+  border-radius:50%;display:flex;justify-content:center}
+.question-mark .qm-reel .reel-strip{width:100%;transition:transform 2s cubic-bezier(.15,.85,.35,1);will-change:transform}
+.question-mark .qm-reel .reel-strip.spinning{filter:blur(1px)}
+.question-mark .qm-reel .reel-num{width:100%;display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:#fff}
+
+/* ===== LOG-LIKELIHOOD DEMO ===== */
+.log-demo{width:100%;max-width:360px}
+.log-columns{display:flex;gap:12px;margin:12px 0}
+.log-col{flex:1;background:#fff;border-radius:12px;padding:12px;border:2px solid #eee;text-align:center}
+.log-col h4{font-size:13px;color:#222;margin-bottom:8px}
+.log-col .val{font-size:16px;font-weight:800;font-family:'Courier New',monospace;word-break:break-all}
+.log-col .val.dead{color:#e74c3c;text-decoration:line-through}
+.log-col .val.ok{color:#27ae60}
+.log-roll-count{font-size:14px;color:#222;font-weight:600}
+.demo-btn-row{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.demo-btn{padding:12px 20px;border-radius:12px;font-size:16px;font-weight:700}
+.demo-btn.roll{background:#d4a017;color:#fff}
+.demo-btn.auto{background:#d4a017;color:#fff}
+.demo-btn.log-toggle{background:#d4a017;color:#fff}
+
+/* ===== CLT HISTOGRAM ===== */
+.clt-dot-hist{display:flex;gap:6px;justify-content:center;align-items:flex-end;width:100%;max-width:320px;height:100%}
+.clt-col{display:flex;flex-direction:column;align-items:center;flex:1}
+.clt-dots{display:flex;flex-direction:column-reverse;align-items:center;gap:2px}
+.clt-dot{width:10px;height:10px;border-radius:50%;background:#3498db}
+.clt-count{font-size:11px;font-weight:700;color:#222;margin-bottom:2px}
+.clt-hdot-hist{max-width:320px;margin:0 auto}
+.clt-hrow{display:flex;align-items:center;gap:4px;height:16px}
+.clt-hrow-label{font-size:11px;font-weight:700;color:#222;width:12px;text-align:right}
+.clt-hrow-count{font-size:9px;color:#222;width:16px;text-align:right}
+.clt-hdots{display:flex;gap:1px;align-items:center}
+.clt-hdot{width:6px;height:6px;border-radius:50%;background:#3498db;flex-shrink:0}
+.clt-col-label{font-size:14px;font-weight:700;color:#222;margin-top:4px}
+.bias-preset{padding:6px 12px;font-size:12px;font-weight:700;border-radius:8px;background:#eee;color:#222}
+.bias-preset.selected{background:#d4a017;color:#fff}
+.bias-slider{writing-mode:vertical-lr;direction:rtl;-webkit-appearance:slider-vertical;
+  width:20px;height:100%;margin:0;cursor:pointer}
+.clt-auto-hist{display:flex;align-items:flex-end;height:120px;gap:0;max-width:320px;margin:0 auto}
+.clt-auto-bar{flex:1;background:#9b59b6;min-width:0;border-radius:1px 1px 0 0;transition:height .3s}
+.clt-numbers{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;font-size:14px;
+  font-weight:600;max-width:360px;font-family:'Courier New',monospace}
+.clt-numbers span{width:22px;text-align:center}
+.histogram{width:100%;max-width:320px;height:120px;display:flex;align-items:flex-end;
+  gap:2px;padding:0 4px;position:relative;border-bottom:2px solid #333;margin-top:12px}
+.hist-bar{flex:1;background:#e74c3c;border-radius:3px 3px 0 0;transition:height .4s ease-out;
+  min-height:0}
+.hist-labels{display:flex;justify-content:space-between;width:100%;max-width:320px;
+  font-size:11px;color:#222;font-weight:600;padding:0 4px}
+.gaussian-overlay{position:absolute;inset:0;pointer-events:none}
+.gaussian-path{fill:none;stroke:#333;stroke-width:2;stroke-dasharray:500;
+  stroke-dashoffset:500;transition:stroke-dashoffset 1.5s ease-out}
+.gaussian-path.drawn{stroke-dashoffset:0}
+
+/* ===== CRYSTAL BET ===== */
+.crystal-count{font-size:28px;font-weight:800;text-align:center}
+.crystal-count span{color:#8e44ad}
+.crystal-loss{font-size:16px;font-weight:700;color:#e74c3c;text-align:center}
+.prediction-slider{width:100%;max-width:280px}
+.prediction-slider input[type=range]{width:100%;height:8px;-webkit-appearance:none;
+  background:#ddd;border-radius:4px;outline:none}
+.prediction-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;
+  height:28px;background:#8e44ad;border-radius:50%;cursor:pointer}
+.prediction-value{text-align:center;font-size:24px;font-weight:800;color:#8e44ad}
+.die-type-selector{display:flex;gap:8px;width:100%;max-width:320px}
+.die-type-btn{flex:1;padding:10px;font-size:13px;font-weight:700;border-radius:10px;
+  background:#eee;color:#222}
+.die-type-btn.selected{background:#8e44ad;color:#fff}
+
+/* ===== SLIDER ===== */
+input[type=range]{width:100%;margin:8px 0}
+.slider-labels{display:flex;justify-content:space-between;font-size:13px;color:#222;font-weight:600}
+
+/* ===== GAME END ===== */
+.game-end{text-align:center;gap:12px;display:flex;flex-direction:column;align-items:center}
+.final-score{font-size:32px;font-weight:800}
+.optimal-reveal{background:#fff;border-radius:12px;padding:16px;font-size:15px;line-height:1.5;
+  max-width:320px;border:2px solid #eee;text-align:left}
+</style>
+</head>
+<body>
+
+<!-- ===== PAGE 1: TITLE ===== -->
+<div id="title-page" class="page active">
+  <div class="dice-icons-title">&#9860; &#9858; &#9856;</div>
+  <h1>Liking Likelihood</h1>
+  <h2>Erice School 2026</h2>
+  <input class="room-input" id="room-code" placeholder="Room code (optional)" maxlength="20" style="margin-top:16px">
+  <button id="start-btn" onclick="goToGameList()">Start</button>
+</div>
+
+<!-- ===== PAGE 2: GAME LIST ===== -->
+<div id="game-list" class="page">
+  <div class="game-list-header">
+    <button class="back-home" onclick="goToTitle()">&#8592;</button>
+    <h2>Games</h2>
+  </div>
+  <div id="game-cards"></div>
+</div>
+
+<!-- ===== GAME SCREEN (reused for all games) ===== -->
+<div id="game-screen" class="game-screen">
+  <div class="game-header">
+    <button class="back-btn" onclick="exitGame()">&#8592;</button>
+    <span class="title" id="game-title"></span>
+    <div class="tut-toggle"><div class="tut-switch on" id="tut-switch" onclick="toggleTutorial()"></div><span id="tut-label">Tutorial</span></div>
+  </div>
+  <div class="game-layout">
+    <div class="game-zone-top" id="zone-top"></div>
+    <div class="game-zone-text" id="zone-text"></div>
+    <div class="game-zone-buttons" id="zone-buttons"></div>
+    <div class="game-zone-next" id="zone-next">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:4px 16px">
+        <span id="round-counter" style="font-size:16px;font-weight:700;color:#222"></span>
+        <button class="next-btn" id="next-round-btn" disabled onclick="S.currentRound++;renderRound()" style="width:auto;padding:10px 24px;font-size:14px;margin:0">Guess Again</button>
+      </div>
+    </div>
+    <div class="game-zone-table" id="zone-table"></div>
+  </div>
+</div>
+
+<!-- ===== CRT CRASH SCREEN ===== -->
+</div>
+
+<script>
+// ===== STATE =====
+const S = {
+  mode: 'tutorial', // per-game, toggled by slider
+  gameTutorial: {1:true,2:true,3:true,4:true,5:true,6:true,7:true,8:true,9:true,10:true},
+  roomCode: '',
+  currentGame: null,
+  rounds: [],
+  currentRound: 0,
+  scores: Array(10).fill(0),
+  phase: 'guess',
+  game9UseRandom: false,
+  game9Histogram: [],
+  game10DieType: 'unbiased',
+  game10Crystals: 120,
+  game5ShowLog: false,
+  game3ConfPick: null,
+  game8LlgPick: null,
+};
+
+// ===== GAME DEFINITIONS =====
+const GAMES = [
+  {id:1, title:'Probability', topic:'Section 2', desc:'Guess the die — no data!', color:'#e94560'},
+  {id:2, title:'Likelihood', topic:'Section 3', desc:'One roll — which die?', color:'#3498db'},
+  {id:3, title:'Likelihood Ratio', topic:'Section 4', desc:'How confident are you?', color:'#e67e22'},
+  {id:4, title:'Independence', topic:'Section 5', desc:'Three rolls — more data!', color:'#27ae60'},
+  {id:5, title:'Log-Likelihood', topic:'Section 6', desc:'Roll and guess — watch likelihood shrink!', color:'#8e44ad'},
+  {id:6, title:"Bayes' Theorem", topic:'Section 8', desc:'Many copies of a die', color:'#e74c3c'},
+  {id:7, title:'Marginalization', topic:'Section 9', desc:'Unknown variable', color:'#f39c12'},
+  {id:8, title:'Null Hypothesis', topic:'Sections 10–11', desc:'Better than random?', color:'#1abc9c'},
+  {id:9, title:'Central Limit Theorem', topic:'Section 12', desc:'Average of many rolls', color:'#9b59b6'},
+  {id:10, title:'Expectation', topic:'Expectation Value', desc:'Bet on the mean!', color:'#d4a017'},
+];
+
+// ===== TUTORIAL DATA =====
+const TUT = {
+  game1: {dies:[6,8,4,10,6,4,8,10,4,6,10,8]},
+  game2: {rolls:[9,7,3,4,5,2,6,3,4,7,1,8], dies:[10,8,8,6,10,8,6,8,4,10,4,10]},
+  game3: {rolls:[3,3,5,4,9,2,2,4,6,7,1,1],
+    pairs:[[8,10],[6,10],[6,8],[4,8],[8,10],[4,6],[4,10],[8,10],[6,10],[6,8],[6,8],[4,8]],
+    dies: [10,  6,    6,   4,   10,  6,   10,   10,   6,    8,   6,   4]},
+  game4: {
+    rolls:[[3,8,4],[1,4,6],[4,1,5],[1,3,4],[2,2,3],[3,10,5],[2,4,5],[2,5,6],[4,3,1],[4,6,4],[7,9,2],[3,3,4]],
+    dies:[8,8,6,4,4,10,6,10,4,8,10,6]
+  },
+  game6: {
+    rolls: [1, 7, 3, 4, 5, 9, 6, 3, 4, 7, 2, 8],
+    diceA: [8,4, 4,4, 6,8, 6,4, 4,6, 4,8],
+    diceB: [10,10,6,8,10,10,8,6, 8,10,6,10],
+    countA:[1, 2, 3,5, 4,2, 5,3, 5,2, 6,1],
+    dies:  [10,10,6,4,10,10,8,4, 8,10,4,10]},
+  game7: {
+    rolls: [3,  7,  9,  2,  5,  6,  4,  8,  1,  3,  10, 5],
+    boxes: ['blue','amber','amber','blue','amber','blue','amber','amber','amber','blue','amber','blue'],
+    dies:  [10,  8,  10,  6,  6,  8,  8,  8,  4,  4,  10, 10],
+    amber: [[4,6],[6,8],[8,10],[4,8],[6,10],[4,6],[8,10],[6,8],[4,10],[8,10],[4,10],[6,8]],
+    blue:  [[8,10],[4,10],[4,6],[6,10],[4,8],[8,10],[4,6],[4,10],[6,8],[4,6],[6,8],[4,10]]
+  },
+  game9: [
+    // Set 1: avg=3.0 (10,8,7,6,5,4) skewed left
+    [...Array(10).fill(1),...Array(8).fill(2),...Array(7).fill(3),...Array(6).fill(4),...Array(5).fill(5),...Array(4).fill(6)],
+    // Set 2: avg=3.5 (7,6,7,7,6,7) near uniform
+    [...Array(7).fill(1),...Array(6).fill(2),...Array(7).fill(3),...Array(7).fill(4),...Array(6).fill(5),...Array(7).fill(6)],
+    // Set 3: avg=3.5 (3,5,12,12,5,3) peaked center
+    [...Array(3).fill(1),...Array(5).fill(2),...Array(12).fill(3),...Array(12).fill(4),...Array(5).fill(5),...Array(3).fill(6)],
+    // Set 4: avg=4.0 (4,5,6,7,8,10) skewed right
+    [...Array(4).fill(1),...Array(5).fill(2),...Array(6).fill(3),...Array(7).fill(4),...Array(8).fill(5),...Array(10).fill(6)],
+    // Set 5: avg=2.5 (14,10,6,4,4,2) heavy left
+    [...Array(14).fill(1),...Array(10).fill(2),...Array(6).fill(3),...Array(4).fill(4),...Array(4).fill(5),...Array(2).fill(6)],
+    // Set 6: avg=3.5 (10,5,5,5,5,10) U-shaped
+    [...Array(10).fill(1),...Array(5).fill(2),...Array(5).fill(3),...Array(5).fill(4),...Array(5).fill(5),...Array(10).fill(6)],
+    // Set 7: avg=4.5 (2,4,4,6,10,14) reverse of set 5
+    [...Array(2).fill(1),...Array(4).fill(2),...Array(4).fill(3),...Array(6).fill(4),...Array(10).fill(5),...Array(14).fill(6)],
+    // Set 8: avg=4.0 (2,5,8,9,8,8) gentle right
+    [...Array(2).fill(1),...Array(5).fill(2),...Array(8).fill(3),...Array(9).fill(4),...Array(8).fill(5),...Array(8).fill(6)],
+    // Set 9: avg=3.0 (9,8,8,7,5,3) gentle left
+    [...Array(9).fill(1),...Array(8).fill(2),...Array(8).fill(3),...Array(7).fill(4),...Array(5).fill(5),...Array(3).fill(6)],
+    // Set 10: avg=3.5 (5,7,8,8,7,5) gentle bell
+    [...Array(5).fill(1),...Array(7).fill(2),...Array(8).fill(3),...Array(8).fill(4),...Array(7).fill(5),...Array(5).fill(6)],
+    // Set 11: avg=3.5 (8,4,8,8,4,8) bimodal symmetric
+    [...Array(8).fill(1),...Array(4).fill(2),...Array(8).fill(3),...Array(8).fill(4),...Array(4).fill(5),...Array(8).fill(6)],
+    // Set 12: avg=3.0 (10,8,6,8,4,4) left-heavy
+    [...Array(10).fill(1),...Array(8).fill(2),...Array(6).fill(3),...Array(8).fill(4),...Array(4).fill(5),...Array(4).fill(6)],
+  ],
+};
+
+// ===== UTILITIES =====
+const roll = (sides) => Math.floor(Math.random()*sides)+1;
+const pick = (arr) => arr[Math.floor(Math.random()*arr.length)];
+const prob = (val,sides) => val<=sides ? 1/sides : 0;
+const frac = (val,sides) => val<=sides ? `1/${sides}` : '0';
+
+function generateRounds(gameId) {
+  const rounds = [];
+  if (gameId===1) {
+    for(let i=0;i<12;i++){
+      const die = S.mode==='tutorial' ? TUT.game1.dies[i] : pick([4,6,8,10]);
+      rounds.push({die});
+    }
+  } else if (gameId===2 || gameId===8) {
+    for(let i=0;i<12;i++){
+      if(S.mode==='tutorial'){
+        rounds.push({roll:TUT.game2.rolls[i], die:TUT.game2.dies[i]});
+      } else {
+        const die=pick([4,6,8,10]); rounds.push({roll:roll(die), die});
+      }
+    }
+  } else if (gameId===3) {
+    for(let i=0;i<12;i++){
+      if(S.mode==='tutorial'){
+        rounds.push({roll:TUT.game3.rolls[i], pair:TUT.game3.pairs[i], die:TUT.game3.dies[i]});
+      } else {
+        const die=pick([4,6,8,10]);
+        const r=roll(die);
+        const others=[4,6,8,10].filter(d=>d!==die);
+        const partner=pick(others);
+        const pair=[Math.min(die,partner),Math.max(die,partner)];
+        rounds.push({roll:r, pair, die});
+      }
+    }
+  } else if (gameId===4) {
+    for(let i=0;i<12;i++){
+      if(S.mode==='tutorial'){
+        rounds.push({rolls:TUT.game4.rolls[i], die:TUT.game4.dies[i]});
+      } else {
+        const die=pick([4,6,8,10]);
+        rounds.push({rolls:[roll(die),roll(die),roll(die)], die});
+      }
+    }
+  } else if (gameId===6) {
+    // Each round: pick 2 dice types, random counts summing to 8
+    const pool=[4,6,8,10];
+    for(let i=0;i<12;i++){
+      let dA,dB,cA,cB;
+      if(S.mode==='tutorial'){
+        dA=TUT.game6.diceA[i];dB=TUT.game6.diceB[i];cA=TUT.game6.countA[i];cB=8-cA;
+      } else {
+        // pick 2 different dice
+        const shuffled=[...pool].sort(()=>Math.random()-.5);
+        dA=shuffled[0];dB=shuffled[1];if(dA>dB){const t=dA;dA=dB;dB=t;}
+        cA=1+Math.floor(Math.random()*7);cB=8-cA;
+      }
+      const bag=[];
+      for(let j=0;j<cA;j++)bag.push(dA);
+      for(let j=0;j<cB;j++)bag.push(dB);
+      const die=S.mode==='tutorial'?TUT.game6.dies[i]:pick(bag);
+      const r=S.mode==='tutorial'?TUT.game6.rolls[i]:roll(die);
+      rounds.push({roll:r, die, diceA:dA, diceB:dB, countA:cA, countB:cB});
+    }
+  } else if (gameId===7) {
+    for(let i=0;i<12;i++){
+      let amberDice,blueDice,box,die;
+      if(S.mode==='tutorial'){
+        amberDice=TUT.game7.amber?TUT.game7.amber[i]:[6,8];
+        blueDice=TUT.game7.blue?TUT.game7.blue[i]:[4,10];
+        box=TUT.game7.boxes[i];die=TUT.game7.dies[i];
+      } else {
+        const shuffled=[4,6,8,10].sort(()=>Math.random()-.5);
+        amberDice=[shuffled[0],shuffled[1]].sort((a,b)=>a-b);
+        blueDice=[shuffled[2],shuffled[3]].sort((a,b)=>a-b);
+        box=pick(['amber','blue']);
+        die=box==='amber'?pick(amberDice):pick(blueDice);
+      }
+      rounds.push({roll:S.mode==='tutorial'?TUT.game7.rolls[i]:roll(die), box, die, amberDice, blueDice});
+    }
+  } else if (gameId===5) {
+    for(let i=0;i<12;i++){
+      const die=i===0?8:pick([4,6,8,10]);
+      rounds.push({die, rolls:[], guess:null, correct:null});
+    }
+  } else if (gameId===9) {
+    const sets = S.game9UseRandom ? Array.from({length:12},()=>{
+      const s=[];for(let j=0;j<40;j++)s.push(roll(6));s.sort((a,b)=>a-b);return s;
+    }) : TUT.game9;
+    for(const s of sets) rounds.push({values:s, avg:s.reduce((a,b)=>a+b,0)/s.length});
+  } else if (gameId===10) {
+    for(let i=0;i<12;i++) rounds.push({});
+  }
+  return rounds;
+}
+
+function pickPairForRoll(r){
+  const possible=[4,6,8,10].filter(d=>r<=d);
+  if(possible.length>=2) return [possible[0],possible[1]];
+  return [possible[0]||8, 10];
+}
+
+// ===== NAVIGATION =====
+function showPage(id){
+  document.querySelectorAll('.page,.game-screen').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+
+function goToTitle(){showPage('title-page')}
+
+function goToGameList(){
+  S.roomCode=document.getElementById('room-code').value.trim();
+  renderGameCards();
+  showPage('game-list');
+}
+
+function renderGameCards(){
+  const c=document.getElementById('game-cards');
+  c.innerHTML='';
+  GAMES.forEach(g=>{
+    const score=S.scores[g.id-1];
+    const total=g.id===10?`${S.game10Crystals}💎`:'12';
+    const label=g.id===10?`${S.game10Crystals}💎`:`${score}/${total}`;
+    const done=score>0&&g.id!==5;
+    const card=document.createElement('div');
+    card.className='game-card';
+    card.onclick=()=>startGame(g.id);
+    card.innerHTML=`<div class="num" style="background:${g.color}">${g.id}</div>
+      <div class="info"><h3>${g.title}</h3><p>${g.desc}</p></div>
+      <div class="score-badge${done?' done':''}">${label}</div>`;
+    c.appendChild(card);
+  });
+}
+
+// ===== GAME ENGINE =====
+function startGame(id){
+  S.currentGame=id;
+  S.currentRound=0;
+  S.phase='guess';
+  S.rounds=generateRounds(id);
+  if(id===5){S.game5ShowLog=true;}
+  if(id===9){S.game9Histogram=[];S.game9Started=false;}
+  if(id===10){S.game10Crystals=120;}
+  S.mode=S.gameTutorial[id]?'tutorial':'random';
+  document.getElementById('game-title').textContent=GAMES[id-1].title;
+  updateTutToggle();
+  showPage('game-screen');
+  renderRound();
+}
+
+function toggleTutorial(){
+  const id=S.currentGame;if(!id)return;
+  S.gameTutorial[id]=!S.gameTutorial[id];
+  S.mode=S.gameTutorial[id]?'tutorial':'random';
+  updateTutToggle();
+  // Restart game with new mode
+  S.currentRound=0;S.scores[id-1]=0;
+  S.rounds=generateRounds(id);
+  if(id===5){S.game5ShowLog=true;}
+  if(id===9){S.game9Histogram=[];S.game9Started=false;}
+  renderRound();
+}
+
+function updateTutToggle(){
+  const id=S.currentGame;if(!id)return;
+  const sw=document.getElementById('tut-switch');
+  const lb=document.getElementById('tut-label');
+  if(sw)sw.classList.toggle('on',S.gameTutorial[id]);
+  if(lb)lb.textContent='Tutorial';
+}
+
+function exitGame(){
+  S.currentGame=null;
+  renderGameCards();
+  showPage('game-list');
+}
+
+// Which games show the box graphic at the top
+const BOX_GAMES = new Set([1,2,3,4,5,6,7,8]);
+
+// What dice to show inside the box for each game
+function boxDiceForGame(id){
+  if(id===6){
+    const rd=S.rounds[S.currentRound];
+    if(!rd)return [{cls:'d8',label:'8'}];
+    const d=[];
+    for(let i=0;i<rd.countA;i++)d.push({cls:'d'+rd.diceA,label:''+rd.diceA});
+    for(let i=0;i<rd.countB;i++)d.push({cls:'d'+rd.diceB,label:''+rd.diceB});
+    return d;
+  }
+  if(id===7) return null; // special: two boxes
+  return [{cls:'d4',label:'4'},{cls:'d6',label:'6'},{cls:'d8',label:'8'},{cls:'d10',label:'10'}];
+}
+
+function getBoxHTML(gameId){
+  if(gameId===7){
+    const rd=S.rounds[S.currentRound];
+    const ad=rd?rd.amberDice:[6,8];
+    const bd=rd?rd.blueDice:[4,10];
+    return `<div class="box-scene" style="width:280px;height:160px;flex-shrink:0">
+      <div style="position:absolute;bottom:0;left:0;width:120px">
+        <div style="text-align:center;font-size:11px;font-weight:700;color:#f39c12;margin-bottom:2px">Amber</div>
+        <div style="position:relative">
+          <div class="g7-lid g7-lid-l box-shaking" id="g7-lid-a" style="background:linear-gradient(145deg,#f39c12,#e67e22);border-color:#d35400"></div>
+          <div class="box-body box-shaking" style="left:0;width:120px;height:60px;background:linear-gradient(145deg,#f39c12,#e67e22);border-color:#d35400">
+            <div class="box-dice">${ad.map(d=>`<div class="box-die d${d}">${d}</div>`).join('')}</div>
+          </div>
+        </div>
+      </div>
+      <div style="position:absolute;bottom:0;right:0;width:120px">
+        <div style="text-align:center;font-size:11px;font-weight:700;color:#3498db;margin-bottom:2px">Blue</div>
+        <div style="position:relative">
+          <div class="g7-lid g7-lid-r box-shaking" id="g7-lid-b" style="background:linear-gradient(145deg,#3498db,#2980b9);border-color:#1a5276"></div>
+          <div class="box-body box-shaking" style="left:0;width:120px;height:60px;background:linear-gradient(145deg,#3498db,#2980b9);border-color:#1a5276">
+            <div class="box-dice">${bd.map(d=>`<div class="box-die d${d}">${d}</div>`).join('')}</div>
+          </div>
+        </div>
+      </div>
+      <div class="hand-arm" id="box-hand"><div class="hand-shape">🤚</div></div>
+      <div class="hand-held" id="box-held"><div class="question-mark" id="qm-circle"><span class="qm-text">?</span><div class="qm-reel" style="display:none"><div class="reel-strip" id="reel0"></div></div></div></div>
+    </div>`;
+  }
+
+  const dice=boxDiceForGame(gameId);
+  const diceHtml=dice?dice.map(d=>`<div class="box-die ${d.cls}">${d.label}</div>`).join(''):'';
+  const isSmallBox=gameId===6;
+
+  return `<div class="box-scene" style="height:170px;flex-shrink:0">
+    <div class="box-lid" id="box-lid"></div>
+    <div class="box-body box-shaking" id="box-body">
+      <div class="box-dice" style="${isSmallBox?'flex-wrap:wrap;gap:3px':''}">${diceHtml}</div>
+    </div>
+    <div class="hand-arm" id="box-hand"><div class="hand-shape">🤚</div></div>
+    <div class="hand-held" id="box-held"><div class="question-mark" id="qm-circle"><span class="qm-text">?</span><div class="qm-reel" style="display:none"><div class="reel-strip" id="reel0"></div></div></div></div>
+
+  </div>`;
+}
+
+const DIE_COLORS = {4:'#e74c3c',6:'#3498db',8:'#27ae60',10:'#8e44ad'};
+const DIE_CLIPS = {
+  4:'polygon(50% 0%,100% 50%,50% 100%,0% 50%)',
+  6:'polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%)',
+  8:'polygon(30% 0%,70% 0%,100% 30%,100% 70%,70% 100%,30% 100%,0% 70%,0% 30%)',
+  10:'polygon(50% 0%,79% 10%,100% 38%,97% 69%,79% 95%,50% 100%,21% 95%,3% 69%,0% 38%,21% 10%)'
+};
+
+function revealDieInHand(dieValue, correct){
+  const hand=document.getElementById('box-hand');
+  const qm=document.getElementById('qm-circle');
+  if(!hand)return;
+
+  // Open palm (don't move — stay in same position as pulling)
+  const shape=hand.querySelector('.hand-shape');
+  if(shape) shape.textContent='🤚';
+
+  // Change circle colour and content — keep same size
+  const sides=[4,6,8,10].includes(dieValue)?dieValue:10;
+  const color=DIE_COLORS[sides]||'#888';
+  if(qm){
+    qm.style.background=color;
+    qm.style.clipPath=DIE_CLIPS[sides]||'';
+    qm.style.borderRadius=DIE_CLIPS[sides]?'0':'50%';
+    qm.style.transition='clip-path .3s, background .3s';
+    // Hide reel, show number
+    const reelDiv=qm.querySelector('.qm-reel');
+    const textSpan=qm.querySelector('.qm-text');
+    if(reelDiv) reelDiv.style.display='none';
+    if(textSpan){textSpan.style.display='';textSpan.textContent=dieValue;}
+    else qm.innerHTML=`<span class="qm-text" style="font-size:22px;font-weight:800">${dieValue}</span>`;
+  }
+
+  // Show message at top-right of zone-top
+  if(correct !== undefined){
+    const zt=document.getElementById('zone-top');
+    let slot=zt.querySelector('.reveal-msg-slot');
+    if(!slot){slot=document.createElement('div');slot.className='reveal-msg-slot';zt.appendChild(slot);}
+    const msgClass=correct?'correct':'incorrect';
+    const msgText=correct?'✓ Correct!':'✗ Wrong!';
+    slot.innerHTML=`<div class="reveal-msg ${msgClass}">${msgText}</div>`;
+    setTimeout(()=>slot.classList.add('shown'),100);
+  }
+}
+
+function startBoxAnimation(){
+  const lid=document.getElementById('box-lid');
+  const hand=document.getElementById('box-hand');
+  const held=document.getElementById('box-held');
+  if(!hand)return;
+  // Sequence: shake(0-600ms) → lid opens(600ms) → hand reaches in(800ms) → hand pulls out(1200ms) → ? appears(1400ms)
+  if(lid) setTimeout(()=>{lid.classList.add('open')},600);
+  // Game 7 lids
+  const lidA=document.getElementById('g7-lid-a');
+  const lidB=document.getElementById('g7-lid-b');
+  if(lidA) setTimeout(()=>{lidA.classList.add('open')},600);
+  if(lidB) setTimeout(()=>{lidB.classList.add('open')},700);
+  setTimeout(()=>{hand.classList.add('reaching')},800);
+  setTimeout(()=>{
+    hand.classList.remove('reaching');hand.classList.add('pulling');
+    const shape=hand.querySelector('.hand-shape');
+    if(shape) shape.textContent='✊';
+  },1300);
+  setTimeout(()=>{held.classList.add('shown')},1500);
+}
+
+// Zone accessors
+const Z = {
+  get top(){return document.getElementById('zone-top')},
+  get text(){return document.getElementById('zone-text')},
+  get buttons(){return document.getElementById('zone-buttons')},
+  get next(){return document.getElementById('zone-next')},
+  get table(){return document.getElementById('zone-table')},
+  get nextBtn(){return document.getElementById('next-round-btn')},
+};
+
+function disableNextBtn(){const b=Z.nextBtn;if(b){b.disabled=true;b.textContent=cltGameActive?'Next':'Guess Again';}}
+function enableNextBtn(){
+  const b=Z.nextBtn;if(!b)return;
+  const isLast=cltGameActive?(cltGameRound>=12):(S.currentRound>=S.rounds.length-1);
+  b.disabled=false;
+  b.textContent=isLast?'See Results':'Next';
+}
+
+function renderRound(){
+  const id=S.currentGame;
+  const rc=document.getElementById('round-counter');
+
+  // Reset zones
+  Z.next.style.display='';
+  Z.table.style.display='';
+  Z.text.style.display='';
+  Z.buttons.style.display='';
+  Z.top.style.justifyContent='';
+  disableNextBtn();
+
+  if(id===5){if(rc)rc.textContent=`Round ${S.currentRound+1}/12`;renderGame5();return;}
+  if(id===9&&cltGameActive){S.currentRound--;renderCLTGameRound();return;} // undo the S.currentRound++ from button
+  if(id===9){if(rc)rc.textContent=`Set ${S.currentRound+1}/12`;renderGame9();return;}
+  if(id===10){if(rc)rc.textContent=`Round ${S.currentRound+1}/12`;renderGame10();return;}
+
+  const totalRounds=12;
+  if(rc)rc.textContent=`Round ${S.currentRound+1}/${totalRounds}`;
+
+  if(S.currentRound>=S.rounds.length){renderGameEnd();return;}
+
+  S.phase='guess';
+  const rd=S.rounds[S.currentRound];
+
+  if(id===1) renderGame1(rd);
+  else if(id===2) renderGame2(rd);
+  else if(id===3) renderGame3(rd);
+  else if(id===4) renderGame4(rd);
+  else if(id===6) renderGame6(rd);
+  else if(id===7) renderGame7(rd);
+  else if(id===8) renderGame8(rd);
+}
+
+// ===== GAME 1: PROBABILITY =====
+function renderGame1(rd){
+  Z.top.innerHTML=getBoxHTML(1);
+  Z.text.innerHTML='No roll — just guess!';
+  Z.buttons.innerHTML=`<div class="guess-grid">
+    ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" onclick="guessGame1(${d})">${d}</button>`).join('')}
+  </div>`;
+  renderStatsTable(Z.table,1);
+  startBoxAnimation();
+}
+
+function guessGame1(guess){
+  if(S.phase!=='guess')return;
+  S.phase='reveal';
+  const rd=S.rounds[S.currentRound];
+  const correct=guess===rd.die;
+  if(correct)S.scores[0]++;
+  rd.guess=guess;rd.correct=correct;
+
+  document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
+  revealDieInHand(rd.die, correct);
+  Z.text.innerHTML='<span style="font-size:13px;color:#222">You have a 1 in 4 chance each time.</span>';
+  renderStatsTable(Z.table,1);
+  enableNextBtn();
+}
+
+// ===== GAME 2: LIKELIHOOD =====
+function renderGame2(rd){
+  Z.top.innerHTML=getBoxHTML(2);
+  Z.text.innerHTML='Which die was it?';
+  Z.buttons.innerHTML=`<div class="guess-grid" id="guess-area" style="opacity:0;pointer-events:none">
+    ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" onclick="guessGame2(${d})">${d}</button>`).join('')}
+  </div>`;
+  renderStatsTable(Z.table,2);
+  startBoxAnimation();
+  spinReel('reel0',rd.roll,()=>{
+    const ga=document.getElementById('guess-area');
+    if(ga){ga.style.opacity='1';ga.style.pointerEvents='auto';}
+  },1800);
+}
+
+function guessGame2(guess){
+  if(S.phase!=='guess')return;
+  S.phase='reveal';
+  const rd=S.rounds[S.currentRound];
+  const correct=guess===rd.die;
+  if(correct)S.scores[1]++;
+  rd.guess=guess;rd.correct=correct;
+
+  document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
+  revealDieInHand(rd.die, correct);
+  Z.text.innerHTML='<div id="bars-area" style="width:100%;max-width:320px;margin:0 auto"></div>';
+  showLikelihoodBars('bars-area',rd.roll,[4,6,8,10]);
+  renderStatsTable(Z.table,2);
+  enableNextBtn();
+}
+
+// ===== GAME 3: LIKELIHOOD RATIO =====
+function renderGame3(rd){
+  g3Die=null;S.game3ConfPick=null;
+  const [a,b]=rd.pair;
+  Z.top.innerHTML=getBoxHTML(3);
+  Z.text.innerHTML=`<div class="g3-grid" id="g3-text" style="opacity:0">
+    <div style="grid-column:1/3;text-align:center;font-size:14px;color:#222;align-self:center">Which is more likely?</div>
+    <div class="g3-conf-wrap" id="g3-conf">
+      <div class="g3-conf-label">How confident?</div>
+      <button class="g3-conf-btn" data-conf="certain" onclick="pickGame3Conf('certain')">Certain</button>
+      <button class="g3-conf-btn" data-conf="medium-high" onclick="pickGame3Conf('medium-high')">Medium-High</button>
+      <button class="g3-conf-btn" data-conf="low" onclick="pickGame3Conf('low')">Low</button>
+    </div>
+  </div>`;
+  Z.buttons.innerHTML=`<div class="g3-grid" id="pick-area" style="opacity:0;pointer-events:none">
+    <button class="guess-btn" data-die="${a}" onclick="pickGame3Die(${a})">${a}</button>
+    <button class="guess-btn" data-die="${b}" onclick="pickGame3Die(${b})">${b}</button>
+  </div>`;
+  renderStatsTable(Z.table,3);
+  startBoxAnimation();
+  spinReel('reel0',rd.roll,()=>{
+    const pa=document.getElementById('pick-area');
+    const gt=document.getElementById('g3-text');
+    if(pa){pa.style.opacity='1';pa.style.pointerEvents='auto';}
+    if(gt){gt.style.opacity='1';}
+  },1800);
+}
+
+let g3Die=null;
+function pickGame3Die(d){g3Die=d;document.querySelectorAll('#pick-area .guess-btn').forEach(b=>{b.classList.toggle('selected',+b.dataset.die===d)});checkG3Ready()}
+function pickGame3Conf(c){S.game3ConfPick=c;document.querySelectorAll('.g3-conf-btn').forEach(b=>{b.classList.toggle('selected',b.dataset.conf===c)});checkG3Ready()}
+function checkG3Ready(){if(g3Die&&S.game3ConfPick)submitGame3()}
+
+function submitGame3(){
+  if(S.phase!=='guess')return;
+  S.phase='reveal';
+  const rd=S.rounds[S.currentRound];
+  const [a,b]=rd.pair;
+  const pa=prob(rd.roll,a), pb=prob(rd.roll,b);
+  const bestDie=pa>=pb?a:b;
+  const ratio=(pa===0||pb===0)?Infinity:Math.max(pa,pb)/Math.min(pa,pb);
+  const correctConf=ratio>3||ratio===Infinity?'certain':ratio>1.5?'medium-high':'low';
+  const dieCorrect=g3Die===rd.die;
+  if(dieCorrect)S.scores[2]++;
+  rd.guess=g3Die;rd.conf=S.game3ConfPick;rd.correct=dieCorrect;rd.ratio=ratio;rd.correctConf=correctConf;
+
+  document.querySelectorAll('#pick-area .guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===g3Die)b.classList.add('selected')});
+  revealDieInHand(rd.die, dieCorrect);
+
+  // Show 2 bars on left (aligned with die buttons), ratio on right
+  const ratioStr=ratio===Infinity?'∞':ratio.toFixed(2);
+  Z.text.innerHTML=`<div class="g3-grid">
+    <div class="g3-bars-wrap" id="bars-area"></div>
+    <div class="g3-ratio-info">
+      <div style="font-size:14px;font-weight:600;color:#222">likelihood ratio</div>
+      <div style="font-size:22px;font-weight:800">${ratioStr}</div>
+      <div style="font-size:12px;font-weight:700;color:#444">${correctConf}</div>
+    </div>
+  </div>`;
+  showLikelihoodBars('bars-area',rd.roll,[a,b]);
+  renderStatsTable(Z.table,3);
+  enableNextBtn();
+  g3Die=null;S.game3ConfPick=null;
+}
+
+// ===== GAME 4: INDEPENDENCE =====
+function renderGame4(rd){
+  Z.top.innerHTML=getBoxHTML(4);
+  // Replace single ? circle with 3 circles for 3 rolls
+  const held=document.getElementById('box-held');
+  if(held) held.innerHTML=`<div style="display:flex;gap:6px">
+    ${[0,1,2].map(i=>`<div class="question-mark" style="width:42px;height:42px;font-size:20px"><span class="qm-text">?</span><div class="qm-reel" style="display:none"><div class="reel-strip" id="reel${i}"></div></div></div>`).join('')}
+  </div>`;
+  Z.text.innerHTML='Three rolls — which die?';
+  Z.buttons.innerHTML=`<div class="guess-grid" id="guess-area" style="opacity:0;pointer-events:none">
+    ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" onclick="guessGame4(${d})">${d}</button>`).join('')}
+  </div>`;
+  renderStatsTable(Z.table,4);
+  startBoxAnimation();
+  let done=0;
+  rd.rolls.forEach((v,i)=>spinReel('reel'+i,v,()=>{done++;if(done===3){
+    const ga=document.getElementById('guess-area');if(ga){ga.style.opacity='1';ga.style.pointerEvents='auto';}
+  }},1800+i*200));
+}
+
+function guessGame4(guess){
+  if(S.phase!=='guess')return;
+  S.phase='reveal';
+  const rd=S.rounds[S.currentRound];
+  const correct=guess===rd.die;
+  if(correct)S.scores[3]++;
+  rd.guess=guess;rd.correct=correct;
+
+  document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
+  revealDieInHand(rd.die, correct);
+  const prods=[4,6,8,10].map(d=>rd.rolls.reduce((p,r)=>p*prob(r,d),1));
+  Z.text.innerHTML='<div id="bars-area" style="width:100%;max-width:320px;margin:0 auto"></div>';
+  showLikelihoodBars('bars-area',null,[4,6,8,10],prods);
+  renderStatsTable(Z.table,4);
+  enableNextBtn();
+}
+
+// ===== GAME 5: LOG-LIKELIHOOD =====
+let g5Prod,g5Log,g5Dead,g5Zero,g5RollCount;const RIGGED5=[4,4,4,6,6,6];
+function resetG5(){g5Prod={4:1,6:1,8:1,10:1};g5Log={4:0,6:0,8:0,10:0};g5Dead={4:false,6:false,8:false,10:false};g5Zero={4:false,6:false,8:false,10:false};g5RollCount=0;}
+function renderGame5(){
+  if(S.currentRound>=S.rounds.length){renderGameEnd();return;}
+  S.phase='rolling';resetG5();
+  Z.top.innerHTML=getBoxHTML(5)+`<div style="text-align:center;font-size:18px;font-weight:700;color:#444;margin-top:4px">Rolls: <span id="roll-count">0</span></div>`;
+  startBoxAnimation();
+  const heading=S.game5ShowLog?'log-likelihood':'likelihood';
+  const barBoxes=[4,6,8,10].map(d=>`<div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0">
+    <div class="g5-track" style="width:100%"><div class="g5-marker d${d}" id="g5bar-${d}"></div></div>
+    <div class="g5-val-box"><div class="g5-die-val" id="prod-${d}">${fmtProd5(d)}</div></div>
+  </div>`).join('');
+  Z.text.innerHTML=`<div style="width:100%;max-width:320px;margin:0 auto">
+    <div class="demo-btn-row" style="margin-bottom:4px">
+      <button class="demo-btn roll" id="g5-roll-btn" onclick="rollGame5()">Roll</button>
+      <button class="demo-btn auto" id="g5-auto-btn" onclick="toggleAutoGame5()" disabled style="opacity:.35;pointer-events:none">Auto ▶</button>
+      <button class="demo-btn log-toggle" id="log-toggle-btn" onclick="toggleLogView()">${S.game5ShowLog?'Switch to Likelihood':'Switch to Log-Likelihood'}</button>
+    </div>
+    <div style="text-align:center;font-size:12px;font-weight:600;color:#222;margin-bottom:2px" id="g5-heading">${heading}</div>
+    <div style="position:relative">
+      <div style="position:absolute;left:-34px;top:0;height:60px;display:flex;flex-direction:column;justify-content:space-between;font-size:8px;font-weight:600;color:#222;text-align:right;width:30px">
+        <span>e+0</span><span>e-308</span>
+      </div>
+      <div class="guess-grid">${barBoxes}</div>
+    </div>
+  </div>`;
+  Z.buttons.innerHTML=`<div class="guess-grid" id="g5-guess-area">
+    ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" onclick="guessGame5(${d})" style="opacity:.35;pointer-events:none" id="g5guess-${d}">${d}</button>`).join('')}
+  </div>`;
+  renderStatsTable(Z.table,5);
+  disableNextBtn();
+}
+
+function fmtProd5(d){
+  if(g5Zero[d]) return S.game5ShowLog?'':'0';
+  if(g5Dead[d]){
+    if(S.game5ShowLog) return g5Log[d].toFixed(2);
+    return '<span style="color:#0f0;font-size:8px;white-space:nowrap">UNDERFLOW!</span>';
+  }
+  if(S.game5ShowLog) return g5Log[d]===0?'0.00':g5Log[d].toFixed(2);
+  const s=g5Prod[d].toExponential(1);const parts=s.split('e');
+  return `${parts[0]}<br><span style="font-size:10px">e${parts[1]}</span>`;
+}
+
+// Fixed scale: log10 from 0 (=1) at top to -308 (=1e-308) at bottom
+// Same scale for both likelihood and log-likelihood
+function updateGame5Bars(){
+  [4,6,8,10].forEach(d=>{
+    const marker=document.getElementById('g5bar-'+d);
+    if(!marker)return;
+    if(g5Zero[d]||!isFinite(g5Log[d])){marker.style.top='100%';marker.style.opacity='0.3';return;}
+    // Fixed scale: log10 0 (=1) at top, -308 (=1e-308) at bottom
+    const pct=Math.min(100, Math.max(0, (-g5Log[d])/308*100));
+    marker.style.top=pct+'%';
+    marker.style.opacity='1';
+  });
+}
+
+function toggleLogView(){
+  S.game5ShowLog=!S.game5ShowLog;
+  // Update values and labels in-place without re-rendering
+  const heading=S.game5ShowLog?'log-likelihood':'likelihood';
+  const hEl=document.getElementById('g5-heading');if(hEl)hEl.textContent=heading;
+  [4,6,8,10].forEach(d=>{
+    const el=document.getElementById('prod-'+d);
+    if(el)el.innerHTML=fmtProd5(d);
+    const box=el?.closest('.g5-val-box');
+    // Underflow black box only in likelihood mode (log values are still valid)
+    if(box)box.classList.toggle('underflow',g5Dead[d]&&!g5Zero[d]&&!S.game5ShowLog);
+  });
+  updateGame5Bars();
+  const btn=document.getElementById('log-toggle-btn');
+  if(btn)btn.textContent=S.game5ShowLog?'Switch to Likelihood':'Switch to Log-Likelihood';
+}
+
+
+let autoInterval=null;
+function toggleAutoGame5(){
+  if(autoInterval){clearInterval(autoInterval);autoInterval=null;const b=document.getElementById('g5-auto-btn');if(b)b.textContent='Auto ▶';return;}
+  autoInterval=setInterval(()=>{
+    if(S.phase!=='rolling'){clearInterval(autoInterval);autoInterval=null;return;}
+    const qm=document.getElementById('qm-circle');
+    if(qm){const txt=qm.querySelector('.qm-text');if(txt){txt.style.display='';}}
+    rollGame5Fast();
+  },150);
+  const b=document.getElementById('g5-auto-btn');if(b)b.textContent='Stop ■';
+}
+
+function rollGame5Fast(){
+  if(S.phase!=='rolling')return;
+  const rd=S.rounds[S.currentRound];
+  const isDemo=S.currentRound===0&&S.mode==='tutorial';
+  const v=isDemo&&g5RollCount<RIGGED5.length?RIGGED5[g5RollCount]:roll(rd.die);
+  g5RollCount++;rd.rolls.push(v);
+  [4,6,8,10].forEach(d=>{
+    if(g5Zero[d])return;const p=prob(v,d);
+    if(p===0){g5Dead[d]=true;g5Zero[d]=true;g5Prod[d]=0;g5Log[d]=-Infinity;}
+    else{g5Log[d]+=Math.log10(p);if(!g5Dead[d]){g5Prod[d]*=p;if(g5Prod[d]<=1e-308)g5Dead[d]=true;}}
+  });
+  const qm=document.getElementById('qm-circle');
+  if(qm){const txt=qm.querySelector('.qm-text');if(txt){txt.textContent=v;txt.style.display='';} const reel=qm.querySelector('.qm-reel');if(reel)reel.style.display='none';}
+  const rc=document.getElementById('roll-count');if(rc)rc.textContent=g5RollCount;
+  [4,6,8,10].forEach(d=>{
+    const el=document.getElementById('prod-'+d);if(el)el.innerHTML=fmtProd5(d);
+    const box=el?.closest('.g5-val-box');if(box)box.classList.toggle('underflow',g5Dead[d]&&!g5Zero[d]&&!S.game5ShowLog);
+  });
+  updateGame5Bars();
+  if(g5RollCount===1){[4,6,8,10].forEach(d=>{
+    const b=document.getElementById('g5guess-'+d);if(b){b.style.opacity='1';b.style.pointerEvents='auto';}});}
+}
+
+function rollGame5(){
+  if(S.phase!=='rolling')return;
+  const rd=S.rounds[S.currentRound];
+  const isDemo=S.currentRound===0&&S.mode==='tutorial';
+  const v=isDemo&&g5RollCount<RIGGED5.length?RIGGED5[g5RollCount]:roll(rd.die);
+  g5RollCount++;rd.rolls.push(v);
+
+  [4,6,8,10].forEach(d=>{
+    if(g5Zero[d])return;
+    const p=prob(v,d);
+    if(p===0){g5Dead[d]=true;g5Zero[d]=true;g5Prod[d]=0;g5Log[d]=-Infinity;}
+    else{g5Log[d]+=Math.log10(p);if(!g5Dead[d]){g5Prod[d]*=p;if(g5Prod[d]<=1e-308)g5Dead[d]=true;}}
+  });
+
+  spinReel('reel0',v,null,0);
+  const rc=document.getElementById('roll-count');if(rc)rc.textContent=g5RollCount;
+  [4,6,8,10].forEach(d=>{
+    const el=document.getElementById('prod-'+d);
+    if(el)el.innerHTML=fmtProd5(d);
+    const box=el?.closest('.g5-val-box');
+    if(box)box.classList.toggle('underflow',g5Dead[d]&&!g5Zero[d]&&!S.game5ShowLog);
+  });
+  updateGame5Bars();
+  // Enable guess buttons after first roll
+  if(g5RollCount===1){[4,6,8,10].forEach(d=>{
+    const b=document.getElementById('g5guess-'+d);if(b){b.style.opacity='1';b.style.pointerEvents='auto';}});}
+  // Enable auto after 10 rolls
+  if(g5RollCount===10){const ab=document.getElementById('g5-auto-btn');if(ab){ab.disabled=false;ab.style.opacity='';ab.style.pointerEvents='';}}
+}
+
+function guessGame5(guess){
+  if(S.phase!=='rolling')return;
+  if(autoInterval){clearInterval(autoInterval);autoInterval=null;}
+  S.phase='reveal';
+  const rd=S.rounds[S.currentRound];
+  const correct=guess===rd.die;
+  if(correct)S.scores[4]++;
+  rd.guess=guess;rd.correct=correct;rd.nRolls=g5RollCount;
+  const rb=document.getElementById('g5-roll-btn');if(rb){rb.disabled=true;rb.style.opacity='.35';}
+  [4,6,8,10].forEach(d=>{const b=document.getElementById('g5guess-'+d);
+    if(b){b.disabled=true;b.style.pointerEvents='none';if(+b.dataset.die===guess)b.classList.add('selected');}});
+  revealDieInHand(rd.die,correct);
+  renderStatsTable(Z.table,5);
+  enableNextBtn();
+}
+
+// ===== GAME 6: BAYES =====
+function renderGame6(rd){
+  Z.top.innerHTML=getBoxHTML(6);
+  Z.text.innerHTML='Guess which die';
+  const a=rd.diceA,b=rd.diceB;
+  Z.buttons.innerHTML=`<div class="guess-grid" id="guess-area" style="opacity:0;pointer-events:none;grid-template-columns:1fr 1fr;max-width:400px">
+    <button class="guess-btn" data-die="${a}" onclick="guessGame6(${a})" style="font-size:22px">${a}</button>
+    <button class="guess-btn" data-die="${b}" onclick="guessGame6(${b})" style="font-size:22px">${b}</button>
+  </div>`;
+  renderStatsTable(Z.table,6);
+  startBoxAnimation();
+  spinReel('reel0',rd.roll,()=>{
+    const ga=document.getElementById('guess-area');if(ga){ga.style.opacity='1';ga.style.pointerEvents='auto';}
+  },1800);
+}
+
+function guessGame6(guess){
+  if(S.phase!=='guess')return;
+  S.phase='reveal';
+  const rd=S.rounds[S.currentRound];
+  const correct=guess===rd.die;
+  if(correct)S.scores[5]++;
+  rd.guess=guess;rd.correct=correct;
+
+  document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
+  revealDieInHand(rd.die, correct);
+
+  const a=rd.diceA,b=rd.diceB;
+  const priorA=rd.countA/8,priorB=rd.countB/8;
+  const likA=prob(rd.roll,a),likB=prob(rd.roll,b);
+  const postA_raw=priorA*likA, postB_raw=priorB*likB;
+  const total=postA_raw+postB_raw;
+  const postA=total>0?postA_raw/total:0, postB=total>0?postB_raw/total:0;
+  const barH=120;
+
+  // For each die: prior + likelihood side by side, then posterior appears after delay
+  // All scaled to max=1 (probability)
+  function bayesCol(die,prior,lik,post,count){
+    const dieColor=DIE_COLORS[die];
+    const boxColor='#b8895e';
+    return `<div class="b6-die-col">
+      <div class="b6-bars">
+        <div class="b6-bar-wrap"><span class="b6-vlabel">prior</span><div class="b6-bar" style="background:${boxColor}" data-h="${prior*barH}"></div></div>
+        <div class="b6-bar-wrap"><span class="b6-vlabel">likelihood</span><div class="b6-bar" style="background:${dieColor}" data-h="${lik*barH}"></div></div>
+        <div class="b6-bar-wrap"><span class="b6-vlabel">posterior</span><div class="b6-bar post" data-h="0"></div></div>
+      </div>
+      <div class="b6-vals"><span>${count}/8</span><span>${frac(rd.roll,die)}</span><span class="b6-post-val" style="opacity:0">${lik>0?`${count}/${8*die}`:'0'}</span></div>
+    </div>`;
+  }
+
+  Z.text.innerHTML=`<div class="guess-grid" style="grid-template-columns:1fr 1fr;max-width:400px;margin:0 auto;align-items:flex-end">
+    ${bayesCol(a,priorA,likA,postA,rd.countA)}
+    ${bayesCol(b,priorB,likB,postB,rd.countB)}
+  </div>`;
+
+  // Animate: prior+lik bars immediately, posterior after 1s
+  requestAnimationFrame(()=>{
+    Z.text.querySelectorAll('.b6-bar:not(.post)').forEach(f=>f.style.height=f.dataset.h+'px');
+    setTimeout(()=>{
+      const postBars=Z.text.querySelectorAll('.b6-bar.post');
+      postBars[0].style.height=postA*barH+'px';
+      postBars[1].style.height=postB*barH+'px';
+      Z.text.querySelectorAll('.b6-post-val').forEach(v=>v.style.opacity='1');
+    },1000);
+  });
+  renderStatsTable(Z.table,6);
+  enableNextBtn();
+}
+
+// ===== GAME 7: MARGINALIZATION =====
+function renderGame7(rd){
+  Z.top.innerHTML=getBoxHTML(7);
+  Z.text.innerHTML='Which box did the die come from?';
+  Z.buttons.innerHTML=`<div id="guess-area" style="opacity:0;pointer-events:none;display:flex;gap:40px;justify-content:center;width:280px;margin:0 auto">
+    <button class="guess-btn" style="background:#f39c12;width:120px;min-height:56px" onclick="guessGame7('amber')">Amber</button>
+    <button class="guess-btn" style="background:#3498db;width:120px;min-height:56px" onclick="guessGame7('blue')">Blue</button>
+  </div>`;
+  renderStatsTable(Z.table,7);
+  startBoxAnimation();
+  spinReel('reel0',rd.roll,()=>{
+    const ga=document.getElementById('guess-area');if(ga){ga.style.opacity='1';ga.style.pointerEvents='auto';}
+  },1800);
+}
+
+function guessGame7(guess){
+  if(S.phase!=='guess')return;
+  S.phase='reveal';
+  const rd=S.rounds[S.currentRound];
+  const r=rd.roll;
+  const ad=rd.amberDice,bd=rd.blueDice;
+  const pAmber=prob(r,ad[0])*.5+prob(r,ad[1])*.5;
+  const pBlue=prob(r,bd[0])*.5+prob(r,bd[1])*.5;
+  const ratio=Math.min(pAmber,pBlue)>0?Math.max(pAmber,pBlue)/Math.min(pAmber,pBlue):Infinity;
+  const tooClose=ratio<1.1;
+  const bestBox=pAmber>pBlue?'amber':'blue';
+  const correct=guess===rd.box;
+  if(correct)S.scores[6]++;
+  rd.guess=guess;rd.correct=correct;rd.pAmber=pAmber;rd.pBlue=pBlue;
+
+  revealDieInHand(rd.die, correct);
+  const maxP=Math.max(pAmber,pBlue);
+  const barH=40;
+  Z.text.innerHTML=`<div style="display:flex;gap:40px;justify-content:center;align-items:flex-end;width:280px;margin:0 auto">
+    <div style="width:120px;text-align:center">
+      <div class="lbar-val">${pAmber.toFixed(3)}</div>
+      <div class="lbar-track-v" style="height:${barH}px"><div class="lbar-fill-v" style="height:0;background:#f39c12${pAmber>=pBlue?';box-shadow:0 0 8px gold':''}" data-h="${maxP>0?pAmber/maxP*100:0}"></div></div>
+      <div style="font-size:11px;font-weight:700;color:#f39c12">Amber</div>
+    </div>
+    <div style="width:120px;text-align:center">
+      <div class="lbar-val">${pBlue.toFixed(3)}</div>
+      <div class="lbar-track-v" style="height:${barH}px"><div class="lbar-fill-v" style="height:0;background:#3498db${pBlue>pAmber?';box-shadow:0 0 8px gold':''}" data-h="${maxP>0?pBlue/maxP*100:0}"></div></div>
+      <div style="font-size:11px;font-weight:700;color:#3498db">Blue</div>
+    </div>
+  </div>`;
+  requestAnimationFrame(()=>Z.text.querySelectorAll('.lbar-fill-v').forEach(f=>f.style.height=f.dataset.h+'%'));
+
+  renderStatsTable(Z.table,7);
+  enableNextBtn();
+}
+
+// ===== GAME 8: NULL HYPOTHESIS & LLG =====
+function renderGame8(rd){
+  S.game8LlgPick=null;
+  Z.top.innerHTML=getBoxHTML(8);
+  Z.text.innerHTML='Pick model die, then: better than random?';
+  Z.buttons.innerHTML=`<div id="pick-area" style="opacity:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:8px">
+    <div class="guess-grid">
+      ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" onclick="pickGame8Die(${d})">${d}</button>`).join('')}
+    </div>
+    <div class="confidence-row">
+      <button class="conf-btn" data-conf="yes" onclick="pickGame8Llg('yes')" style="background:#27ae60">+LLG</button>
+      <button class="conf-btn" data-conf="no" onclick="pickGame8Llg('no')" style="background:#f39c12">−LLG</button>
+      <button class="conf-btn" data-conf="falsified" onclick="pickGame8Llg('falsified')" style="background:#e74c3c">−∞</button>
+    </div>
+    <button class="next-btn" id="g8-submit" style="opacity:.4;pointer-events:none;width:auto;padding:10px 32px" onclick="submitGame8()">Submit</button>
+  </div>`;
+  renderStatsTable(Z.table,8);
+  startBoxAnimation();
+  spinReel('reel0',rd.roll,()=>{
+    const pa=document.getElementById('pick-area');if(pa){pa.style.opacity='1';pa.style.pointerEvents='auto';}
+  },1800);
+}
+
+let g8Die=null;
+function pickGame8Die(d){g8Die=d;document.querySelectorAll('#pick-area .guess-btn').forEach(b=>{b.classList.toggle('selected',+b.dataset.die===d)});checkG8Ready()}
+function pickGame8Llg(v){S.game8LlgPick=v;document.querySelectorAll('#pick-area .conf-btn').forEach(b=>{b.classList.toggle('selected',b.dataset.conf===v)});checkG8Ready()}
+function checkG8Ready(){const btn=document.getElementById('g8-submit');if(g8Die&&S.game8LlgPick){btn.style.opacity='1';btn.style.pointerEvents='auto'}}
+
+function submitGame8(){
+  if(S.phase!=='guess')return;
+  S.phase='reveal';
+  const rd=S.rounds[S.currentRound];
+  const r=rd.roll;
+  const pModel=prob(r,g8Die);
+  const pNull=[4,6,8,10].reduce((s,d)=>s+prob(r,d),0)/4;
+  let llg, llgSign;
+  if(pModel===0){llg=-Infinity;llgSign='falsified';}
+  else{llg=Math.log10(pModel)-Math.log10(pNull);llgSign=llg>0?'yes':'no';}
+  const correct=S.game8LlgPick===llgSign;
+  if(correct)S.scores[7]++;
+  rd.guess=g8Die;rd.llgPick=S.game8LlgPick;rd.correct=correct;rd.llg=llg;rd.llgSign=llgSign;
+
+  Z.buttons.innerHTML='';
+  revealDieInHand(g8Die, correct);
+  const llgStr=llg===-Infinity?'−∞':llg.toFixed(3);
+  const signColor=llgSign==='yes'?'#27ae60':llgSign==='falsified'?'#e74c3c':'#f39c12';
+  Z.text.innerHTML=`LLG = <b style="color:${signColor}">${llgStr}</b> → ${llgSign==='yes'?'Better than random':llgSign==='falsified'?'Falsified!':'Not better'}`;
+  renderStatsTable(Z.table,8);
+  enableNextBtn();
+  g8Die=null;S.game8LlgPick=null;
+}
+
+// ===== GAME 9: CLT =====
+function renderGame9(){
+  if(S.currentRound>=S.rounds.length){renderGame9End();return;}
+  // Show the same page for both modes
+  cltBias=[1,1,1,1,1,1];cltDieSides=6;
+  if(S.mode==='tutorial'){cltAutoRolls=40;cltAutoGames=12;}
+  showCLTAuto();
+  if(S.mode!=='tutorial') return;
+  // Tutorial: lock controls, replace Run with dot histogram + slider + Add
+  const rd=S.rounds[S.currentRound];
+  const vals=rd.values;
+  const counts=Array(6).fill(0);
+  vals.forEach(v=>counts[v-1]++);
+  const dotRows=[1,2,3,4,5,6].map(v=>{
+    const n=counts[v-1];
+    const dots=Array.from({length:n},()=>`<span class="clt-hdot"></span>`).join('');
+    return `<div class="clt-hrow"><span class="clt-hrow-label">${v}</span><div class="clt-hdots" style="width:${14*7}px">${dots}</div><span class="clt-hrow-count">${n}</span></div>`;
+  }).join('');
+  // Lock sliders and buttons
+  document.querySelectorAll('#clt-auto-rolls,#clt-auto-games,#clt-ar-num,#clt-ag-num').forEach(s=>s.disabled=true);
+  document.querySelectorAll('.guess-btn,.bias-preset').forEach(b=>{b.disabled=true;b.style.pointerEvents='none';});
+  setTimeout(()=>document.querySelectorAll('.bias-slider').forEach(s=>s.disabled=true),60);
+  // Update number of averages to show set progress
+  const agNum=document.getElementById('clt-ag-num');if(agNum)agNum.value=`${S.currentRound+1}`;
+  const agSlider=document.getElementById('clt-auto-games');if(agSlider){agSlider.max=12;agSlider.value=S.currentRound+1;}
+  // Replace Run button area with dot histogram + average slider + Add
+  const runArea=Z.top.querySelector('.next-btn[onclick="runCLTAuto()"]');
+  if(runArea){
+    const parent=runArea.parentElement;
+    parent.innerHTML=`<div style="display:flex;gap:12px;max-width:380px;margin:0 auto;align-items:center">
+      <div class="clt-hdot-hist" style="flex:1">${dotRows}</div>
+      <div style="flex:0 0 140px;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <span style="font-size:12px;font-weight:600">average</span>
+        <div style="display:flex;align-items:center;gap:4px;width:100%">
+          <span style="font-size:10px">1</span>
+          <input type="range" id="clt-val-slider" min="1" max="6" step="0.5" value="3.5" style="flex:1"
+            oninput="document.getElementById('clt-val-display').textContent=(+this.value).toFixed(1)">
+          <span style="font-size:10px">6</span>
+        </div>
+        <b id="clt-val-display" style="font-size:16px">3.5</b>
+        <div style="display:flex;gap:6px">
+          <button class="next-btn" style="width:auto;padding:8px 16px;margin:0" onclick="submitGame9()">Add</button>
+          <button class="next-btn" style="width:auto;padding:8px 12px;margin:0;background:#d4a017" onclick="autoGame9()">Auto</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  // Clear the result text area (no counts/mean above histogram)
+  const rt=document.getElementById('clt-result-text');if(rt)rt.innerHTML='';
+  // Pre-fill histogram with any already-submitted averages
+  const hb=document.getElementById('clt-hist-bars');if(hb)hb.innerHTML=renderGame9HistBars();
+  Z.text.style.display='none';
+  Z.buttons.style.display='none';
+  Z.table.style.display='none';
+  // Show round counter in zone-next
+  Z.next.style.display='';
+  const rc=document.getElementById('round-counter');if(rc)rc.textContent=`Set ${S.currentRound+1}/12`;
+  disableNextBtn();
+}
+
+function renderGame9HistBars(){
+  if(!S.game9Histogram.length) return '';
+  const nBins=51;
+  const bins=Array(nBins).fill(0);
+  S.game9Histogram.forEach(v=>{const idx=Math.round((v-1)*10);if(idx>=0&&idx<nBins)bins[idx]++;});
+  const maxB=Math.max(...bins,1);
+  return bins.map(b=>`<div class="clt-auto-bar" style="height:${b/maxB*100}%"></div>`).join('');
+}
+
+function autoGame9(){
+  while(S.currentRound<S.rounds.length){
+    const rd=S.rounds[S.currentRound];
+    rd.userGuess=rd.avg;
+    S.game9Histogram.push(rd.avg);
+    S.scores[8]++;
+    S.currentRound++;
+  }
+  // Update histogram and show final state
+  const hb=document.getElementById('clt-hist-bars');if(hb)hb.innerHTML=renderGame9HistBars();
+  const rt=document.getElementById('clt-result-text');if(rt)rt.innerHTML=`<span style="color:#27ae60;font-weight:700">All 12 sets complete!</span>`;
+  const rc=document.getElementById('round-counter');if(rc)rc.textContent='Set 12/12';
+  // Enable Guess Again to proceed to end
+  enableNextBtn();
+}
+
+function submitGame9(){
+  const rd=S.rounds[S.currentRound];
+  const valEl=document.getElementById('clt-val-display');
+  if(!valEl)return;
+  const guess=parseFloat(valEl.textContent);
+  rd.userGuess=guess;
+  const diff=Math.abs(guess-rd.avg);
+  const correct=diff<=0.3;
+  const rt=document.getElementById('clt-result-text');
+  S.game9Histogram.push(rd.avg);
+  if(correct){
+    S.scores[8]++;
+    if(rt)rt.innerHTML=`<span style="color:#27ae60;font-weight:700">Correct! Average = ${rd.avg.toFixed(1)}</span>`;
+    // Update histogram bars
+    const hb=document.getElementById('clt-hist-bars');
+    if(hb)hb.innerHTML=renderGame9HistBars();
+    S.currentRound++;
+    const rc=document.getElementById('round-counter');
+    if(S.currentRound>=S.rounds.length){
+      if(rc)rc.textContent='Set 12/12';
+      enableNextBtn();
+    } else {
+      // Auto-advance after brief pause
+      setTimeout(()=>renderRound(),800);
+    }
+  } else {
+    const sum=rd.values.reduce((a,b)=>a+b,0);
+    if(rt)rt.innerHTML=`<span style="color:#e74c3c;font-weight:700">HINT: Sum = ${sum}</span>`;
+  }
+}
+
+function renderGame9Histogram(bot){
+  const bins=Array(11).fill(0); // 1.0,1.5,...,5.5,6.0
+  S.game9Histogram.forEach(v=>{const idx=Math.round((v-1)*2);if(idx>=0&&idx<11)bins[idx]++});
+  const maxB=Math.max(...bins,1);
+  bot.innerHTML=`
+    <div style="font-size:13px;font-weight:700;text-align:center;color:#222;margin-bottom:4px">Histogram of your averages</div>
+    <div class="histogram">${bins.map(b=>`<div class="hist-bar" style="height:${b/maxB*100}%"></div>`).join('')}</div>
+    <div class="hist-labels"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+    <div style="margin-top:8px;text-align:center">
+      <label style="font-size:13px;color:#222"><input type="checkbox" ${S.game9UseRandom?'checked':''} onchange="toggleCLTRandom(this.checked)"> Use random sets</label>
+    </div>`;
+}
+
+function toggleCLTRandom(v){S.game9UseRandom=v;S.rounds=generateRounds(9);S.currentRound=0;S.game9Histogram=[];renderRound()}
+
+function renderGame9End(){
+  Z.top.style.justifyContent='center';
+  Z.top.innerHTML=`<div class="game-end">
+    <div class="final-score">${S.scores[8]} / 12</div>
+    <div style="font-size:16px;color:#222">${S.scores[8]>8?'You cheated!':S.scores[8]>=6?'Lucky!':S.scores[8]>=2?'Good guessing!':'Unlucky!'}</div>
+    <div class="optimal-reveal" style="margin-top:8px">The averages cluster around the <b>mean</b> of the die.
+    As you average more rolls, the distribution becomes a <b>Gaussian</b> (bell curve).
+    This is the <b>Central Limit Theorem</b>.</div>
+    <button class="next-btn" style="background:#d4a017;max-width:280px;margin:8px auto 0" onclick="showCLTAuto()">Explore CLT →</button>
+    <button class="next-btn" style="background:#9b59b6;max-width:280px;margin:4px auto 0" onclick="startCLTGame()">Start CLT Game →</button>
+    <button class="next-game-btn" onclick="startGame(10)">Game 10: Expectation →</button>
+  </div>`;
+  Z.text.style.display='none';
+  Z.buttons.style.display='none';
+  Z.table.style.display='none';
+  Z.next.style.display='none';
+}
+
+// Remember slider positions and die bias
+let cltAutoRolls=40, cltAutoGames=1000;
+let cltDieSides=6;
+let cltBias=[1,1,1,1,1,1]; // relative weights, length = cltDieSides
+
+function setCLTDie(sides){
+  cltDieSides=sides;
+  cltBias=Array(sides).fill(1);
+  showCLTAuto(); // rebuilds everything including histogram labels
+}
+
+function biasedRoll(){
+  const n=cltDieSides;
+  const total=cltBias.slice(0,n).reduce((a,b)=>a+b,0);
+  let r=Math.random()*total, cum=0;
+  for(let i=0;i<n;i++){cum+=cltBias[i];if(r<cum)return i+1;}
+  return n;
+}
+
+function setBias(preset){
+  const n=cltDieSides;
+  if(preset==='fair') cltBias=Array(n).fill(1);
+  else if(preset==='line') cltBias=Array.from({length:n},(_,i)=>(i+1)/n);
+  else if(preset==='curve') cltBias=Array.from({length:n},(_,i)=>((i+1)*(i+1))/(n*n));
+  else if(preset==='twin'){cltBias=Array(n).fill(0);cltBias[0]=1;cltBias[n-1]=1;}
+  else if(preset==='boat'){const b=Array.from({length:n},(_,i)=>{const m=(n-1)/2;const d=Math.abs(i-m)/m;return 1+2*d;});cltBias=b;}
+  else if(preset==='step'){const h=Math.floor(n/2);cltBias=Array.from({length:n},(_,i)=>i<h?1:3);}
+  else if(preset==='edge'){cltBias=Array(n).fill(0);cltBias[0]=1;cltBias[n-1]=5;}
+  // Rebuild editor to update slider max range
+  const ed=document.getElementById('bias-editor');
+  if(ed) ed.innerHTML=renderBiasEditor();
+  document.querySelectorAll('.bias-preset').forEach(b=>b.classList.toggle('selected',b.dataset.preset===preset));
+  setTimeout(updateBiasLine,50);
+}
+
+function renderBiasEditor(){
+  const n=cltDieSides;
+  const sliderMax=Math.max(1,...cltBias);
+  const sliders=Array.from({length:n},(_, i)=>`<div style="display:flex;flex-direction:column;align-items:center;flex:1">
+    <input type="range" min="0" max="${sliderMax}" step="any" value="${cltBias[i]||0}" orient="vertical"
+      class="bias-slider" data-i="${i}" oninput="cltBias[${i}]=+this.value;updateBiasLine();document.querySelectorAll('.bias-preset').forEach(b=>b.classList.remove('selected'))">
+    <div style="font-size:${n>6?9:12}px;font-weight:700;color:#222;margin-top:2px">${i+1}</div>
+  </div>`).join('');
+  return `<div style="margin-top:8px">
+    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:6px;flex-wrap:wrap">
+      <button class="bias-preset${cltBias.every(v=>Math.abs(v-cltBias[0])<0.01)?' selected':''}" data-preset="fair" onclick="setBias('fair')">Fair</button>
+      <button class="bias-preset${cltBias.every((v,i)=>Math.abs(v-(i+1)/n)<0.01)?' selected':''}" data-preset="line" onclick="setBias('line')">Line</button>
+      <button class="bias-preset${cltBias.every((v,i)=>Math.abs(v-((i+1)*(i+1))/(n*n))<0.01)?' selected':''}" data-preset="curve" onclick="setBias('curve')">Curve</button>
+      <button class="bias-preset${(()=>{const b=Array(n).fill(0);b[0]=1;b[n-1]=1;return cltBias.every((v,i)=>Math.abs(v-b[i])<0.01)})()?' selected':''}" data-preset="twin" onclick="setBias('twin')">Twin</button>
+      <button class="bias-preset${(()=>{const b=biasForPreset('boat',n);return cltBias.every((v,i)=>Math.abs(v-b[i])<0.01)})()?' selected':''}" data-preset="boat" onclick="setBias('boat')">Boat</button>
+      <button class="bias-preset${(()=>{const h=Math.floor(n/2);const b=Array.from({length:n},(_,i)=>i<h?1:3);return cltBias.every((v,i)=>Math.abs(v-b[i])<0.01)})()?' selected':''}" data-preset="step" onclick="setBias('step')">Step</button>
+      <button class="bias-preset${(()=>{const b=Array(n).fill(0);b[0]=1;b[n-1]=5;return cltBias.every((v,i)=>Math.abs(v-b[i])<0.01)})()?' selected':''}" data-preset="edge" onclick="setBias('edge')">Edge</button>
+    </div>
+    <div style="position:relative;max-width:280px;margin:4px auto">
+      <svg id="bias-line" width="280" height="160" style="position:absolute;top:0;left:0;pointer-events:none"></svg>
+      <div style="display:flex;gap:4px;height:160px;align-items:stretch">${sliders}</div>
+    </div>
+  </div>`;
+}
+
+function updateBiasLine(){
+  const svg=document.getElementById('bias-line');
+  if(!svg)return;
+  const sliderEls=document.querySelectorAll('.bias-slider');
+  const svgRect=svg.getBoundingClientRect();
+  const thumbR=10; // approximate thumb radius in px
+  const pts=[];
+  sliderEls.forEach((s,i)=>{
+    const rect=s.getBoundingClientRect();
+    const x=rect.left+rect.width/2-svgRect.left;
+    // Slider track runs from (top+thumbR) to (bottom-thumbR)
+    const trackTop=rect.top+thumbR-svgRect.top;
+    const trackBot=rect.bottom-thumbR-svgRect.top;
+    const frac=+s.max>0?+s.value/+s.max:0;
+    const y=trackBot-(trackBot-trackTop)*frac;
+    pts.push({x,y});
+  });
+  const line=pts.map(p=>`${p.x},${p.y}`).join(' ');
+  const dots=pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="5" fill="#3498db"/>`).join('');
+  svg.innerHTML=`<polyline points="${line}" fill="none" stroke="#3498db" stroke-width="2.5"/>${dots}`;
+}
+
+function showCLTAuto(){
+  cltGameActive=false;
+  const histLabels=Array.from({length:cltDieSides},(_,i)=>`<span>${i+1}</span>`).join('');
+  Z.top.style.justifyContent='flex-start';
+  Z.top.innerHTML=`<div style="text-align:center;padding:4px;width:100%">
+    <div style="margin-bottom:8px">
+      <label style="font-size:13px;font-weight:600">Rolls per average:
+        <input type="number" id="clt-ar-num" min="2" max="100" value="${cltAutoRolls}" style="width:50px;font-size:14px;font-weight:800;text-align:center;border:1px solid #ccc;border-radius:4px"
+          oninput="cltAutoRolls=Math.max(2,Math.min(100,+this.value||2));document.getElementById('clt-auto-rolls').value=cltAutoRolls">
+      </label><br>
+      <input type="range" id="clt-auto-rolls" min="2" max="100" value="${cltAutoRolls}" style="width:80%;max-width:260px"
+        oninput="cltAutoRolls=+this.value;document.getElementById('clt-ar-num').value=this.value">
+    </div>
+    <div style="margin-bottom:8px">
+      <label style="font-size:13px;font-weight:600">Number of averages:
+        <input type="number" id="clt-ag-num" min="1" max="10000" value="${cltAutoGames}" style="width:60px;font-size:14px;font-weight:800;text-align:center;border:1px solid #ccc;border-radius:4px"
+          oninput="cltAutoGames=Math.max(1,Math.min(10000,+this.value||1));document.getElementById('clt-auto-games').value=cltAutoGames">
+      </label><br>
+      <input type="range" id="clt-auto-games" min="1" max="10000" value="${cltAutoGames}" style="width:80%;max-width:260px"
+        oninput="cltAutoGames=+this.value;document.getElementById('clt-ag-num').value=this.value">
+    </div>
+    <div class="guess-grid" style="margin:0 auto 8px">
+      ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" style="${d===cltDieSides?'filter:brightness(1.4);transform:scale(1.15)':''}" onclick="setCLTDie(${d})">${d}</button>`).join('')}
+    </div>
+    <div id="bias-editor">${renderBiasEditor()}</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+      <button class="next-btn" style="background:#d4a017;width:auto;padding:10px 24px" onclick="runCLTAuto()">Run</button>
+    </div>
+    <div style="font-size:13px;color:#222;text-align:center;height:36px;margin-top:8px" id="clt-result-text"></div>
+    <div style="width:100%;max-width:320px;margin:0 auto" id="clt-hist-area">
+      <div class="clt-auto-hist" style="height:100px" id="clt-hist-bars"></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#222" id="clt-hist-labels">${histLabels}</div>
+      <div style="font-size:11px;color:#222;text-align:center;margin-top:2px;margin-bottom:8px">average of rolls</div>
+    </div>
+    <button class="next-btn" style="background:#9b59b6;width:auto;padding:10px 24px;margin:4px auto 16px" onclick="startCLTGame()">Start CLT Game</button>
+  </div>`;
+  setTimeout(updateBiasLine,50);
+  Z.text.style.display='none';
+  Z.buttons.style.display='none';
+  Z.table.style.display='none';
+  Z.next.style.display='none';
+}
+
+function runCLTAuto(){
+  const nRolls=cltAutoRolls, nGames=cltAutoGames;
+  const avgs=[];
+  for(let g=0;g<nGames;g++){
+    let sum=0;
+    for(let r=0;r<nRolls;r++)sum+=biasedRoll();
+    avgs.push(sum/nRolls);
+  }
+  const n=cltDieSides;
+  const binW=1/nRolls;
+  const nBins=Math.round((n-1)/binW)+1;
+  const bins=Array(nBins).fill(0);
+  avgs.forEach(v=>{const idx=Math.round((v-1)/binW);if(idx>=0&&idx<nBins)bins[idx]++;});
+  const maxB=Math.max(...bins,1);
+  const mean=avgs.reduce((a,b)=>a+b,0)/avgs.length;
+  const variance=avgs.reduce((a,b)=>a+(b-mean)**2,0)/avgs.length;
+  const sd=Math.sqrt(variance);
+  const labels=Array.from({length:n},(_,i)=>`<span>${i+1}</span>`).join('');
+
+  // Fill pre-drawn histogram
+  const rt=document.getElementById('clt-result-text');
+  if(rt)rt.innerHTML=`${nGames} averages of ${nRolls} rolls (${n}-sided die)<br>mean = <b>${mean.toFixed(3)}</b> &nbsp; sd = <b>${sd.toFixed(3)}</b>`;
+  const hb=document.getElementById('clt-hist-bars');
+  if(hb)hb.innerHTML=bins.map(b=>`<div class="clt-auto-bar" style="height:${b/maxB*100}%"></div>`).join('');
+  const hl=document.getElementById('clt-hist-labels');
+  if(hl)hl.innerHTML=labels;
+}
+
+// ===== CLT HISTOGRAM GUESSING GAME =====
+
+let cltGameRounds=[], cltGameRound=0, cltGameScore=0, cltGameActive=false;
+
+// Bias weights for a preset name and die size
+function biasForPreset(preset, n){
+  if(preset==='fair') return Array(n).fill(1);
+  if(preset==='line') return Array.from({length:n},(_,i)=>(i+1)/n);
+  if(preset==='curve') return Array.from({length:n},(_,i)=>((i+1)*(i+1))/(n*n));
+  if(preset==='twin'){const b=Array(n).fill(0);b[0]=1;b[n-1]=1;return b;}
+  if(preset==='boat') return Array.from({length:n},(_,i)=>{const m=(n-1)/2;const d=Math.abs(i-m)/m;return 1+2*d;});
+  if(preset==='step'){const h=Math.floor(n/2);return Array.from({length:n},(_,i)=>i<h?1:3);}
+  if(preset==='edge'){const b=Array(n).fill(0);b[0]=1;b[n-1]=5;return b;}
+  return Array(n).fill(1);
+}
+
+// Compute theoretical mean and SD of sample means for a given config
+function computeTheoStats(die, preset, rolls){
+  const bias=biasForPreset(preset, die);
+  const total=bias.reduce((a,b)=>a+b,0);
+  let mu=0, mu2=0;
+  for(let i=0;i<die;i++){const p=bias[i]/total;const v=i+1;mu+=v*p;mu2+=v*v*p;}
+  const variance=mu2-mu*mu;
+  return {mu, sigma:Math.sqrt(variance), sdAvg:Math.sqrt(variance/rolls)};
+}
+
+// Run a simulation with given config, return array of averages
+function runCLTSim(die, preset, rolls, games){
+  const bias=biasForPreset(preset, die);
+  const total=bias.reduce((a,b)=>a+b,0);
+  const avgs=[];
+  for(let g=0;g<games;g++){
+    let sum=0;
+    for(let r=0;r<rolls;r++){
+      let rr=Math.random()*total, cum=0;
+      for(let i=0;i<die;i++){cum+=bias[i];if(rr<cum){sum+=i+1;break;}}
+    }
+    avgs.push(sum/rolls);
+  }
+  return avgs;
+}
+
+// Format a config option as a compact label
+function cltOptionLabel(opt, showDie){
+  const d=showDie?`d${opt.die} `:'';
+  return `${d}${opt.bias} · ${opt.rolls} rolls`;
+}
+
+// Generate 3 confusable distractors for a correct config
+const ALL_PRESETS=['fair','line','curve','twin','boat','step','edge'];
+
+function makeConfusableOptions(correct){
+  // Pick 3 distractors from the other presets, sorted by closest SD to make it hard
+  const cStats=computeTheoStats(correct.die, correct.bias, correct.rolls);
+  const candidates=ALL_PRESETS.filter(p=>p!==correct.bias).map(preset=>{
+    const stats=computeTheoStats(correct.die, preset, 1);
+    let matchRolls=Math.round(stats.sigma*stats.sigma/(cStats.sdAvg*cStats.sdAvg));
+    matchRolls=Math.max(2, Math.min(100, matchRolls));
+    const matchStats=computeTheoStats(correct.die, preset, matchRolls);
+    const muDiff=Math.abs(matchStats.mu-cStats.mu);
+    return {preset, rolls:matchRolls, muDiff};
+  });
+  // Sort by closest mean to make it hardest
+  candidates.sort((a,b)=>a.muDiff-b.muDiff);
+  const picked=candidates.slice(0,3);
+
+  const options=[{...correct}];
+  for(const c of picked) options.push({die:correct.die, bias:c.preset, rolls:c.rolls, games:1000});
+
+  // Shuffle and track correct index
+  for(let i=options.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[options[i],options[j]]=[options[j],options[i]];}
+  const ci=options.findIndex(o=>o.bias===correct.bias&&o.rolls===correct.rolls&&o.games===correct.games);
+  return {options, correctIdx:ci};
+}
+
+// Pre-built tutorial rounds (deterministic histogram data)
+// We generate these once at load time with a seeded approach
+const CLT_GAME_TUT=(function(){
+  // Seeded PRNG for reproducibility
+  let seed=42;
+  function srand(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
+  function sRoll(bias,die){
+    const total=bias.reduce((a,b)=>a+b,0);
+    let r=srand()*total, cum=0;
+    for(let i=0;i<die;i++){cum+=bias[i];if(r<cum)return i+1;}
+    return die;
+  }
+  function sSim(die,preset,rolls,games){
+    const bias=biasForPreset(preset,die);
+    const avgs=[];
+    for(let g=0;g<games;g++){let sum=0;for(let r=0;r<rolls;r++)sum+=sRoll(bias,die);avgs.push(sum/rolls);}
+    return avgs;
+  }
+
+  // 12 carefully designed rounds - each tests a different CLT concept
+  const G=1000;
+  const configs=[
+    // Round 1: uniform medium rolls
+    {die:6,bias:'fair',rolls:20,games:G},
+    // Round 2: step medium rolls (right-heavy, similar mean to linear)
+    {die:6,bias:'step',rolls:25,games:G},
+    // Round 3: bimodal few rolls (non-Gaussian comb shape)
+    {die:6,bias:'twin',rolls:5,games:G},
+    // Round 4: edge many rolls (very skewed, slow to converge)
+    {die:6,bias:'edge',rolls:40,games:G},
+    // Round 5: boat few rolls (U-shaped, wide)
+    {die:6,bias:'boat',rolls:8,games:G},
+    // Round 6: bimodal many rolls (Gaussian but wide)
+    {die:6,bias:'twin',rolls:50,games:G},
+    // Round 7: linear few rolls (skewed, not yet Gaussian)
+    {die:6,bias:'line',rolls:8,games:G},
+    // Round 8: uniform many rolls (narrow, smooth Gaussian)
+    {die:6,bias:'fair',rolls:80,games:G},
+    // Round 9: quadratic few rolls (skewed, non-Gaussian)
+    {die:6,bias:'curve',rolls:8,games:G},
+    // Round 10: edge few rolls (extreme spikes at 1 and 6)
+    {die:6,bias:'edge',rolls:5,games:G},
+    // Round 11: boat many rolls (converged, wider than uniform)
+    {die:6,bias:'boat',rolls:40,games:G},
+    // Round 12: step many rolls (right-shifted Gaussian)
+    {die:6,bias:'step',rolls:50,games:G},
+  ];
+
+  return configs.map(c=>{
+    const histData=sSim(c.die, c.bias, c.rolls, c.games);
+    // Generate 3 confusable distractors, pick closest mean
+    const cStats=computeTheoStats(c.die, c.bias, c.rolls);
+    const candidates=ALL_PRESETS.filter(p=>p!==c.bias).map(preset=>{
+      const stats=computeTheoStats(c.die, preset, 1);
+      let matchRolls=Math.round(stats.sigma*stats.sigma/(cStats.sdAvg*cStats.sdAvg));
+      matchRolls=Math.max(2, Math.min(100, matchRolls));
+      const matchStats=computeTheoStats(c.die, preset, matchRolls);
+      return {preset, rolls:matchRolls, muDiff:Math.abs(matchStats.mu-cStats.mu)};
+    });
+    candidates.sort((a,b)=>a.muDiff-b.muDiff);
+    const opts=[{die:c.die, bias:c.bias, rolls:c.rolls, games:c.games}];
+    for(const d of candidates.slice(0,3)) opts.push({die:c.die, bias:d.preset, rolls:d.rolls, games:G});
+    // Shuffle deterministically
+    for(let i=opts.length-1;i>0;i--){const j=Math.floor(srand()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]];}
+    const ci=opts.findIndex(o=>o.bias===c.bias&&o.rolls===c.rolls&&o.games===c.games);
+    return {die:c.die, correct:c, options:opts, correctIdx:ci, histData};
+  });
+})();
+
+function startCLTGame(){
+  cltGameActive=true;
+  cltGameRound=0;
+  cltGameScore=0;
+  if(S.mode==='tutorial'){
+    // Use pre-built rounds
+    cltGameRounds=CLT_GAME_TUT.map(r=>({...r}));
+  } else {
+    // Generate random rounds
+    const presets=ALL_PRESETS;
+    const rollChoices=[5,8,10,15,20,30,40,50,60,80,100];
+    cltGameRounds=[];
+    for(let i=0;i<12;i++){
+      const bias=presets[Math.floor(Math.random()*presets.length)];
+      const rolls=rollChoices[Math.floor(Math.random()*rollChoices.length)];
+      const correct={die:6, bias, rolls, games:1000};
+      const histData=runCLTSim(6, bias, rolls, 1000);
+      const {options, correctIdx}=makeConfusableOptions(correct);
+      cltGameRounds.push({die:6, correct, options, correctIdx, histData});
+    }
+  }
+  renderCLTGameRound();
+}
+
+function renderCLTGameRound(){
+  if(cltGameRound>=12){renderCLTGameEnd();return;}
+  const rd=cltGameRounds[cltGameRound];
+  const avgs=rd.histData;
+  const n=rd.die;
+
+  // Build histogram
+  const binW=1/rd.correct.rolls;
+  const nBins=Math.max(Math.round((n-1)/binW)+1, n);
+  const bins=Array(nBins).fill(0);
+  avgs.forEach(v=>{const idx=Math.round((v-1)/binW);if(idx>=0&&idx<nBins)bins[idx]++;});
+  const maxB=Math.max(...bins,1);
+  const histBars=bins.map(b=>`<div class="clt-auto-bar" style="height:${b/maxB*100}%"></div>`).join('');
+  const histLabels=Array.from({length:n},(_,i)=>`<span>${i+1}</span>`).join('');
+
+  // Check if all options share die type
+  const allSameDie=rd.options.every(o=>o.die===rd.options[0].die);
+
+  Z.top.style.justifyContent='flex-start';
+  Z.top.innerHTML=`<div style="text-align:center;padding:4px;width:100%">
+    <div style="font-size:14px;font-weight:700;color:#222;margin-bottom:8px">Which generator produced this histogram?</div>
+    <div style="width:100%;max-width:320px;margin:0 auto">
+      <div class="clt-auto-hist" style="height:100px">${histBars}</div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#222">${histLabels}</div>
+      <div style="font-size:10px;color:#222;margin-top:2px">average of rolls</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;max-width:320px;margin:12px auto 0" id="clt-game-options">
+      ${rd.options.map((o,i)=>`<button class="conf-btn" style="background:#555;padding:10px 12px;font-size:13px;text-align:left" onclick="guessCLTGame(${i})">${cltOptionLabel(o,!allSameDie)}</button>`).join('')}
+    </div>
+    <div style="font-size:13px;color:#222;text-align:center;min-height:32px;margin-top:8px" id="clt-game-feedback">&nbsp;</div>
+  </div>`;
+
+  // Show table and round counter
+  Z.text.style.display='none';
+  Z.buttons.style.display='none';
+  Z.next.style.display='';
+  const ri=document.getElementById('round-counter');
+  if(ri)ri.textContent=`Round ${cltGameRound+1}/12`;
+  disableNextBtn();
+  renderCLTGameTable();
+}
+
+function guessCLTGame(idx){
+  const rd=cltGameRounds[cltGameRound];
+  const correct=idx===rd.correctIdx;
+  if(correct) cltGameScore++;
+  rd.guess=idx;
+  rd.correct_bool=correct;
+
+  // Highlight buttons
+  const btns=document.querySelectorAll('#clt-game-options .conf-btn');
+  btns.forEach((b,i)=>{
+    b.disabled=true;
+    b.style.pointerEvents='none';
+    if(i===rd.correctIdx) b.style.background='#27ae60';
+    else if(i===idx&&!correct) b.style.background='#e74c3c';
+    else b.style.opacity='0.4';
+  });
+
+  const fb=document.getElementById('clt-game-feedback');
+  if(fb) fb.innerHTML=correct
+    ?'<span style="color:#27ae60;font-weight:700">✓ Correct!</span>'
+    :`<span style="color:#e74c3c;font-weight:700">✗ Answer: ${cltOptionLabel(rd.options[rd.correctIdx],false)}</span>`;
+
+  S.scores[8]=cltGameScore;
+  cltGameRound++;
+  renderCLTGameTable();
+  enableNextBtn();
+}
+
+function cltBiasShort(bias){
+  const m={fair:'F',line:'L',curve:'C',twin:'T',boat:'U',step:'S',edge:'E'};
+  return m[bias]||'?';
+}
+
+function renderCLTGameTable(){
+  const n=12;
+  const played=cltGameRound;
+  const cell=(i,fn)=>i<played&&cltGameRounds[i].guess!=null?fn(i):'';
+  const hdrCells=Array.from({length:n},(_,i)=>`<td style="font-weight:700;color:#222">${i+1}</td>`).join('');
+
+  const gBias=Array.from({length:n},(_,i)=>`<td>${cell(i,j=>cltBiasShort(cltGameRounds[j].options[cltGameRounds[j].guess].bias))}</td>`).join('');
+  const gRolls=Array.from({length:n},(_,i)=>`<td>${cell(i,j=>cltGameRounds[j].options[cltGameRounds[j].guess].rolls)}</td>`).join('');
+
+  const aBias=Array.from({length:n},(_,i)=>`<td>${cell(i,j=>cltBiasShort(cltGameRounds[j].options[cltGameRounds[j].correctIdx].bias))}</td>`).join('');
+  const aRolls=Array.from({length:n},(_,i)=>`<td>${cell(i,j=>cltGameRounds[j].options[cltGameRounds[j].correctIdx].rolls)}</td>`).join('');
+
+  const resultRow=Array.from({length:n},(_,i)=>{
+    if(i<played&&cltGameRounds[i].guess!=null){
+      const ok=cltGameRounds[i].correct_bool;
+      return `<td class="${ok?'correct':'incorrect'}">${ok?'✓':'✗'}</td>`;
+    }
+    return '<td>·</td>';
+  }).join('');
+
+  Z.table.style.display='';
+  Z.table.innerHTML=`<div class="stats-table-wrap"><table class="stats-table">
+    <tr><th></th>${hdrCells}</tr>
+    <tr><th colspan="${n+1}" style="text-align:left;color:#222;font-size:11px;padding:4px 4px 1px">Guess</th></tr>
+    <tr><th>Bias</th>${gBias}</tr>
+    <tr><th>Rolls</th>${gRolls}</tr>
+    <tr><th colspan="${n+1}" style="text-align:left;color:#222;font-size:11px;padding:4px 4px 1px">Answer</th></tr>
+    <tr><th>Bias</th>${aBias}</tr>
+    <tr><th>Rolls</th>${aRolls}</tr>
+    <tr><th>✓/✗</th>${resultRow}</tr>
+  </table></div>
+  <div class="score-line"><span>Score</span><span>${cltGameScore} / ${Math.min(played,12)}</span></div>`;
+}
+
+function renderCLTGameEnd(){
+  cltGameActive=false;
+  const pct=cltGameScore/12;
+  const msg=pct>=0.75?'Excellent CLT intuition!':pct>=0.5?'Good understanding!':pct>=0.25?'Getting there!':'Keep exploring!';
+  Z.top.style.justifyContent='center';
+  Z.top.innerHTML=`<div class="game-end">
+    <div class="final-score">${cltGameScore} / 12</div>
+    <div style="font-size:16px;color:#222">${msg}</div>
+    <div class="optimal-reveal" style="margin-top:8px">Reading a histogram tells you about the <b>generator</b>:
+    the <b>center</b> reveals the mean, the <b>width</b> reveals σ/√n,
+    the <b>smoothness</b> reveals sample size, and the <b>shape</b> reveals convergence.</div>
+    <button class="next-btn" style="background:#d4a017;max-width:280px;margin:8px auto 0" onclick="showCLTAuto()">Back to Explorer</button>
+    <button class="next-btn" style="background:#9b59b6;max-width:280px;margin:4px auto 0" onclick="startCLTGame()">Play Again</button>
+    ${S.currentGame===9?'<button class="next-game-btn" onclick="startGame(10)">Game 10: Expectation →</button>':''}
+    <button class="back-games-btn" onclick="exitGame()">Back to Games</button>
+  </div>`;
+  Z.text.style.display='none';
+  Z.buttons.style.display='none';
+  Z.table.style.display='none';
+  Z.next.style.display='none';
+}
+
+// ===== GAME 10: CRYSTAL BET =====
+function renderGame10(){
+  Z.next.style.display='none';
+  if(S.currentRound>=12){renderGame10End();return;}
+  const dieType=S.game10DieType;
+  Z.top.innerHTML=`
+    ${S.currentRound===0?`<div class="die-type-selector" style="margin-bottom:8px">
+      <button class="die-type-btn${dieType==='unbiased'?' selected':''}" onclick="setDieType('unbiased')">Unbiased</button>
+      <button class="die-type-btn${dieType==='linear'?' selected':''}" onclick="setDieType('linear')">Linear</button>
+      <button class="die-type-btn${dieType==='quadratic'?' selected':''}" onclick="setDieType('quadratic')">Quadratic</button>
+    </div>`:''}
+    <div class="crystal-count">💎 <span>${S.game10Crystals.toFixed(1)}</span></div>`;
+  Z.text.innerHTML='Your prediction:';
+  Z.buttons.innerHTML=`<div style="width:100%;max-width:280px;text-align:center">
+    <div class="prediction-value" id="g10-val">3.5</div>
+    <div class="prediction-slider">
+      <input type="range" min="1" max="6" step="0.5" value="3.5" oninput="document.getElementById('g10-val').textContent=this.value">
+      <div class="slider-labels"><span>1</span><span>6</span></div>
+    </div>
+    <button class="next-btn" style="max-width:200px" onclick="rollGame10()">Roll!</button>
+  </div>`;
+  renderGame10Stats(Z.table);
+}
+
+function setDieType(t){S.game10DieType=t;renderRound()}
+
+function rollBiasedDie(type){
+  const r=Math.random();
+  const weights=type==='linear'?[1,2,3,4,5,6]:type==='quadratic'?[1,4,9,16,25,36]:[1,1,1,1,1,1];
+  const total=weights.reduce((a,b)=>a+b,0);
+  let cum=0;
+  for(let i=0;i<6;i++){cum+=weights[i]/total;if(r<cum)return i+1;}
+  return 6;
+}
+
+function rollGame10(){
+  const pred=parseFloat(document.getElementById('g10-val').textContent);
+  const v=rollBiasedDie(S.game10DieType);
+  const loss=(v-pred)*(v-pred);
+  S.game10Crystals-=loss;
+  S.rounds[S.currentRound]={pred,roll:v,loss};
+  S.scores[9]=S.game10Crystals;
+
+  Z.text.innerHTML=`Rolled: <b>${v}</b> | Loss: (${v}−${pred})² = <b>${loss.toFixed(2)}</b> | 💎 ${S.game10Crystals.toFixed(1)}`;
+  Z.buttons.innerHTML='';
+  S.currentRound++;
+  renderGame10Stats(Z.table);
+  setTimeout(()=>{if(S.currentRound<12)renderRound();else renderRound();},1500);
+}
+
+function renderGame10Stats(bot){
+  const rows=S.rounds.filter(r=>r.pred!==undefined).map((r,i)=>
+    `<tr><td>${i+1}</td><td>${r.pred}</td><td>${r.roll}</td><td>${r.loss.toFixed(2)}</td><td>${(120-S.rounds.slice(0,i+1).reduce((s,x)=>s+(x.loss||0),0)).toFixed(1)}</td></tr>`).join('');
+  bot.innerHTML=`<table class="stats-table"><tr><th>#</th><th>Pred</th><th>Roll</th><th>Loss</th><th>💎</th></tr>${rows}</table>
+    <div class="score-line"><span>Crystals</span><span>💎 ${S.game10Crystals.toFixed(1)}</span></div>`;
+}
+
+function renderGame10End(){
+  const mid=Z.top; // backwards compat for this function
+  const means={unbiased:3.5,linear:91/21,quadratic:441/91};
+  const mu=means[S.game10DieType];
+  const vars={unbiased:35/12,linear:20/9,quadratic:1.576};
+  const optimalLoss=vars[S.game10DieType]*12;
+  const optimalCrystals=(120-optimalLoss).toFixed(1);
+  mid.innerHTML=`<div class="game-end">
+    <div class="final-score">💎 ${S.game10Crystals.toFixed(1)} crystals remaining</div>
+    <div class="optimal-reveal">
+    <b>The optimal prediction was ${mu.toFixed(2)}</b> — the mean (expectation value) of the ${S.game10DieType} die.<br><br>
+    ${S.game10DieType==='unbiased'?'The best guess is <b>3.5</b>, even though you can never roll 3.5!<br><br>':''}
+    Optimal strategy (always guess ${mu.toFixed(2)}): <b>💎 ${optimalCrystals}</b> crystals.<br>
+    Your result: <b>💎 ${S.game10Crystals.toFixed(1)}</b> crystals.<br><br>
+    <b>The mean minimizes the expected squared error</b> — this is the principle behind least-squares fitting in crystallography.
+    </div>
+    <button class="back-games-btn" onclick="exitGame()">Back to Games</button>
+  </div>`;
+  renderGame10Stats(bot);
+}
+
+// ===== SHARED: LIKELIHOOD BARS =====
+function showLikelihoodBars(containerId, rollVal, dice, customProbs){
+  const probs=customProbs||dice.map(d=>prob(rollVal,d));
+  const maxP=Math.max(...probs);
+  const c=document.getElementById(containerId);
+  c.innerHTML='<div class="likelihood-bars">'+dice.map((d,i)=>{
+    const p=probs[i];const h=maxP>0?p/maxP*100:0;const best=p===maxP&&p>0;
+    const label=customProbs?(p>0?p.toExponential(1):'0'):frac(rollVal,d);
+    return `<div class="lbar-col">
+      <div class="lbar-val">${label}${best?' <span class="lbar-star">★</span>':''}</div>
+      <div class="lbar-track-v"><div class="lbar-fill-v d${d}${best?' best':''}" style="height:0" data-h="${h}"></div></div>
+    </div>`;
+  }).join('')+'</div>';
+  requestAnimationFrame(()=>c.querySelectorAll('.lbar-fill-v').forEach(f=>f.style.height=f.dataset.h+'%'));
+}
+
+// ===== SHARED: STATS TABLE =====
+function renderStatsTable(bot, gameId){
+  // Horizontal table: rows = data fields, columns = rounds 1..12
+  // All 12 columns shown from the start (empty until played)
+  const n=12;
+  const played=S.currentRound+(S.phase==='reveal'?1:0);
+
+  // Build row data based on game type
+  let rowDefs=[]; // [{label, cells:[...12 values]}]
+
+  if(gameId===1){
+    rowDefs=[
+      {label:'Guess', cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].guess:'')},
+      {label:'Answer',cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].correct!=null?S.rounds[i].die:'')},
+      {label:'✓/✗',   cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].correct!=null?(S.rounds[i].correct?'✓':'✗'):'·'),isResult:true},
+    ];
+  } else if(gameId===2||gameId===6){
+    rowDefs=[
+      {label:'Roll',  cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].roll:'')},
+      {label:'Guess', cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].guess:'')},
+      {label:'Answer',cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].correct!=null?S.rounds[i].die:'')},
+      {label:'✓/✗',   cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].correct!=null?(S.rounds[i].correct?'✓':'✗'):'·'),isResult:true},
+    ];
+  } else if(gameId===3){
+    const done=(i)=>i<played&&S.rounds[i].conf!=null;
+    rowDefs=[
+      {label:'Roll',  cells:Array.from({length:n},(_,i)=>done(i)?S.rounds[i].roll:'')},
+      {label:'Pick',  cells:Array.from({length:n},(_,i)=>done(i)?S.rounds[i].guess:'')},
+      {label:'Conf',  cells:Array.from({length:n},(_,i)=>done(i)?S.rounds[i].conf[0].toUpperCase():'')},
+      {label:'✓/✗',   cells:Array.from({length:n},(_,i)=>done(i)?(S.rounds[i].correct?'✓':'✗'):'·'),isResult:true},
+    ];
+  } else if(gameId===4){
+    rowDefs=[
+      {label:'Roll 1', cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].rolls[0]:'')},
+      {label:'Roll 2', cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].rolls[1]:'')},
+      {label:'Roll 3', cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].rolls[2]:'')},
+      {label:'Guess', cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].guess:'')},
+      {label:'Answer',cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].correct!=null?S.rounds[i].die:'')},
+      {label:'✓/✗',   cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].correct!=null?(S.rounds[i].correct?'✓':'✗'):'·'),isResult:true},
+    ];
+  } else if(gameId===5){
+    rowDefs=[
+      {label:'#Rolls',cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].nRolls:'')},
+      {label:'Guess', cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].guess:'')},
+      {label:'Answer',cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].correct!=null?S.rounds[i].die:'')},
+      {label:'✓/✗',   cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].correct!=null?(S.rounds[i].correct?'✓':'✗'):'·'),isResult:true},
+    ];
+  } else if(gameId===7){
+    rowDefs=[
+      {label:'Roll',  cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].roll:'')},
+      {label:'Guess', cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].guess:'')},
+      {label:'Box',   cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].correct!=null?S.rounds[i].box:'')},
+      {label:'✓/✗',   cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].correct!=null?(S.rounds[i].correct?'✓':'✗'):'·'),isResult:true},
+    ];
+  } else if(gameId===8){
+    rowDefs=[
+      {label:'Roll',  cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].roll:'')},
+      {label:'Model', cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].guess!=null?S.rounds[i].guess:'')},
+      {label:'LLG',   cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].llg!=null?(S.rounds[i].llg===-Infinity?'−∞':S.rounds[i].llg.toFixed(1)):'')},
+      {label:'✓/✗',   cells:Array.from({length:n},(_,i)=>i<played&&S.rounds[i].correct!=null?(S.rounds[i].correct?'✓':'✗'):'·'),isResult:true},
+    ];
+  }
+
+  // Header row: round numbers
+  const hdrCells=Array.from({length:n},(_,i)=>`<td style="font-weight:700;color:#222">${i+1}</td>`).join('');
+  // Data rows
+  const dataRows=rowDefs.map(rd=>{
+    const cells=rd.cells.map(c=>{
+      if(rd.isResult&&c==='✓') return `<td class="correct">${c}</td>`;
+      if(rd.isResult&&c==='✗') return `<td class="incorrect">${c}</td>`;
+      return `<td>${c}</td>`;
+    }).join('');
+    return `<tr><th>${rd.label}</th>${cells}</tr>`;
+  }).join('');
+
+  const score=S.scores[gameId-1];
+  let scoreLine;
+  if(gameId===3){
+    const rds=S.rounds.slice(0,played).filter(r=>r.conf!=null);
+    const tally=(c)=>{const g=rds.filter(r=>r.conf===c);const right=g.filter(r=>r.guess===r.die);return `${right.length}/${g.length}`;};
+    const catScore=rds.filter(r=>r.conf===r.correctConf).length;
+    scoreLine=`<div class="score-line" style="font-size:13px;gap:12px;flex-wrap:wrap;justify-content:center">
+      <span style="color:#27ae60">Low ${tally('low')}</span>
+      <span style="color:#e67e22">Med-High ${tally('medium-high')}</span>
+      <span style="color:#e74c3c">Certain ${tally('certain')}</span>
+      <span style="color:#555">| Categorization ${catScore}/${rds.length}</span></div>`;
+  } else {
+    const playedCount=S.rounds.slice(0,played).filter(r=>r.correct!=null).length;
+    scoreLine=`<div class="score-line"><span>Score</span><span>${score} / ${playedCount}</span></div>`;
+  }
+  bot.innerHTML=`<div class="next-btn-row" id="next-btn-slot"></div>
+  <div class="stats-table-wrap"><table class="stats-table">
+    <tr><th>#</th>${hdrCells}</tr>${dataRows}
+  </table></div>
+  ${scoreLine}`;
+}
+
+// showNextButton removed — replaced by enableNextBtn/disableNextBtn using fixed zone-next button
+
+// ===== SHARED: GAME END =====
+function renderGameEnd(){
+  const id=S.currentGame;
+  const score=S.scores[id-1];
+  const total=12;
+  const nextId=id<10?id+1:null;
+  let endScoreHtml, msg;
+  if(id===3){
+    const tally=(c)=>{const g=S.rounds.filter(r=>r.conf===c);const right=g.filter(r=>r.guess===r.die);return `${right.length}/${g.length}`;};
+    const catScore=S.rounds.filter(r=>r.conf===r.correctConf).length;
+    endScoreHtml=`<div style="display:flex;gap:16px;justify-content:center;font-size:18px;font-weight:700;flex-wrap:wrap">
+      <span style="color:#27ae60">Low ${tally('low')}</span>
+      <span style="color:#e67e22">Med-High ${tally('medium-high')}</span>
+      <span style="color:#e74c3c">Certain ${tally('certain')}</span></div>
+      <div style="font-size:20px;font-weight:800;margin-top:8px">Categorization: ${catScore}/12</div>`;
+    const pct=catScore/total;
+    msg=pct>0.8?'Expert!':pct>=0.6?'Good intuition!':pct>=0.4?'Getting there!':'Keep practising!';
+  } else {
+    endScoreHtml=`<div class="final-score">${score} / ${total}</div>`;
+    const pct=score/total;
+    msg=pct>0.5?'You cheated!':pct>=0.4?'Lucky!':pct>=0.15?'Good guessing!':'Unlucky!';
+  }
+  Z.top.innerHTML=`<div class="game-end">
+    ${endScoreHtml}
+    <div style="font-size:16px;color:#222">${msg}</div>
+    ${nextId?`<button class="next-game-btn" onclick="startGame(${nextId})">Game ${nextId}: ${GAMES[nextId-1].title} →</button>`:''}
+    <button class="back-games-btn" onclick="exitGame()">Back to Games</button>
+  </div>`;
+  Z.text.innerHTML='';
+  Z.buttons.innerHTML='';
+  Z.next.style.display='none';
+  Z.table.innerHTML='';
+}
+
+// ===== REEL SPINNER =====
+function spinReel(reelId, targetVal, onDone, delay=0){
+  const strip=document.getElementById(reelId);
+  if(!strip)return;
+
+  setTimeout(()=>{
+    // Hide "?" text, show the reel
+    const qmText=strip.closest('.question-mark')?.querySelector('.qm-text');
+    const qmReel=strip.closest('.question-mark')?.querySelector('.qm-reel');
+    if(qmText) qmText.style.display='none';
+    if(qmReel) qmReel.style.display='flex';
+
+    // Build strip: several cycles of 1-10 + final landing
+    const nums=[];
+    for(let c=0;c<5;c++)for(let n=1;n<=10;n++)nums.push(n);
+    nums.push(targetVal);
+    const circle=strip.closest('.question-mark');
+    const itemH=circle?circle.offsetHeight:52;
+    const fontSize=itemH>46?26:18;
+    strip.innerHTML=nums.map(n=>`<div class="reel-num" style="height:${itemH}px;font-size:${fontSize}px">${n}</div>`).join('');
+    strip.style.transition='none';
+    strip.style.transform='translateY(0)';
+    strip.classList.add('spinning');
+
+    requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+      const targetIdx=nums.length-1;
+      const offset=-(targetIdx*itemH);
+      strip.style.transition='transform 2s cubic-bezier(.15,.85,.35,1)';
+      strip.style.transform=`translateY(${offset}px)`;
+      strip.classList.remove('spinning');
+      setTimeout(()=>{if(onDone)onDone()},2050);
+    })});
+  }, delay);
+}
+</script>
+</body>
+</html>

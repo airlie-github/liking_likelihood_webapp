@@ -1,0 +1,11 @@
+Initialize liking likelihood app
+
+Based on:
+Liking likelihood
+Airlie J. McCoy
+Part of CCP4 Study Weekend 2004
+https://doi.org/10.1107/S0907444904016038
+Acta Cryst D, Volume 60, Part 12, December 2004, Pages 2169-2183
+
+Games follow worksheet previously used in teaching lectures
+App development inspired by Erice School 2026

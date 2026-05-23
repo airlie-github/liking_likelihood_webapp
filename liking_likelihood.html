@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Liking Likelihood</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4a90e2">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Likelihood">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
 
 :root{
@@ -356,6 +363,11 @@ button{min-height:var(--tap);min-width:var(--tap)}
 (function(){var p=localStorage.getItem('palette')||'default';
 document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('pal-'+p);});
 })();
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
 </script>
 </head>
 <body>

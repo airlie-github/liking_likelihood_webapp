@@ -1,0 +1,25 @@
+{
+  "name": "Liking Likelihood",
+  "short_name": "Likelihood",
+  "description": "Probability and likelihood games with dice.",
+  "start_url": "./liking_likelihood.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#4a90e2",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
