@@ -61,7 +61,7 @@ button:active{transform:scale(.95)}
 .game-list-header{display:flex;align-items:center;gap:var(--sz-2);margin-bottom:var(--sz-1)}
 .game-list-header h2{font-size:var(--sz-4);font-weight:var(--fw-bold)}
 .back-home{background:none;color:var(--c-text);font-size:var(--sz-4);padding:var(--sz-1);width:var(--sz-5);height:var(--sz-5);display:flex;align-items:center;justify-content:center;border-radius:50%}
-.game-card{background:var(--c-surface);border-radius:var(--r-lg);padding:var(--sz-2);display:flex;align-items:center;gap:var(--sz-2);box-shadow:0 var(--sz-0) var(--sz-1) rgba(0,0,0,.06);cursor:pointer;transition:all .15s;border:var(--border-1) solid transparent}
+.game-card{background:var(--c-surface);border-radius:var(--r-lg);padding:var(--sz-1) var(--sz-2);display:flex;align-items:center;gap:var(--sz-2);box-shadow:0 var(--sz-0) var(--sz-1) rgba(0,0,0,.06);cursor:pointer;transition:all .15s;border:var(--border-1) solid transparent}
 .game-card:active{transform:scale(.98);border-color:var(--c-primary)}
 .game-card .num{width:var(--sz-5);height:var(--sz-5);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-weight:var(--fw-bold);font-size:var(--sz-3);color:var(--c-surface);flex-shrink:0}
 .game-card .info{flex:1;min-width:0}
@@ -361,7 +361,11 @@ button{min-height:var(--tap);min-width:var(--tap)}
 </style>
 <script>
 (function(){var p=localStorage.getItem('palette')||'default';
-document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('pal-'+p);});
+document.addEventListener('DOMContentLoaded',function(){
+  document.body.classList.add('pal-'+p);
+  var n=document.getElementById('nickname-text');
+  if(n&&typeof getOrCreateNickname==='function'){n.textContent=getOrCreateNickname();}
+});
 })();
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
@@ -378,6 +382,7 @@ if('serviceWorker' in navigator){
   <h1>Liking Likelihood</h1>
   <h2>Erice School 2026</h2>
   <input class="room-input" id="room-code" placeholder="Room code (optional)" maxlength="20" style="margin-top:var(--sz-2)">
+  <div id="nickname-display" style="margin-top:var(--sz-1);color:rgba(255,255,255,.85);font-size:var(--sz-2);text-align:center">You are: <b id="nickname-text">…</b></div>
   <div class="palette-picker" id="palette-picker">
     <h3>Palettes</h3>
     <button class="pal-card selected" data-pal="default" onclick="setPalette('default')" aria-pressed="true" aria-label="Default palette">
@@ -439,11 +444,46 @@ if('serviceWorker' in navigator){
 </div>
 
 <script>
+// ===== TELEMETRY =====
+// Set this to your Apps Script web-app URL to enable score logging.
+// Leave as empty string to disable (game still plays normally).
+const LOG_URL = '';
+
+const NICK_ADJ  = ['Pink','Bold','Calm','Wise','Lucky','Brave','Jolly','Silver','Golden','Tiny','Mighty','Swift','Curious','Quiet','Sunny','Witty','Eager','Snowy','Mellow','Plucky'];
+const NICK_NOUN = ['Otter','Owl','Fox','Wombat','Heron','Lynx','Badger','Magpie','Newt','Octopus','Falcon','Beaver','Robin','Marten','Toad','Stoat','Crane','Hare','Lemur','Quokka'];
+function generateNickname(){
+  const a = NICK_ADJ[Math.floor(Math.random()*NICK_ADJ.length)];
+  const n = NICK_NOUN[Math.floor(Math.random()*NICK_NOUN.length)];
+  const num = Math.floor(Math.random()*90)+10;
+  return a + n + num;
+}
+function getOrCreateNickname(){
+  let nick = localStorage.getItem('ll_nickname');
+  if(!nick){ nick = generateNickname(); localStorage.setItem('ll_nickname', nick); }
+  return nick;
+}
+function logEvent(payload){
+  if(!LOG_URL || !S.roomCode) return;
+  try {
+    fetch(LOG_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify(Object.assign({
+        ts: Date.now(),
+        room: S.roomCode,
+        player: S.playerNickname
+      }, payload))
+    });
+  } catch(e){}
+}
+
 // ===== STATE =====
 const S = {
   mode: 'random', // per-game, toggled by slider
   gameTutorial: {1:false,2:false,3:false,4:false,5:false,6:false,7:false,8:false,9:false,10:false},
   roomCode: '',
+  playerNickname: '',
   currentGame: null,
   rounds: [],
   currentRound: 0,
@@ -869,6 +909,8 @@ function goToTitle(){showPage('title-page')}
 
 function goToGameList(){
   S.roomCode=document.getElementById('room-code').value.trim();
+  S.playerNickname=getOrCreateNickname();
+  logEvent({event:'session_start'});
   renderGameCards();
   showPage('game-list');
 }
@@ -1134,6 +1176,16 @@ function enableNextBtn(){
   const isLast=S.currentRound>=S.rounds.length-1;
   b.disabled=false;
   b.textContent=isLast?'See Results':'Guess Again';
+  const rd=S.rounds[S.currentRound];
+  const gid=S.currentGame;
+  logEvent({
+    event:'round',
+    game:gid,
+    round:S.currentRound+1,
+    correct:rd?(rd.correct===true):null,
+    score:S.scores[gid-1],
+    is_last:isLast
+  });
 }
 
 function renderRound(){
@@ -1183,8 +1235,9 @@ function renderRound(){
 
 // ===== GAME 1: PROBABILITY =====
 function renderGame1(rd){
-  Z.top.innerHTML=getBoxHTML(1)+gameDescHTML(1);
-  Z.text.innerHTML='Which dice?';
+  Z.top.innerHTML=getBoxHTML(1)+gameDescHTML(1)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which dice?</div>`;
+  Z.text.innerHTML='';
+  Z.text.style.display='none';
   Z.buttons.innerHTML=`<div class="guess-grid">
     ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" onclick="guessGame1(${d})">${d}</button>`).join('')}
   </div>`;
@@ -1202,16 +1255,17 @@ function guessGame1(guess){
 
   document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
   revealDieInHand(rd.die, correct);
-  Z.text.innerHTML='<div id="bars-area" class="bars-wrap"></div>';
-  showLikelihoodBars('bars-area',null,[4,6,8,10],[0.25,0.25,0.25,0.25],['0.25','0.25','0.25','0.25'],'probability');
+  Z.text.innerHTML='';
+  Z.text.style.display='none';
   renderStatsTable(Z.table,1);
   enableNextBtn();
 }
 
 // ===== GAME 2: LIKELIHOOD =====
 function renderGame2(rd){
-  Z.top.innerHTML=getBoxHTML(2)+gameDescHTML(2);
-  Z.text.innerHTML='Which dice?';
+  Z.top.innerHTML=getBoxHTML(2)+gameDescHTML(2)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which dice?</div>`;
+  Z.text.innerHTML='';
+  Z.text.style.display='none';
   Z.buttons.innerHTML=`<div class="guess-grid hidden-guess" id="guess-area">
     ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" onclick="guessGame2(${d})">${d}</button>`).join('')}
   </div>`;
@@ -1235,8 +1289,8 @@ function guessGame2(guess){
 
   document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
   revealDieInHand(rd.die, correct);
-  Z.text.innerHTML='<div id="bars-area" class="bars-wrap"></div>';
-  showLikelihoodBars('bars-area',rd.roll,[4,6,8,10],null,null,'likelihood',true);
+  Z.text.innerHTML='';
+  Z.text.style.display='none';
   renderStatsTable(Z.table,2);
   enableNextBtn();
 }
@@ -3358,10 +3412,10 @@ function renderStatsTable(bot, gameId){
       <span>Certain ${tally('certain')}</span></div>`;
   } else if(gameId===10){
     // Lower-is-better cumulative loss; no playedCount denominator.
-    scoreLine=`<div class="score-line"><span>Score</span><span>${score}</span></div>`;
+    scoreLine=`<div class="score-line" style="justify-content:center"><span>${score}</span></div>`;
   } else {
     const playedCount=S.rounds.slice(0,played).filter(r=>r.correct!=null).length;
-    scoreLine=`<div class="score-line"><span>Score</span><span>${score} / ${playedCount}</span></div>`;
+    scoreLine=`<div class="score-line" style="justify-content:center"><span>${score} / ${playedCount}</span></div>`;
   }
   const resultRd=S.rounds[S.currentRound];
   const resultMsgHtml=(gameId===9)
