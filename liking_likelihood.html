@@ -1189,9 +1189,9 @@ function enableNextBtn(){
   const ind=document.getElementById('result-indicator');
   if(ind){
     ind.className='result-indicator';
-    // Games 8 and 10 use graded scoring (points / distance), not a binary
-    // right/wrong — suppress the ✓/✗ badge there to avoid mis-signalling.
-    if(S.currentGame===8 || S.currentGame===10){ind.textContent='';}
+    // Games 8, 9 and 10 use graded scoring (head-to-head / points / distance),
+    // not a binary right/wrong — suppress the ✓/✗ badge there to avoid mis-signalling.
+    if(S.currentGame===8 || S.currentGame===9 || S.currentGame===10){ind.textContent='';}
     else if(rd && rd.correct===true){ind.classList.add('correct');ind.textContent='✓';}
     else if(rd && rd.correct===false){ind.classList.add('wrong');ind.textContent='✗';}
     else {ind.textContent='';}
