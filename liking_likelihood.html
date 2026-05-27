@@ -57,8 +57,8 @@ button:active{transform:scale(.95)}
 .dice-icons-title{font-size:var(--sz-5);letter-spacing:var(--sz-1);margin:var(--sz-1) 0}
 
 /* ===== GAME LIST PAGE ===== */
-#game-list{gap:var(--sz-2);padding-bottom:var(--sz-4)}
-.game-list-header{display:flex;align-items:center;gap:var(--sz-2);margin-bottom:var(--sz-1)}
+#game-list{gap:var(--sz-1);padding-bottom:var(--sz-4)}
+.game-list-header{display:flex;align-items:center;gap:var(--sz-2)}
 .game-list-header h2{font-size:var(--sz-4);font-weight:var(--fw-bold)}
 .back-home{background:none;color:var(--c-text);font-size:var(--sz-4);padding:var(--sz-1);width:var(--sz-5);height:var(--sz-5);display:flex;align-items:center;justify-content:center;border-radius:50%}
 .game-card{background:var(--c-surface);border-radius:var(--r-lg);padding:var(--sz-1) var(--sz-2);display:flex;align-items:center;gap:var(--sz-2);box-shadow:0 var(--sz-0) var(--sz-1) rgba(0,0,0,.06);cursor:pointer;transition:all .15s;border:var(--border-1) solid transparent}
@@ -84,15 +84,16 @@ button:active{transform:scale(.95)}
 .game-zone-table{flex:0 0 10rem;background:var(--c-surface);border-top:var(--border-1) solid var(--c-border);padding:var(--sz-1) var(--sz-2) var(--sz-1);overflow-y:auto}
 .stats-table{width:100%;border-collapse:collapse;font-size:var(--sz-2)}
 .stats-table th{padding:var(--sz-0) var(--sz-0);color:var(--c-text);font-weight:var(--fw-bold);text-align:center;white-space:nowrap;position:sticky;left:0;background:var(--c-surface);z-index:1;text-align:right;min-width:2.75rem}
-.stats-table td{padding:var(--sz-0) var(--sz-1);text-align:center;border-left:var(--border-1) solid var(--c-border);min-width:var(--sz-4)}
+.stats-table td{padding:var(--sz-0) var(--sz-1);text-align:center;border-left:var(--border-1) solid var(--c-border);min-width:var(--sz-5);width:var(--sz-5)}
 .stats-table .correct{color:var(--c-success);font-weight:var(--fw-bold)}
 .stats-table .incorrect{color:var(--c-danger);font-weight:var(--fw-bold)}
 .stats-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .score-line{display:flex;justify-content:space-between;align-items:center;margin-top:var(--sz-1);font-weight:var(--fw-bold);font-size:var(--sz-2)}
 .result-line{min-height:1.75rem;display:flex;align-items:center;justify-content:center;text-align:center;font-size:var(--sz-3);margin-top:var(--sz-1);padding:var(--sz-0) var(--sz-1)}
 .next-btn{background:var(--c-primary);color:var(--c-surface);padding:var(--sz-2) var(--sz-4);font-size:var(--sz-2);margin-top:var(--sz-2)}
-.next-game-btn{background:var(--c-blue);color:var(--c-surface);padding:var(--sz-2) var(--sz-4);font-size:var(--sz-2);margin-top:var(--sz-1);width:100%}
-.back-games-btn{background:var(--c-border);color:var(--c-text);padding:var(--sz-2) var(--sz-4);font-size:var(--sz-2);margin-top:var(--sz-1);width:100%}
+.result-indicator{display:none;align-items:center;justify-content:center;min-width:var(--sz-4);height:var(--sz-4);padding:0 var(--sz-1);border-radius:var(--r-sm);font-weight:var(--fw-bold);color:var(--c-surface);font-size:var(--sz-2)}
+.result-indicator.correct{display:inline-flex;background:var(--c-success)}
+.result-indicator.wrong{display:inline-flex;background:var(--c-danger)}
 
 /* ===== REEL SPINNER ===== */
 .reel-strip{transition:transform 2s cubic-bezier(.15,.85,.35,1);will-change:transform}
@@ -257,11 +258,6 @@ button:active{transform:scale(.95)}
 .hand-arm.reaching{top:1.875rem;opacity:1}
 .hand-arm.pulling{top:calc(var(--sz-5) * -1);opacity:1}
 .hand-arm.revealing{top:-3.4375rem;opacity:1}
-.reveal-msg-slot{position:absolute;top:var(--sz-2);right:var(--sz-2);z-index:7;opacity:0;transition:opacity .3s;white-space:nowrap;pointer-events:none}
-.reveal-msg-slot.shown{opacity:1}
-.reveal-msg{font-size:var(--sz-2);font-weight:var(--fw-bold);padding:var(--sz-1) var(--sz-2);border-radius:var(--r-sm)}
-.reveal-msg.correct{background:var(--c-success-bg);color:var(--c-success-fg)}
-.reveal-msg.incorrect{background:var(--c-danger-bg);color:var(--c-danger-fg)}
 .hand-shape{font-size:var(--sz-5);text-align:center;line-height:1;filter:drop-shadow(0 var(--sz-0) var(--sz-0) rgba(0,0,0,.2));transform:rotate(180deg)}
 .hand-held{position:absolute;top:0;left:50%;transform:translateX(-50%) translateY(3.75rem);font-size:var(--sz-5);font-weight:var(--fw-bold);opacity:0;transition:all .4s;z-index:5}
 .hand-held.shown{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -302,12 +298,6 @@ button:active{transform:scale(.95)}
 /* ===== SLIDER ===== */
 input[type=range]{width:100%;margin:var(--sz-1) 0}
 .slider-labels{display:flex;justify-content:space-between;font-size:var(--sz-2);color:var(--c-text);font-weight:var(--fw-bold)}
-
-/* ===== GAME END ===== */
-.game-end{text-align:center;gap:var(--sz-2);display:flex;flex-direction:column;align-items:center}
-.final-score{font-size:var(--sz-4);font-weight:var(--fw-bold)}
-.optimal-reveal{background:var(--c-surface);border-radius:var(--r-lg);padding:var(--sz-2);font-size:var(--sz-2);line-height:1.5;max-width:20rem;border:var(--border-1) solid var(--c-border);text-align:left}
-
 
 /* ===== PALETTES ===== */
 /* Colourblind: Wong (Nature 2011) — 4 distinct dice colours, then auxiliary colours appended */
@@ -435,7 +425,8 @@ if('serviceWorker' in navigator){
         <div style="display:flex;align-items:center;gap:var(--sz-1)">
           <button class="next-btn btn-compact" id="g9-start-btn" disabled style="display:none;margin:0" onclick="g9Start()">Race Start</button>
           <button class="next-btn btn-compact" id="g8-skip-btn" disabled style="display:none;background:var(--c-overlay-dark);margin:0" onclick="raceSkip()">Skip to end</button>
-          <button class="next-btn btn-compact" id="next-round-btn" disabled onclick="nextButtonClick()" style="margin:0">Guess Again</button>
+          <span class="result-indicator" id="result-indicator"></span>
+          <button class="next-btn btn-compact" id="next-round-btn" disabled onclick="nextButtonClick()" style="margin:0">Next Round</button>
         </div>
       </div>
     </div>
@@ -1126,16 +1117,6 @@ function revealDieInHand(dieValue, correct, boxHint){
     else qm.innerHTML=`<span class="qm-text" style="font-size:var(--sz-4);font-weight:var(--fw-bold)">${dieValue}</span>`;
   }
 
-  // Show message at top-right of zone-top
-  if(correct !== undefined){
-    const zt=document.getElementById('zone-top');
-    let slot=zt.querySelector('.reveal-msg-slot');
-    if(!slot){slot=document.createElement('div');slot.className='reveal-msg-slot';zt.appendChild(slot);}
-    const msgClass=correct?'correct':'incorrect';
-    const msgText=correct?'✓ Correct!':'✗ Wrong!';
-    slot.innerHTML=`<div class="reveal-msg ${msgClass}">${msgText}</div>`;
-    setTimeout(()=>slot.classList.add('shown'),100);
-  }
 }
 
 function startBoxAnimation(){
@@ -1169,14 +1150,31 @@ const Z = {
   get nextBtn(){return document.getElementById('next-round-btn')},
 };
 
-function disableNextBtn(){const b=Z.nextBtn;if(b){b.disabled=true;b.textContent='Guess Again';}}
+function disableNextBtn(){
+  const b=Z.nextBtn;if(b){b.disabled=true;b.textContent='Next Round';}
+  const ind=document.getElementById('result-indicator');
+  if(ind){ind.className='result-indicator';ind.textContent='';}
+}
 function nextButtonClick(){S.currentRound++;renderRound();}
 function enableNextBtn(){
   const b=Z.nextBtn;if(!b)return;
   const isLast=S.currentRound>=S.rounds.length-1;
-  b.disabled=false;
-  b.textContent=isLast?'See Results':'Guess Again';
   const rd=S.rounds[S.currentRound];
+  const ind=document.getElementById('result-indicator');
+  if(ind){
+    ind.className='result-indicator';
+    if(rd && rd.correct===true){ind.classList.add('correct');ind.textContent='✓';}
+    else if(rd && rd.correct===false){ind.classList.add('wrong');ind.textContent='✗';}
+    else {ind.textContent='';}
+  }
+  if(isLast){
+    S.completed[S.currentGame-1]=true;
+    b.disabled=true;
+    b.textContent='Game Over';
+  } else {
+    b.disabled=false;
+    b.textContent='Next Round';
+  }
   const gid=S.currentGame;
   logEvent({
     event:'round',
@@ -1218,8 +1216,6 @@ function renderRound(){
 
   const totalRounds=10;
   if(rc)rc.textContent=`Round ${S.currentRound+1}/${totalRounds}`;
-
-  if(S.currentRound>=S.rounds.length){renderGameEnd();return;}
 
   S.phase='guess';
   const rd=S.rounds[S.currentRound];
@@ -1299,15 +1295,13 @@ function guessGame2(guess){
 function renderGame3(rd){
   g3Die=null;S.game3ConfPick=null;
   const [a,b]=rd.pair;
-  Z.top.innerHTML=getBoxHTML(3)+gameDescHTML(3);
-  Z.text.innerHTML=`<div id="g3-text" style="opacity:0;width:100%">Which dice?</div>`;
+  Z.top.innerHTML=getBoxHTML(3)+gameDescHTML(3)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which dice?</div>`;
+  Z.text.innerHTML='';
+  Z.text.style.display='none';
   Z.buttons.innerHTML=`<div class="g3-grid hidden-guess" id="pick-area" style="align-items:end">
-    <div style="grid-column:1/3;display:flex;flex-direction:column;gap:var(--sz-0)">
-      <div class="g3-conf-label">Which dice?</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sz-1);justify-items:center">
-        <button class="guess-btn" data-die="${a}" onclick="pickGame3Die(${a})">${a}</button>
-        <button class="guess-btn" data-die="${b}" onclick="pickGame3Die(${b})">${b}</button>
-      </div>
+    <div style="grid-column:1/3;display:grid;grid-template-columns:1fr 1fr;gap:var(--sz-1);justify-items:center">
+      <button class="guess-btn" data-die="${a}" onclick="pickGame3Die(${a})">${a}</button>
+      <button class="guess-btn" data-die="${b}" onclick="pickGame3Die(${b})">${b}</button>
     </div>
     <div class="g3-conf-wrap" id="g3-conf">
       <div class="g3-conf-label">How confident?</div>
@@ -1323,9 +1317,7 @@ function renderGame3(rd){
     rd.rollShown=true;
     renderStatsTable(Z.table,3);
     const pa=document.getElementById('pick-area');
-    const gt=document.getElementById('g3-text');
     if(pa){pa.style.opacity='1';pa.style.pointerEvents='auto';}
-    if(gt){gt.style.opacity='1';}
   },1800);
 }
 
@@ -1340,27 +1332,16 @@ function submitGame3(){
   const rd=S.rounds[S.currentRound];
   const [a,b]=rd.pair;
   const pa=prob(rd.roll,a), pb=prob(rd.roll,b);
-  const bestDie=pa>=pb?a:b;
   const ratio=(pa===0||pb===0)?Infinity:Math.max(pa,pb)/Math.min(pa,pb);
   const correctConf=ratio>3||ratio===Infinity?'certain':ratio>1.5?'medium-high':'low';
   const dieCorrect=g3Die===rd.die;
   if(dieCorrect)S.scores[2]++;
   rd.guess=g3Die;rd.conf=S.game3ConfPick;rd.correct=dieCorrect;rd.ratio=ratio;rd.correctConf=correctConf;
 
+  // Disable all picker buttons in place (no layout shift — matches Game 1's pattern).
   document.querySelectorAll('#pick-area .guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===g3Die)b.classList.add('selected')});
+  document.querySelectorAll('#pick-area .g3-conf-btn').forEach(b=>{b.disabled=true;if(b.dataset.conf===S.game3ConfPick)b.classList.add('selected')});
   revealDieInHand(rd.die, dieCorrect);
-
-  // Show 2 bars on left (aligned with die buttons), ratio on right
-  const ratioStr=ratio===Infinity?'∞':ratio.toFixed(2);
-  Z.text.innerHTML=`<div class="g3-grid">
-    <div class="g3-bars-wrap" id="bars-area"></div>
-    <div class="g3-ratio-info">
-      <div class="t-sm-b">likelihood ratio</div>
-      <div style="font-size:var(--sz-4);font-weight:var(--fw-bold)">${ratioStr}</div>
-      <div class="t-smb" style="color:var(--c-text-muted)">${correctConf}</div>
-    </div>
-  </div>`;
-  showLikelihoodBars('bars-area',rd.roll,[a,b],null,null,'likelihood');
   renderStatsTable(Z.table,3);
   enableNextBtn();
   g3Die=null;S.game3ConfPick=null;
@@ -1368,13 +1349,14 @@ function submitGame3(){
 
 // ===== GAME 4: INDEPENDENCE =====
 function renderGame4(rd){
-  Z.top.innerHTML=getBoxHTML(4)+gameDescHTML(4);
+  Z.top.innerHTML=getBoxHTML(4)+gameDescHTML(4)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which dice?</div>`;
   // Replace single ? circle with 3 circles for 3 rolls
   const held=document.getElementById('box-held');
   if(held) held.innerHTML=`<div style="display:flex;gap:var(--sz-1)">
     ${[0,1,2].map(i=>`<div class="question-mark" style="width:2.625rem;height:2.625rem;font-size:var(--sz-3)"><span class="qm-text">?</span><div class="qm-reel" style="display:none"><div class="reel-strip" id="reel${i}"></div></div></div>`).join('')}
   </div>`;
-  Z.text.innerHTML='Which dice?';
+  Z.text.innerHTML='';
+  Z.text.style.display='none';
   Z.buttons.innerHTML=`<div class="guess-grid hidden-guess" id="guess-area">
     ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" onclick="guessGame4(${d})">${d}</button>`).join('')}
   </div>`;
@@ -1403,9 +1385,8 @@ function guessGame4(guess){
 
   document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
   revealDieInHand(rd.die, correct);
-  const prods=[4,6,8,10].map(d=>rd.rolls.reduce((p,r)=>p*prob(r,d),1));
-  Z.text.innerHTML='<div id="bars-area" class="bars-wrap"></div>';
-  showLikelihoodBars('bars-area',null,[4,6,8,10],prods,null,'likelihood');
+  Z.text.innerHTML='';
+  Z.text.style.display='none';
   renderStatsTable(Z.table,4);
   enableNextBtn();
 }
@@ -1587,7 +1568,6 @@ function g5LLGLevel(x, sides){
 }
 
 function renderGame5(){
-  if(S.currentRound>=S.rounds.length){renderGameEnd();return;}
   const rd=S.rounds[S.currentRound];
   S.phase='guess';
   S.g5={
@@ -1999,9 +1979,9 @@ function g5Guess(pick){
 
 // ===== GAME 6: BAYES =====
 function renderGame6(rd){
-  Z.text.style.flexBasis='10rem'; // taller reveal: prior+likelihood+posterior bars
-  Z.top.innerHTML=getBoxHTML(6)+gameDescHTML(6);
-  Z.text.innerHTML='Which dice?';
+  Z.top.innerHTML=getBoxHTML(6)+gameDescHTML(6)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which dice?</div>`;
+  Z.text.innerHTML='';
+  Z.text.style.display='none';
   const a=rd.diceA,b=rd.diceB;
   Z.buttons.innerHTML=`<div class="guess-grid hidden-guess" id="guess-area" style="grid-template-columns:1fr 1fr;max-width:25rem">
     <button class="guess-btn" data-die="${a}" onclick="guessGame6(${a})" style="font-size:var(--sz-4)">${a}</button>
@@ -2026,53 +2006,17 @@ function guessGame6(guess){
 
   document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
   revealDieInHand(rd.die, correct);
-
-  const a=rd.diceA,b=rd.diceB;
-  const priorA=rd.countA/8,priorB=rd.countB/8;
-  const likA=prob(rd.roll,a),likB=prob(rd.roll,b);
-  const postA_raw=priorA*likA, postB_raw=priorB*likB;
-  const total=postA_raw+postB_raw;
-  const postA=total>0?postA_raw/total:0, postB=total>0?postB_raw/total:0;
-  const barH=120;
-
-  // For each die: prior + likelihood side by side, then posterior appears after delay
-  // All scaled to max=1 (probability)
-  function bayesCol(die,prior,lik,post,count){
-    const dieColor=DIE_COLORS[die];
-    const boxColor='#b8895e';
-    return `<div class="b6-die-col">
-      <div class="b6-bars">
-        <div class="b6-bar-wrap"><span class="b6-vlabel">prior</span><div class="b6-bar" style="background:${boxColor}" data-h="${prior*barH}"></div></div>
-        <div class="b6-bar-wrap"><span class="b6-vlabel">likelihood</span><div class="b6-bar" style="background:${dieColor}" data-h="${lik*barH}"></div></div>
-        <div class="b6-bar-wrap"><span class="b6-vlabel">posterior</span><div class="b6-bar post" data-h="0"></div></div>
-      </div>
-      <div class="b6-vals"><span>${count}/8</span><span>${frac(rd.roll,die)}</span><span class="b6-post-val" style="opacity:0">${lik>0?`${count}/${8*die}`:'0'}</span></div>
-    </div>`;
-  }
-
-  Z.text.innerHTML=`<div class="guess-grid" style="grid-template-columns:1fr 1fr;max-width:25rem;margin:0 auto;align-items:flex-end">
-    ${bayesCol(a,priorA,likA,postA,rd.countA)}
-    ${bayesCol(b,priorB,likB,postB,rd.countB)}
-  </div>`;
-
-  // Animate: prior+lik bars immediately, posterior after 1s
-  requestAnimationFrame(()=>{
-    Z.text.querySelectorAll('.b6-bar:not(.post)').forEach(f=>f.style.height=f.dataset.h+'px');
-    setTimeout(()=>{
-      const postBars=Z.text.querySelectorAll('.b6-bar.post');
-      postBars[0].style.height=postA*barH+'px';
-      postBars[1].style.height=postB*barH+'px';
-      Z.text.querySelectorAll('.b6-post-val').forEach(v=>v.style.opacity='1');
-    },1000);
-  });
+  Z.text.innerHTML='';
+  Z.text.style.display='none';
   renderStatsTable(Z.table,6);
   enableNextBtn();
 }
 
 // ===== GAME 7: MARGINALIZATION =====
 function renderGame7(rd){
-  Z.top.innerHTML=getBoxHTML(7)+gameDescHTML(7);
-  Z.text.innerHTML='Which box?';
+  Z.top.innerHTML=getBoxHTML(7)+gameDescHTML(7)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which box?</div>`;
+  Z.text.innerHTML='';
+  Z.text.style.display='none';
   Z.buttons.innerHTML=`<div class="hidden-guess" id="guess-area" style="display:flex;gap:var(--sz-5);justify-content:center;width:17.5rem;margin:0 auto">
     <button class="guess-btn" style="background:var(--c-amber);width:7.5rem;min-height:3.5rem" onclick="guessGame7('amber')">Amber</button>
     <button class="guess-btn" style="background:var(--c-blue);width:7.5rem;min-height:3.5rem" onclick="guessGame7('blue')">Blue</button>
@@ -2090,34 +2034,13 @@ function guessGame7(guess){
   if(S.phase!=='guess')return;
   S.phase='reveal';
   const rd=S.rounds[S.currentRound];
-  const r=rd.roll;
-  const ad=rd.amberDice,bd=rd.blueDice;
-  const pAmber=prob(r,ad[0])*.5+prob(r,ad[1])*.5;
-  const pBlue=prob(r,bd[0])*.5+prob(r,bd[1])*.5;
-  const ratio=Math.min(pAmber,pBlue)>0?Math.max(pAmber,pBlue)/Math.min(pAmber,pBlue):Infinity;
-  const tooClose=ratio<1.1;
-  const bestBox=pAmber>pBlue?'amber':'blue';
   const correct=guess===rd.box;
   if(correct)S.scores[6]++;
-  rd.guess=guess;rd.correct=correct;rd.pAmber=pAmber;rd.pBlue=pBlue;
+  rd.guess=guess;rd.correct=correct;
 
   revealDieInHand(rd.die, correct, rd.box);
-  const maxP=Math.max(pAmber,pBlue);
-  const barH=40;
-  Z.text.innerHTML=`<div style="display:flex;gap:var(--sz-5);justify-content:center;align-items:flex-end;width:17.5rem;margin:0 auto">
-    <div style="width:7.5rem;text-align:center">
-      <div class="lbar-val">${pAmber.toFixed(3)}</div>
-      <div class="lbar-track-v" style="height:${(barH)/16}rem"><div class="lbar-fill-v" style="height:0;background:var(--c-amber)${pAmber>=pBlue?';box-shadow:0 0 var(--sz-1) gold':''}" data-h="${maxP>0?pAmber/maxP*100:0}"></div></div>
-      <div class="t-smb" style="color:var(--c-amber)">Amber</div>
-    </div>
-    <div style="width:7.5rem;text-align:center">
-      <div class="lbar-val">${pBlue.toFixed(3)}</div>
-      <div class="lbar-track-v" style="height:${(barH)/16}rem"><div class="lbar-fill-v" style="height:0;background:var(--c-blue)${pBlue>pAmber?';box-shadow:0 0 var(--sz-1) gold':''}" data-h="${maxP>0?pBlue/maxP*100:0}"></div></div>
-      <div class="t-smb" style="color:var(--c-blue)">Blue</div>
-    </div>
-  </div>`;
-  requestAnimationFrame(()=>Z.text.querySelectorAll('.lbar-fill-v').forEach(f=>f.style.height=f.dataset.h+'%'));
-
+  Z.text.innerHTML='';
+  Z.text.style.display='none';
   renderStatsTable(Z.table,7);
   enableNextBtn();
 }
@@ -2448,7 +2371,6 @@ function g9BiasedRoll(sides, weights){
 }
 
 function renderGame9(){
-  if(S.currentRound>=S.rounds.length){renderGame9End();return;}
   const rd=S.rounds[S.currentRound];
   // Animals fixed per round — don't reshuffle on handicap re-render.
   if(!rd.animals) rd.animals=g9SampleAnimals(rd.maxSum);
@@ -2832,23 +2754,6 @@ function g9Finish(){
   enableNextBtn();
 }
 
-function renderGame9End(){
-  S.completed[8]=true;
-  const score=S.scores[8];
-  Z.top.style.justifyContent='center';
-  Z.top.innerHTML=`<div class="game-end">
-    <div class="final-score">${score} tokens</div>
-    <div class="t-sm">${score>=900?'CLT champion!':score>=500?'Strong intuition!':score>=200?'Getting there!':'Keep playing!'}</div>
-    <div class="optimal-reveal" style="margin-top:var(--sz-1)">Concentrating tokens on the right lane multiplies your payout quadratically; spreading too thin shrinks it. Believing more strongly in the right outcome — and being right — is what wins.
-    When you sum N independent rolls of the same biased dice, the distribution of sums tends toward a <b>Gaussian</b> centred on N·µ with σ ∝ √N — the <b>Central Limit Theorem</b>. In crystallography, the structure factor is a sum of atomic scattering contributions, giving the Wilson distribution of amplitudes.</div>
-    <button class="next-game-btn" onclick="startGame(10)">Game 10: Expectation →</button>
-    <button class="back-games-btn" onclick="exitGame()">Back to Games</button>
-  </div>`;
-  Z.text.style.display='none';
-  Z.buttons.style.display='none';
-  Z.table.style.display='none';
-  Z.next.style.display='none';
-}
 
 // Bias state (used by Game 9 horse race)
 let cltDieSides=6;
@@ -3011,7 +2916,6 @@ function g10TrackHTML(positions, animals, trackLen, winnerLane, isPlayer){
 }
 
 function renderGame10(){
-  if(S.currentRound>=S.rounds.length){renderGame10End();return;}
   const rd = S.rounds[S.currentRound];
   // Initial guess: a random combo from the 28 valid options.
   const initIdx=Math.floor(Math.random()*G10_VALID_COMBOS.length);
@@ -3041,7 +2945,7 @@ function renderGame10(){
     <div id="g10-bias-bars"></div>
   </div>`;
 
-  // Race! button lives in zone-next next to Guess Again, like Games 8/9.
+  // Race! button lives in zone-next next to Next Round, like Games 8/9.
   const g9Btn=document.getElementById('g9-start-btn');
   if(g9Btn){
     g9Btn.style.display='';
@@ -3212,44 +3116,6 @@ function g10HideDots(roundIdx){
 function g10ToggleDots(roundIdx){
   const existing = document.querySelectorAll(`.g10-track [data-dot-round="${roundIdx}"]`);
   if(existing.length) g10HideDots(roundIdx); else g10ShowDots(roundIdx);
-}
-
-function renderGame10End(){
-  S.completed[9]=true;
-  const score = S.scores[9];
-  const rd = S.rounds[0];
-  const actualDice = rd ? rd.diceSides.slice() : [4,4,4];
-  const actualBias = rd ? rd.bias : 'fair';
-  // Show the actual config highlighted, with all picker controls disabled.
-  S.g10 = {
-    selectedDice: actualDice.slice(),
-    bias: actualBias,
-    submitted: true,
-  };
-  S.phase = 'reveal';
-  Z.top.style.padding='var(--sz-3) var(--sz-0) var(--sz-1) var(--sz-0)';
-  Z.text.style.display = 'none';
-  Z.buttons.style.display='none';
-  Z.table.style.flexBasis = '11rem';
-
-  Z.top.innerHTML = `<div class="g8-wrap" style="width:100%;margin:0 auto">
-    <div class="t-smb ta-c">The actual three dice + bias</div>
-    <div id="g10-dice-row" style="display:flex;justify-content:center;align-items:center;gap:var(--sz-1);margin:0 auto var(--sz-1)"></div>
-    <div id="g10-bias-buttons"></div>
-    <div id="g10-bias-bars" style="margin-bottom:var(--sz-1)"></div>
-    <div class="t-sm ta-c" style="opacity:.7">results of the hidden race</div>
-    ${rd ? g10TrackHTML(rd.actualPositions, rd.animals, rd.trackLen, null, false) : ''}
-    <div style="margin-top:var(--sz-2);text-align:center">
-      <div class="t-sm">${score<=60?'Sharp inference!':score<=120?'Reading the distribution.':score<=200?'Getting calibrated.':'Try again — read the spread!'}</div>
-    </div>
-  </div>`;
-  Z.text.innerHTML = '';
-  // Replace Race Start with Back-to-Games button.
-  const g9Btn=document.getElementById('g9-start-btn');
-  if(g9Btn){ g9Btn.style.display=''; g9Btn.disabled=false; g9Btn.textContent='Back to Games'; g9Btn.onclick=exitGame; }
-  renderStatsTable(Z.table, 10);
-  g10RenderDiceRow();
-  g10RenderBias();
 }
 
 // ===== SHARED: LIKELIHOOD BARS =====
@@ -3427,53 +3293,6 @@ function renderStatsTable(bot, gameId){
   </table></div>
   ${resultMsgHtml}
   ${scoreLine}`;
-}
-
-// ===== SHARED: GAME END =====
-function renderGameEnd(){
-  const id=S.currentGame;
-  S.completed[id-1]=true;
-  const score=S.scores[id-1];
-  const total=12;
-  const nextId=id<10?id+1:null;
-  let endScoreHtml, msg;
-  if(id===3){
-    const tally=(c)=>{const g=S.rounds.filter(r=>r.conf===c);const right=g.filter(r=>r.guess===r.die);return `${right.length}/${g.length}`;};
-    const catScore=S.rounds.filter(r=>r.conf===r.correctConf).length;
-    endScoreHtml=`<div style="display:flex;gap:var(--sz-2);justify-content:center;font-size:var(--sz-3);font-weight:var(--fw-bold);flex-wrap:wrap">
-      <span style="color:var(--c-success)">Low ${tally('low')}</span>
-      <span style="color:#e67e22">Med-High ${tally('medium-high')}</span>
-      <span style="color:var(--c-danger)">Certain ${tally('certain')}</span></div>
-      <div style="font-size:var(--sz-3);font-weight:var(--fw-bold);margin-top:var(--sz-1)">Categorization: ${catScore}/10</div>`;
-    const pct=catScore/total;
-    msg=pct>0.8?'Expert!':pct>=0.6?'Good intuition!':pct>=0.4?'Getting there!':'Keep practising!';
-  } else if(id===5){
-    const playerTotal=S.rounds.reduce((s,r)=>s+(r.playerPot||0),0);
-    const houseTotal =S.rounds.reduce((s,r)=>s+(r.housePot||0),0);
-    const cup = playerTotal>houseTotal ? `<div style="font-size:var(--sz-6)">🏆</div>` : '';
-    endScoreHtml=`${cup}
-      <div style="display:flex;gap:var(--sz-3);justify-content:center;font-size:var(--sz-4);font-weight:var(--fw-bold);flex-wrap:wrap">
-        <span style="color:var(--c-gold)">Player ${playerTotal}</span>
-        <span style="color:var(--c-blue)">House ${houseTotal}</span>
-      </div>`;
-    msg = playerTotal>houseTotal ? 'You beat the house!'
-        : houseTotal>playerTotal ? 'The house wins this time.'
-        : 'Even split with the house.';
-  } else {
-    endScoreHtml=`<div class="final-score">${score} / ${total}</div>`;
-    const pct=score/total;
-    msg=pct>0.5?'You cheated!':pct>=0.4?'Lucky!':pct>=0.15?'Good guessing!':'Unlucky!';
-  }
-  Z.top.innerHTML=`<div class="game-end">
-    ${endScoreHtml}
-    <div class="t-sm">${msg}</div>
-    ${nextId?`<button class="next-game-btn" onclick="startGame(${nextId})">Game ${nextId}: ${GAMES[nextId-1].title} →</button>`:''}
-    <button class="back-games-btn" onclick="exitGame()">Back to Games</button>
-  </div>`;
-  Z.text.innerHTML='';
-  Z.buttons.innerHTML='';
-  Z.next.style.display='none';
-  Z.table.innerHTML='';
 }
 
 // ===== REEL SPINNER =====
