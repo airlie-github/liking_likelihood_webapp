@@ -2658,9 +2658,9 @@ function g9Finish(){
   enableNextBtn();
 }
 
-// Round counter text for Game 9: shows round number + cumulative head-to-head scores.
+// Round counter text for Game 9: round number only — cumulative scores live in the stats table.
 function g9RoundCounterText(){
-  return `Round ${S.currentRound+1}/10 · You ${S.scores[8]} · House ${S.houseScores[8]}`;
+  return `Round ${S.currentRound+1}/10`;
 }
 
 
