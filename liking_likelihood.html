@@ -149,9 +149,6 @@ button:active{transform:scale(.95)}
 .g3-conf-btn[data-conf="medium-high"]{background:var(--c-orange)}
 .g3-conf-btn[data-conf="certain"]{background:var(--c-danger)}
 .g3-conf-btn.selected{box-shadow:0 0 0 var(--sz-0) gold;transform:scale(1.05)}
-.g3-bars-wrap{grid-column:1/3}
-.g3-bars-wrap .likelihood-bars{max-width:none}
-.g3-ratio-info{grid-column:3/5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 
 /* ===== GAME 5 BIAS DETECTIVE — borrows Game 9's bias-preset/bars/tokens visual ===== */
 .g5-rollers-row{display:flex;gap:0.125rem;align-items:center;flex:1;justify-content:flex-end;flex-wrap:nowrap}
@@ -163,10 +160,6 @@ button:active{transform:scale(.95)}
 /* ===== HORSE RACE (game 8) ===== */
 .g8-wrap{display:flex;flex-direction:column;gap:var(--sz-1)}
 .g8-controls{display:flex;align-items:center;gap:var(--sz-1);justify-content:center;flex-wrap:wrap}
-.g8-len-bar{display:flex;height:0.625rem;width:100%;max-width:24rem;margin:0 auto;background:var(--c-border);border-radius:var(--r-sm);overflow:hidden;border:var(--border-1) solid var(--c-border-strong)}
-.g8-len-seg{flex:1;border-right:var(--border-1) dashed rgba(0,0,0,.15)}
-.g8-len-seg:last-child{border-right:none}
-.g8-len-seg.filled{background:var(--c-blue)}
 .g8-dice-row{display:flex;align-items:center;gap:var(--sz-1);min-height:3.5rem;font-size:var(--sz-4);font-weight:var(--fw-bold)}
 .g8-hand{font-size:var(--sz-4);line-height:1;flex-shrink:0;display:inline-block;transform:rotate(90deg)}
 .g8-die{width:1.5rem;height:1.5rem;color:var(--c-surface);font-size:var(--sz-2);font-weight:var(--fw-bold);display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -181,28 +174,25 @@ button:active{transform:scale(.95)}
 .g8-roller .qm-reel .reel-strip{width:100%;will-change:transform}
 .g8-roller .qm-reel .reel-num{width:100%;display:flex;align-items:center;justify-content:center;font-weight:var(--fw-bold);color:var(--c-surface)}
 .g8-eq{font-size:var(--sz-4);font-weight:var(--fw-bold);color:var(--c-text)}
-.g8-sum{font-size:var(--sz-4);font-weight:var(--fw-bold);color:var(--c-text);min-width:2ch;text-align:right;display:inline-block}
 .g8-track{display:flex;flex-direction:column;gap:0}
 .g8-lane{display:flex;align-items:center;gap:var(--sz-0);padding:0 var(--sz-0);border-radius:var(--r-sm);transition:background .2s}
 .g8-label{font-size:var(--sz-3);font-weight:var(--fw-bold);width:2rem;text-align:left;flex-shrink:0;color:var(--c-text)}
 .g8-flag{font-size:var(--sz-4);line-height:1;cursor:pointer;flex-shrink:0;opacity:0.3;filter:grayscale(1);transition:opacity .15s,filter .15s,transform .15s;user-select:none}
 .g8-flag:hover{opacity:0.6}
 .g8-flag.selected{opacity:1;filter:none;transform:scale(1.2)}
-@keyframes g8-cup-flash{0%,100%{opacity:1;transform:scale(1.15)}50%{opacity:.2;transform:scale(.85)}}
-.g8-bet-row{display:inline-flex;gap:var(--sz-1);align-items:center;justify-content:center;font-size:var(--sz-5);line-height:1}
-.g8-cup{visibility:hidden;line-height:1}
-.g8-cup.shown{visibility:visible;animation:g8-cup-flash .45s ease-in-out 3}
 .g9-tokens-row{display:flex;justify-content:center;align-items:center;gap:0;margin:var(--sz-0) auto var(--sz-0);font-size:var(--sz-3);line-height:1}
 .g9-tokens-row span{margin-left:-0.125rem}
 .g9-tokens-row span:first-child{margin-left:0}
 .g9-lane-tokens{display:inline-flex;flex-shrink:0;align-items:center;justify-content:flex-end;height:var(--sz-4);min-width:1.5rem}
 .g9-lane-tokens svg{display:block;flex-shrink:0}
+.g9-bet-cell{display:flex;align-items:center;gap:var(--sz-0);flex-shrink:0;min-width:3rem;justify-content:flex-end}
+.g9-bet-headers{display:flex;align-items:center;gap:var(--sz-0);padding:0 var(--sz-0);font-size:var(--sz-2);font-weight:var(--fw-bold);color:var(--c-text);margin-top:var(--sz-0)}
+.g9-bet-header-cell{justify-content:center}
+.g9-house-flag{cursor:default;pointer-events:none;min-width:var(--sz-4)}
 .g10-combo-bar{display:inline-flex;align-items:center;justify-content:center;gap:var(--sz-0);min-width:8rem;height:2rem;background:var(--c-gold);border-radius:var(--r-md);padding:0 var(--sz-1);border:0.0625rem solid #a87a0d;flex-shrink:0;transition:background .15s}
 .g10-arrow{padding:0 var(--sz-1);font-size:var(--sz-4);background:none;border:none;cursor:pointer;color:var(--c-text);min-width:0;min-height:0;line-height:1}
 .g10-arrow:hover{color:var(--c-blue)}
 .g10-arrow:disabled{opacity:.35;cursor:default}
-.g8-dice-count{padding:var(--sz-0) var(--sz-2);font-size:var(--sz-2);font-weight:var(--fw-bold);border-radius:var(--r-sm);background:var(--c-border);color:var(--c-text);min-height:0;cursor:pointer}
-.g8-dice-count.selected{background:var(--c-blue);color:var(--c-surface)}
 .g8-bar-zone{flex:1;display:flex;align-items:center;height:var(--sz-4)}
 .g8-observer{flex:0 0 var(--sz-4);width:var(--sz-4);height:var(--sz-4);font-size:var(--sz-4);line-height:1;display:flex;align-items:center;justify-content:center;opacity:.55;margin-left:var(--sz-1)}
 .g8-bar{position:relative;height:100%;background:var(--c-border);border-radius:var(--r-sm);overflow:visible}
@@ -210,26 +200,6 @@ button:active{transform:scale(.95)}
 .g8-step{flex:1;background:rgba(0,0,0,0.04);border-right:var(--border-1) solid rgba(0,0,0,.18)}
 .g8-step:last-child{border-right:none;background:linear-gradient(90deg,rgba(0,0,0,0.04),var(--c-success-bg))}
 .g8-token{position:absolute;top:calc(var(--sz-4) * -0.25);left:calc(var(--sz-4) * -0.5);width:var(--sz-4);height:var(--sz-4);display:flex;align-items:center;justify-content:center;font-size:var(--sz-4);line-height:1;transition:left .35s ease-out;z-index:1;transform:scaleX(-1)}
-
-/* ===== LIKELIHOOD BARS (vertical) ===== */
-.likelihood-bars{display:flex;gap:var(--sz-1);justify-content:center;align-items:flex-end;width:100%;max-width:20rem}
-.lbar-col{display:flex;flex-direction:column;align-items:center;gap:var(--sz-0);flex:1}
-.lbar-track-v{width:100%;height:2.5rem;background:var(--c-border);border-radius:var(--r-sm) var(--r-sm) 0 0;position:relative;display:flex;align-items:flex-end;overflow:hidden}
-.lbar-fill-v{width:100%;border-radius:var(--r-sm) var(--r-sm) 0 0;transition:height .6s ease-out;height:0}
-.lbar-fill-v.d4{background:var(--c-die-1)}.lbar-fill-v.d6{background:var(--c-die-2)}
-.lbar-fill-v.d8{background:var(--c-die-3)}.lbar-fill-v.d10{background:var(--c-die-4)}
-.lbar-fill-v.best{box-shadow:0 0 var(--sz-1) gold}
-.lbar-val{font-size:var(--sz-2);color:var(--c-text);font-weight:var(--fw-bold);text-align:center}
-.lbar-heading{font-size:var(--sz-2);color:var(--c-text);font-weight:var(--fw-bold);text-align:center;margin-bottom:var(--sz-0)}
-.lbar-star{color:gold;font-size:var(--sz-2)}
-/* ===== FEEDBACK ===== */
-.feedback{font-size:var(--sz-3);font-weight:var(--fw-bold);padding:var(--sz-2);border-radius:var(--r-lg);text-align:center;width:100%;max-width:20rem;animation:fadeIn .3s}
-.feedback.correct{background:var(--c-success-bg);color:var(--c-success-fg)}
-.feedback.incorrect{background:var(--c-danger-bg);color:var(--c-danger-fg)}
-@keyframes fadeIn{from{opacity:0;transform:translateY(calc(var(--sz-1) * -1))}to{opacity:1;transform:translateY(0)}}
-@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(calc(var(--sz-1) * -1))}40%,80%{transform:translateX(var(--sz-1))}}
-.shake{animation:shake .4s}
-
 
 /* ===== BOX ANIMATION ===== */
 .box-scene{position:relative;width:12.5rem;height:11.25rem;margin:0 auto}
@@ -250,7 +220,6 @@ button:active{transform:scale(.95)}
 .hand-arm{position:absolute;top:-3.75rem;left:50%;transform:translateX(-50%);z-index:4;transition:top .5s cubic-bezier(.34,1.56,.64,1);opacity:0}
 .hand-arm.reaching{top:1.875rem;opacity:1}
 .hand-arm.pulling{top:calc(var(--sz-5) * -1);opacity:1}
-.hand-arm.revealing{top:-3.4375rem;opacity:1}
 .hand-shape{font-size:var(--sz-5);text-align:center;line-height:1;filter:drop-shadow(0 var(--sz-0) var(--sz-0) rgba(0,0,0,.2));transform:rotate(180deg)}
 .hand-held{position:absolute;top:0;left:50%;transform:translateX(-50%) translateY(3.75rem);font-size:var(--sz-5);font-weight:var(--fw-bold);opacity:0;transition:all .4s;z-index:5}
 .hand-held.shown{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -264,34 +233,16 @@ button:active{transform:scale(.95)}
 .question-mark .qm-reel .reel-strip.spinning{filter:blur(var(--sz-0))}
 .question-mark .qm-reel .reel-num{width:100%;display:flex;align-items:center;justify-content:center;font-weight:var(--fw-bold);color:var(--c-surface)}
 
-/* ===== LOG-LIKELIHOOD DEMO ===== */
-.demo-btn{padding:var(--sz-2) var(--sz-3);border-radius:var(--r-lg);font-size:var(--sz-2);font-weight:var(--fw-bold)}
-.demo-btn.log-toggle{background:var(--c-gold);color:var(--c-surface)}
-
-/* ===== CLT HISTOGRAM ===== */
-.clt-hdot-hist{max-width:20rem;margin:0 auto}
-.clt-hrow{display:flex;align-items:center;gap:var(--sz-0);height:var(--sz-2)}
-.clt-hrow-label{font-size:var(--sz-2);font-weight:var(--fw-bold);color:var(--c-text);width:var(--sz-2);text-align:right}
-.clt-hrow-count{font-size:var(--sz-2);color:var(--c-text);width:var(--sz-2);text-align:right}
-.clt-hdots{display:flex;gap:var(--sz-0);align-items:center}
-.clt-hdot{width:var(--sz-1);height:var(--sz-1);border-radius:50%;background:var(--c-blue);flex-shrink:0}
 .bias-preset{padding:var(--sz-0) var(--sz-1);font-size:var(--sz-2);font-weight:var(--fw-bold);border-radius:var(--r-sm);background:var(--c-border);color:var(--c-text);min-height:0;min-width:0;flex:1;max-width:3rem;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
 .bias-preset.selected{background:var(--c-gold);color:var(--c-surface)}
 .bias-preset .bias-word{font-weight:normal;font-size:0.625rem;opacity:.85}
-.bias-slider{writing-mode:vertical-lr;direction:rtl;-webkit-appearance:slider-vertical;width:var(--sz-3);height:100%;margin:0;cursor:pointer}
-.clt-auto-hist{display:flex;align-items:flex-end;height:7.5rem;gap:0;max-width:20rem;margin:0 auto}
-.clt-auto-bar{flex:1;background:var(--c-purple);min-width:0;border-radius:var(--border-1) var(--r-sm) 0 0;transition:height .3s}
 
-/* ===== REVERSE THE RACE (game 10) — compact 30-lane track only; controls reuse .guess-btn / .bias-preset ===== */
+/* ===== REVERSE THE RACE (game 10) — compact 12-lane track; controls reuse .guess-btn / .bias-preset ===== */
 .g10-track{display:flex;flex-direction:column;gap:0;width:100%;max-width:30rem;margin:0 auto}
 /* Game 10 lanes match Games 8/9 dimensions; only the winner highlight + step border differ. */
 .g10-track .g8-step{border-right-color:rgba(0,0,0,.08)}
 .g10-track .g8-lane.g10-winner{background:rgba(255,215,0,0.2);border-radius:var(--r-sm)}
 .g10-track.player .g8-lane.g10-winner{background:rgba(52,152,219,0.2)}
-
-/* ===== SLIDER ===== */
-input[type=range]{width:100%;margin:var(--sz-1) 0}
-.slider-labels{display:flex;justify-content:space-between;font-size:var(--sz-2);color:var(--c-text);font-weight:var(--fw-bold)}
 
 /* ===== PALETTES ===== */
 /* Colourblind: Wong (Nature 2011) — 4 distinct dice colours, then auxiliary colours appended */
@@ -307,7 +258,7 @@ body.pal-cb{
 /* ===== TAP TARGETS ===== */
 button{min-height:var(--tap);min-width:var(--tap)}
 /* small inline buttons that layout densely are allowed to opt out */
-.bias-preset,.demo-btn,.conf-btn,.guess-btn,.g5-guess-area button{min-height:var(--tap)}
+.bias-preset,.conf-btn,.guess-btn{min-height:var(--tap)}
 .g3-conf-btn{min-height:0}
 
 /* ===== RESULT SPAN CLASSES ===== */
@@ -321,7 +272,6 @@ button{min-height:var(--tap);min-width:var(--tap)}
 .bars-wrap{width:100%;max-width:20rem;margin:0 auto}
 .hidden-guess{opacity:0;pointer-events:none}
 .btn-compact{width:auto;padding:var(--sz-1) var(--sz-4);font-size:var(--sz-2)}
-.num-in{font-size:var(--sz-2);font-weight:var(--fw-bold);text-align:center;border:var(--border-1) solid var(--c-border-strong);border-radius:var(--r-sm)}
 
 /* ===== PALETTE PICKER (title page) ===== */
 .palette-picker{display:flex;flex-direction:column;gap:var(--sz-1);width:100%;margin-top:var(--sz-1)}
@@ -487,10 +437,9 @@ const S = {
   rounds: [],
   currentRound: 0,
   scores: Array(10).fill(0),
+  houseScores: Array(10).fill(0), // Game 9: per-game cumulative House score (only game 9 uses this)
   completed: Array(10).fill(false), // tutorial-completion flag per game (1..10)
   phase: 'guess',
-  game9UseRandom: false,
-  game9Histogram: [],
   game3ConfPick: null,
   g5: null, // bias-detective token game state
   g8: null, // horse race state: {bet, trackLen, positions, rolls, winner, animating}
@@ -593,7 +542,7 @@ const GAMES = [
 //     chosenBox    'amber' or 'blue' — which box was chosen (game 7)
 //     numDice      number of dice rolled together (race games)
 //     dieSides     face count of each die (4, 6, 8 or 10)
-//     bias         bias preset name ('fair','line','curve','twin','boat','arch','step','edge')
+//     bias         bias preset name ('fair','line','twin','boat','arch','step','edge')
 //     diceSides    array of dice rolled together (game 8 horse race)
 //     lanesLen     length of each of the 12 lanes (game 8 horse race)
 // ============================================================================
@@ -682,7 +631,7 @@ const TUT = {
     {numDice:1, dieSides:4,  bias:'step'},   // 9:  1d4 step
     {numDice:2, dieSides:10, bias:'boat'},   // 10: 2d10 U-shape
     {numDice:3, dieSides:8,  bias:'fair'},   // 11: 3d8 fair
-    {numDice:3, dieSides:10, bias:'edge'},   // 12: 3d10 edge — 30 lanes
+    {numDice:3, dieSides:10, bias:'edge'},   // 12: 3d10 edge
   ],
 
   // ---- GAME 10: Reverse the Race ----
@@ -867,11 +816,13 @@ function generateRounds(gameId) {
       // Lanes fixed at 12 (matches Game 8). Tutorial uses uniform-dice combos;
       // the diceSides array is just N copies of the chosen die.
       for(const t of TUT.game9.slice(0,10)){
+        const diceSides = Array(t.numDice).fill(t.dieSides);
         rounds.push({
-          diceSides: Array(t.numDice).fill(t.dieSides),
+          diceSides,
           maxSum:12, trackLen:TRACK_LEN,
           lanesLen:Array(12).fill(TRACK_LEN),
           bias:t.bias,
+          houseLane:g9ModeLane(diceSides, t.bias),
           rolls:t.rolls.map(d=>d.slice()),
         });
       }
@@ -882,7 +833,7 @@ function generateRounds(gameId) {
         // matching Games 8 and 10.
         const diceSides=G10_VALID_COMBOS[Math.floor(Math.random()*G10_VALID_COMBOS.length)].slice();
         const bias=PRESETS[Math.floor(Math.random()*PRESETS.length)];
-        rounds.push({diceSides, maxSum:12, trackLen:TRACK_LEN, lanesLen:Array(12).fill(TRACK_LEN), bias});
+        rounds.push({diceSides, maxSum:12, trackLen:TRACK_LEN, lanesLen:Array(12).fill(TRACK_LEN), bias, houseLane:g9ModeLane(diceSides, bias)});
       }
     }
   } else if (gameId===10) {
@@ -963,8 +914,8 @@ function startGame(id){
   S.phase='guess';
   S.mode=S.gameTutorial[id]?'tutorial':'random';
   S.rounds=generateRounds(id);
-  if(id===9){S.game9Histogram=[];}
   if(id===5||id===8||id===10){S.scores[id-1]=0;}
+  if(id===9){S.scores[8]=0; S.houseScores[8]=0;}
   document.getElementById('game-title').textContent=GAMES[id-1].title;
   updateTutToggle();
   updateHcapToggle();
@@ -1009,8 +960,8 @@ function toggleTutorial(){
   updateTutToggle();
   // Restart game with new mode
   S.currentRound=0;S.scores[id-1]=0;
+  if(id===9) S.houseScores[8]=0;
   S.rounds=generateRounds(id);
-  if(id===9){S.game9Histogram=[];}
   renderRound();
 }
 
@@ -1027,9 +978,6 @@ function exitGame(){
   renderGameCards();
   showPage('game-list');
 }
-
-// Which games show the box graphic at the top
-const BOX_GAMES = new Set([1,2,3,4,6,7,8]);
 
 // What dice to show inside the box for each game
 function boxDiceForGame(id){
@@ -1063,7 +1011,7 @@ const GAME_DESCRIPTIONS = {
   6: `The box holds <b>eight dice</b>: some of one type, some of another. A dice is selected from the box, chosen at random. You see <b>one roll</b> from the chosen dice. Combine the <b>prior</b> (how many of each type are in the box) with the <b>likelihood</b> (which type fits the roll) to guess which dice was chosen — that's <b>Bayes' theorem</b>.`,
   7: `Two boxes, <b>Amber</b> and <b>Blue</b>, each hold <b>two dice</b>. A box is chosen at random, then a dice is selected from that box, chosen at random. You see <b>one roll</b> from the chosen dice. <b>Marginalize / sum over the unknowns / integrate out the nuisance variable</b> — the two possible dice in each box — to get the <b>marginal probability / P(roll | box)</b>, then pick the more likely box.`,
   8: `A handful of dice is rolled and summed; the animal in the lane equal to that sum advances one step. The first lane to reach the finish line wins. Before the race you <b>pick the lane you think will win</b> — score <b>3</b> for an exact match, <b>2</b> within one lane, <b>1</b> within two. The shape of the sum's <b>probability mass function / PMF / distribution</b> — peaked near its <b>mean / average / expected value / μ</b> and broadened by its <b>variance / spread / σ²</b> — gives you a better guess than picking the middle lane by reflex.`,
-  9: `Same race as <b>Dice Sums</b>, but every dice shares the <b>same bias</b> — picked from <b>Fair</b>, <b>Line</b>, <b>Twin</b>, <b>Boat</b>, <b>Arch</b>, <b>Step</b> or <b>Edge</b>. Bias <b>shifts the mean / average / expected value / μ</b> and <b>reshapes the variance / spread / σ²</b> of the sum's <b>probability mass function / PMF / distribution</b>, so the winning lane is no longer where you'd expect. Instead of one lane, <b>spread your bet</b> across <b>1, 2, 3, 4, 6 or 12 lanes</b> — narrow bets pay more, wide bets are safer. Match the spread to your confidence in the bias.`,
+  9: `Same race as <b>Dice Sums</b>, but every dice shares the <b>same bias</b> — picked from <b>Fair</b>, <b>Line</b>, <b>Twin</b>, <b>Boat</b>, <b>Arch</b>, <b>Step</b> or <b>Edge</b>. Bias <b>shifts the mean / average / expected value / μ</b> and <b>reshapes the variance / spread / σ²</b> of the dice sum, so the winning lane is no longer where you'd expect.<br><br>This round you bet against the <b>House</b>. The House always places all <b>12 tokens</b> on the <b>modal lane</b> (the most-probable sum given the bias) — winning <b>12</b> if that lane wins, <b>0</b> otherwise. You have <b>12 tokens</b> to <b>spread your bet</b> across <b>1, 2, 3, 4, 6 or 12 lanes</b> — <b>12/n tokens per lane</b>. If a covered lane wins, you score the <b>12/n tokens</b> on it; otherwise <b>0</b>. <b>Narrow bets pay more, rarely</b>; <b>wide bets pay less, often</b>. The trade-off isn't symmetric: on a <b>low-variance</b> bias (mass piled on one lane) the mode bet has the highest expected score; on a <b>high-variance</b> bias (mass spread across many lanes) every spread has nearly the same expected score, so a wider bet can <b>win more sessions</b> over the 10-round game by avoiding the streaks of zeroes the narrow bet suffers. Match the spread to the variance you expect.`,
   10: `You see the <b>finished distribution</b> of a hidden race: animals frozen at the positions their lane reached when the winner crossed. By the <b>Central Limit Theorem / CLT</b>, the sum's <b>PMF</b> is approximately <b>Gaussian / Normal / bell-curve</b>, so the shape is captured by its <b>mean / μ</b> and <b>variance / σ²</b>. <b>Reverse the race</b> — figure out which dice combination (1–4 dice from {d4, d6, d8, d10}) and which bias produced that mean and variance. You get <b>10 attempts</b> at the <i>same</i> race; each prediction is dropped onto the track as coloured dots. The score is the <b>Euclidean distance / L2 distance / root-sum-squared</b> between your predicted lane heights and the actual ones — <b>lower is better</b>.`,
 };
 
@@ -1145,7 +1093,7 @@ const DIE_CLIPS = {
   10:'polygon(50% 0%,79% 10%,100% 38%,97% 69%,79% 95%,50% 100%,21% 95%,3% 69%,0% 38%,21% 10%)'
 };
 
-function revealDieInHand(dieValue, correct, boxHint){
+function revealDieInHand(dieValue, boxHint){
   const hand=document.getElementById('box-hand');
   const qm=document.getElementById('qm-circle');
   if(!hand)return;
@@ -1294,7 +1242,7 @@ function renderRound(){
   disableNextBtn();
 
   if(id===5){if(rc)rc.textContent=`Round ${S.currentRound+1}/10`;renderGame5();return;}
-  if(id===9){if(rc)rc.textContent=`Round ${S.currentRound+1}/10`;renderGame9();return;}
+  if(id===9){if(rc)rc.textContent=g9RoundCounterText();renderGame9();return;}
   if(id===10){if(rc)rc.textContent=`Round ${S.currentRound+1}/10`;renderGame10();return;}
 
   const totalRounds=10;
@@ -1312,67 +1260,78 @@ function renderRound(){
   else if(id===8) renderGame8(rd);
 }
 
-// ===== GAME 1: PROBABILITY =====
-function renderGame1(rd){
-  Z.top.innerHTML=getBoxHTML(1)+gameDescHTML(1)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which dice?</div>`;
+// ===== GAMES 1, 2, 4, 6: shared "guess the dice" template =====
+// All four games share the same shape — box graphic, "Which dice?" prompt,
+// row of die-value buttons, optional reel(s) that gate the guess area until
+// they finish spinning, and an identical reveal sequence. The per-game
+// renderGameN/guessGameN entry points below just call these helpers with
+// game-specific options.
+function renderDiceGuessGame(gameId, rd, options, reels){
+  const buttonStyle=gameId===6?' style="font-size:var(--sz-4)"':'';
+  const gridExtra=gameId===6?' style="grid-template-columns:1fr 1fr;max-width:25rem"':'';
+  // Games with a reel reveal their guess buttons only after spin completes —
+  // .hidden-guess keeps them invisible/unclickable until then.
+  const hiddenCls=reels>0?' hidden-guess':'';
+  Z.top.innerHTML=getBoxHTML(gameId)+gameDescHTML(gameId)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which dice?</div>`;
   Z.text.innerHTML='';
   Z.text.style.display='none';
-  Z.buttons.innerHTML=`<div class="guess-grid">
-    ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" onclick="guessGame1(${d})">${d}</button>`).join('')}
+  Z.buttons.innerHTML=`<div class="guess-grid${hiddenCls}" id="guess-area"${gridExtra}>
+    ${options.map(d=>`<button class="guess-btn" data-die="${d}" onclick="guessGame${gameId}(${d})"${buttonStyle}>${d}</button>`).join('')}
   </div>`;
-  renderStatsTable(Z.table,1);
+  if(gameId===4){
+    // Replace the single ? circle with three smaller circles so all three rolls
+    // have their own reel target.
+    const held=document.getElementById('box-held');
+    if(held) held.innerHTML=`<div style="display:flex;gap:var(--sz-1)">
+      ${[0,1,2].map(i=>`<div class="question-mark" style="width:2.625rem;height:2.625rem;font-size:var(--sz-3)"><span class="qm-text">?</span><div class="qm-reel" style="display:none"><div class="reel-strip" id="reel${i}"></div></div></div>`).join('')}
+    </div>`;
+  }
+  renderStatsTable(Z.table,gameId);
   startBoxAnimation();
+  if(reels===1){
+    spinReel('reel0',rd.roll,()=>{
+      rd.rollShown=true;
+      renderStatsTable(Z.table,gameId);
+      const ga=document.getElementById('guess-area');
+      if(ga){ga.style.opacity='1';ga.style.pointerEvents='auto';}
+    },1800);
+  } else if(reels===3){
+    rd.rollsShown=[false,false,false];
+    let done=0;
+    rd.rolls.forEach((v,i)=>spinReel('reel'+i,v,()=>{
+      rd.rollsShown[i]=true;
+      renderStatsTable(Z.table,gameId);
+      done++;
+      if(done===3){
+        const ga=document.getElementById('guess-area');
+        if(ga){ga.style.opacity='1';ga.style.pointerEvents='auto';}
+      }
+    },1800+i*200));
+  }
 }
 
-function guessGame1(guess){
+function guessDieGame(gameId,guess){
   if(S.phase!=='guess')return;
   S.phase='reveal';
   const rd=S.rounds[S.currentRound];
   const correct=guess===rd.die;
-  if(correct)S.scores[0]++;
-  rd.guess=guess;rd.correct=correct;
-
-  document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
-  revealDieInHand(rd.die, correct);
+  if(correct) S.scores[gameId-1]++;
+  rd.guess=guess; rd.correct=correct;
+  document.querySelectorAll('.guess-btn').forEach(b=>{
+    b.disabled=true;
+    if(+b.dataset.die===guess) b.classList.add('selected');
+  });
+  revealDieInHand(rd.die);
   Z.text.innerHTML='';
   Z.text.style.display='none';
-  renderStatsTable(Z.table,1);
+  renderStatsTable(Z.table,gameId);
   enableNextBtn();
 }
 
-// ===== GAME 2: LIKELIHOOD =====
-function renderGame2(rd){
-  Z.top.innerHTML=getBoxHTML(2)+gameDescHTML(2)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which dice?</div>`;
-  Z.text.innerHTML='';
-  Z.text.style.display='none';
-  Z.buttons.innerHTML=`<div class="guess-grid hidden-guess" id="guess-area">
-    ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" onclick="guessGame2(${d})">${d}</button>`).join('')}
-  </div>`;
-  renderStatsTable(Z.table,2);
-  startBoxAnimation();
-  spinReel('reel0',rd.roll,()=>{
-    rd.rollShown=true;
-    renderStatsTable(Z.table,2);
-    const ga=document.getElementById('guess-area');
-    if(ga){ga.style.opacity='1';ga.style.pointerEvents='auto';}
-  },1800);
-}
-
-function guessGame2(guess){
-  if(S.phase!=='guess')return;
-  S.phase='reveal';
-  const rd=S.rounds[S.currentRound];
-  const correct=guess===rd.die;
-  if(correct)S.scores[1]++;
-  rd.guess=guess;rd.correct=correct;
-
-  document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
-  revealDieInHand(rd.die, correct);
-  Z.text.innerHTML='';
-  Z.text.style.display='none';
-  renderStatsTable(Z.table,2);
-  enableNextBtn();
-}
+function renderGame1(rd){ renderDiceGuessGame(1, rd, [4,6,8,10], 0); }
+function renderGame2(rd){ renderDiceGuessGame(2, rd, [4,6,8,10], 1); }
+function guessGame1(g){ guessDieGame(1, g); }
+function guessGame2(g){ guessDieGame(2, g); }
 
 // ===== GAME 3: LIKELIHOOD RATIO =====
 function renderGame3(rd){
@@ -1424,55 +1383,15 @@ function submitGame3(){
   // Disable all picker buttons in place (no layout shift — matches Game 1's pattern).
   document.querySelectorAll('#pick-area .guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===g3Die)b.classList.add('selected')});
   document.querySelectorAll('#pick-area .g3-conf-btn').forEach(b=>{b.disabled=true;if(b.dataset.conf===S.game3ConfPick)b.classList.add('selected')});
-  revealDieInHand(rd.die, dieCorrect);
+  revealDieInHand(rd.die);
   renderStatsTable(Z.table,3);
   enableNextBtn();
   g3Die=null;S.game3ConfPick=null;
 }
 
 // ===== GAME 4: INDEPENDENCE =====
-function renderGame4(rd){
-  Z.top.innerHTML=getBoxHTML(4)+gameDescHTML(4)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which dice?</div>`;
-  // Replace single ? circle with 3 circles for 3 rolls
-  const held=document.getElementById('box-held');
-  if(held) held.innerHTML=`<div style="display:flex;gap:var(--sz-1)">
-    ${[0,1,2].map(i=>`<div class="question-mark" style="width:2.625rem;height:2.625rem;font-size:var(--sz-3)"><span class="qm-text">?</span><div class="qm-reel" style="display:none"><div class="reel-strip" id="reel${i}"></div></div></div>`).join('')}
-  </div>`;
-  Z.text.innerHTML='';
-  Z.text.style.display='none';
-  Z.buttons.innerHTML=`<div class="guess-grid hidden-guess" id="guess-area">
-    ${[4,6,8,10].map(d=>`<button class="guess-btn" data-die="${d}" onclick="guessGame4(${d})">${d}</button>`).join('')}
-  </div>`;
-  renderStatsTable(Z.table,4);
-  startBoxAnimation();
-  // Track which of the 3 rolls have been visually revealed.
-  rd.rollsShown=[false,false,false];
-  let done=0;
-  rd.rolls.forEach((v,i)=>spinReel('reel'+i,v,()=>{
-    rd.rollsShown[i]=true;
-    renderStatsTable(Z.table,4);
-    done++;
-    if(done===3){
-      const ga=document.getElementById('guess-area');if(ga){ga.style.opacity='1';ga.style.pointerEvents='auto';}
-    }
-  },1800+i*200));
-}
-
-function guessGame4(guess){
-  if(S.phase!=='guess')return;
-  S.phase='reveal';
-  const rd=S.rounds[S.currentRound];
-  const correct=guess===rd.die;
-  if(correct)S.scores[3]++;
-  rd.guess=guess;rd.correct=correct;
-
-  document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
-  revealDieInHand(rd.die, correct);
-  Z.text.innerHTML='';
-  Z.text.style.display='none';
-  renderStatsTable(Z.table,4);
-  enableNextBtn();
-}
+function renderGame4(rd){ renderDiceGuessGame(4, rd, [4,6,8,10], 3); }
+function guessGame4(g){ guessDieGame(4, g); }
 
 // ===== GAME 5: BIAS DETECTIVE (TOKEN LIKELIHOOD) =====
 // House tracks raw L(A), L(B) (2 values). Player tracks log L(A), log L(B) (2 values).
@@ -1777,10 +1696,8 @@ function g5PlayerSumStr(logLA, logLB){
 function g5BoardHTML(){
   const st=S.g5;
   const rowStyle='display:flex;flex-direction:column;align-items:stretch;gap:0;padding:var(--sz-0) var(--sz-1);background:var(--c-surface);border:var(--border-1) solid var(--c-border);border-radius:var(--r-sm)';
-  const A=`<span style="color:var(--c-gold);font-weight:var(--fw-bold)">${G5_BIAS_LABEL[st.A]}</span>`;
-  const B=`<span style="color:var(--c-blue);font-weight:var(--fw-bold)">${G5_BIAS_LABEL[st.B]}</span>`;
-  // Equation forms now live in the Instructions popup; the board labels keep
-  // just the plain-language name so the row stays compact.
+  // Equation forms (L(A)/L(B), log L(A)−log L(B)) live in the Instructions popup;
+  // the board rows keep just the plain-language name + value + meta.
   const houseLvl=Math.max(st.houseLevelA, st.houseLevelB);
   const playerLvl=Math.max(st.playerLevelA, st.playerLevelB);
   return `
@@ -2065,39 +1982,8 @@ function g5Guess(pick){
 }
 
 // ===== GAME 6: BAYES =====
-function renderGame6(rd){
-  Z.top.innerHTML=getBoxHTML(6)+gameDescHTML(6)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which dice?</div>`;
-  Z.text.innerHTML='';
-  Z.text.style.display='none';
-  const a=rd.diceA,b=rd.diceB;
-  Z.buttons.innerHTML=`<div class="guess-grid hidden-guess" id="guess-area" style="grid-template-columns:1fr 1fr;max-width:25rem">
-    <button class="guess-btn" data-die="${a}" onclick="guessGame6(${a})" style="font-size:var(--sz-4)">${a}</button>
-    <button class="guess-btn" data-die="${b}" onclick="guessGame6(${b})" style="font-size:var(--sz-4)">${b}</button>
-  </div>`;
-  renderStatsTable(Z.table,6);
-  startBoxAnimation();
-  spinReel('reel0',rd.roll,()=>{
-    rd.rollShown=true;
-    renderStatsTable(Z.table,6);
-    const ga=document.getElementById('guess-area');if(ga){ga.style.opacity='1';ga.style.pointerEvents='auto';}
-  },1800);
-}
-
-function guessGame6(guess){
-  if(S.phase!=='guess')return;
-  S.phase='reveal';
-  const rd=S.rounds[S.currentRound];
-  const correct=guess===rd.die;
-  if(correct)S.scores[5]++;
-  rd.guess=guess;rd.correct=correct;
-
-  document.querySelectorAll('.guess-btn').forEach(b=>{b.disabled=true;if(+b.dataset.die===guess)b.classList.add('selected')});
-  revealDieInHand(rd.die, correct);
-  Z.text.innerHTML='';
-  Z.text.style.display='none';
-  renderStatsTable(Z.table,6);
-  enableNextBtn();
-}
+function renderGame6(rd){ renderDiceGuessGame(6, rd, [rd.diceA, rd.diceB], 1); }
+function guessGame6(g){ guessDieGame(6, g); }
 
 // ===== GAME 7: MARGINALIZATION =====
 function renderGame7(rd){
@@ -2131,7 +2017,7 @@ function guessGame7(guess){
   if(correct)S.scores[6]++;
   rd.guess=guess;rd.correct=correct;
 
-  revealDieInHand(rd.die, correct, rd.box);
+  revealDieInHand(rd.die, rd.box);
   Z.text.innerHTML='';
   Z.text.style.display='none';
   renderStatsTable(Z.table,7);
@@ -2156,15 +2042,6 @@ const G8_DICE_COMBOS = [
   [4,4,4],[4,4,6],[4,4,8],[4,4,10],[4,6,6],[4,6,8],[6,6,6],
   [4,4,4,4],[4,4,4,6],[4,4,4,8],[4,4,6,6],
 ];
-const G8_DEFAULT_LEN = 4;
-
-function g8ReelHTML(){
-  // Strip of numbers 1..6 repeated several cycles so the spinner can animate scroll.
-  // The last number in the visible position is element at translateY offset.
-  const nums=[];
-  for(let c=0;c<4;c++) for(let n=1;n<=6;n++) nums.push(n);
-  return `<div class="reel-strip">${nums.map(n=>`<div class="reel-num">${n}</div>`).join('')}</div>`;
-}
 
 function renderGame8(rd){
   // Animals are fixed per round so they don't shuffle when the handicap toggle
@@ -2314,8 +2191,6 @@ function g8Bet(h){
   // so the layout doesn't jump.
   const msg=document.getElementById('g8-msg');
   if(msg) msg.textContent=`Your bet: Lane ${h} — racing…`;
-  const aem=document.getElementById('g8-animal');
-  if(aem) aem.textContent=S.g8.animals[h-1];
   S.g8.animating=true;
   g8RollStep();
 }
@@ -2350,8 +2225,6 @@ function g8RollStep(){
   const won=g8AdvanceHorse(sum);
   // Animate dice
   for(let i=0;i<S.g8.diceSides.length;i++) g8SpinRoller('g8-r'+(i+1),dice[i],S.g8.diceSides[i]);
-  const sumEl=document.getElementById('g8-sum');
-  if(sumEl) sumEl.textContent=sum;
   if(sum>=1&&sum<=12) g8UpdateTokenPos(sum);
   if(won){S.g8.winner=sum;setTimeout(g8Finish,350*diceSpeedFactor());return;}
   setTimeout(g8RollStep,prefersReducedMotion()?30:500*diceSpeedFactor());
@@ -2369,8 +2242,6 @@ function g8Skip(){
   // Show the winning roll on the rollers + sum so they match the announced winner.
   if(lastDice){
     for(let i=0;i<S.g8.diceSides.length;i++) g8SpinRoller('g8-r'+(i+1),lastDice[i],S.g8.diceSides[i]);
-    const sumEl=document.getElementById('g8-sum');
-    if(sumEl) sumEl.textContent=lastSum;
   }
   for(let h=1;h<=12;h++) g8UpdateTokenPos(h);
   g8Finish();
@@ -2395,17 +2266,9 @@ function g8Finish(){
     :`Lane ${S.g8.winner} wins. You bet on lane ${S.g8.bet}.`;
   const tail=points>0?` +${points}`:'';
   rd.resultMsg=`${head}${tail}`;
-  const isExact=points===3;
-  // Update persistent slots in place — same DOM structure built by renderGame8,
-  // so no layout shift occurs at race end.
+  // Update persistent status slot in place — no layout shift at race end.
   const msg=document.getElementById('g8-msg');
   if(msg) msg.textContent=`Lane ${S.g8.winner} wins`;
-  const aem=document.getElementById('g8-animal');
-  if(aem) aem.textContent=S.g8.animals[S.g8.bet-1];
-  if(isExact){
-    const cup=document.getElementById('g8-cup');
-    if(cup) cup.classList.add('shown');
-  }
   Z.buttons.innerHTML='';
   // Disable Skip button (it stays in the layout, just greyed).
   const skipBtn=document.getElementById('g8-skip-btn');
@@ -2415,8 +2278,8 @@ function g8Finish(){
 }
 
 // ===== GAME 9: CLT (BIASED HORSE RACE) =====
-// Same horse-race shape as Game 8 but all dice are the same biased die.
-// User adjusts bias before betting. Up to 30 lanes (3 × d10).
+// Same horse-race shape as Game 8 but all dice share the same bias preset.
+// User adjusts bias before betting. Track is 12 lanes (maxSum:12).
 
 // Pool of all animals from all 7 sets (84 unique-ish glyphs).
 const G9_ANIMAL_POOL = G8_ANIMAL_SETS.flat();
@@ -2458,8 +2321,13 @@ function renderGame9(){
     <div id="g9-bias-buttons">${g9BiasButtonsHTML(rd.bias)}</div>
     <div id="g9-bias-bars">${renderBiasBars(rd.diceSides, rd.bias)}</div>
     <div class="g9-tokens-row">${Array(12).fill(0).map(()=>'<span>🪙</span>').join('')}</div>
-    <div class="t-sm ta-c" style="opacity:.7;margin:var(--sz-0) auto">${biasCaptionFor(rd.bias)}</div>
-    <div class="g8-track" id="g8-track">${g9TrackHTML(rd.lanesLen, rd.trackLen, animals)}</div>
+    <div class="g9-bet-headers">
+      <div class="g9-bet-cell g9-bet-header-cell">House</div>
+      <div class="g9-bet-cell g9-bet-header-cell">Player</div>
+      <span class="g8-label" style="visibility:hidden">12</span>
+      <div style="flex:1"></div>
+    </div>
+    <div class="g8-track" id="g8-track">${g9TrackHTML(rd.lanesLen, rd.trackLen, animals, rd.houseLane)}</div>
     <div class="hcap-toggle visible" id="hcap-toggle" style="justify-content:flex-start;margin:var(--sz-1) 0 0 0"><div class="hcap-switch" id="hcap-switch" onclick="toggleHandicap()"></div><span>Handicap</span></div>
     ${gameDescHTML(9)}
   </div>`;
@@ -2489,18 +2357,11 @@ function renderGame9(){
   g9UpdateSelectionUI();
 }
 
-// Caption explains the race rule. (Bias name is shown via the highlighted
-// preset box above the bars, so we don't repeat it here.)
-function biasCaptionFor(_bias){
-  return 'animal that is in the lane of the dice roll sum advances';
-}
 
 // Bias preset boxes — one per preset, current round's bias highlighted, non-interactive.
 function g9BiasButtonsHTML(currentBias){
-  const presets=[['fair','Fair'],['line','Line'],['twin','Twin'],
-                 ['boat','Boat'],['arch','Arch'],['step','Step'],['edge','Edge']];
   return `<div style="display:flex;gap:var(--sz-0);justify-content:center;max-width:26rem;margin:0 auto var(--sz-0)">
-    ${presets.map(([k,lbl])=>`<div class="bias-preset${k===currentBias?' selected':''}" style="pointer-events:none"><span class="bias-word">Dice</span>${lbl}<span class="bias-word">Bias</span></div>`).join('')}
+    ${BIAS_PRESETS.map(([k,lbl])=>`<div class="bias-preset${k===currentBias?' selected':''}" style="pointer-events:none"><span class="bias-word">Dice</span>${lbl}<span class="bias-word">Bias</span></div>`).join('')}
   </div>`;
 }
 
@@ -2597,33 +2458,25 @@ function g9UpdateSelectionUI(){
   }
   const g9Btn=document.getElementById('g9-start-btn');
   if(g9Btn) g9Btn.disabled=!valid;
-  g9UpdateBetRow();
 }
 
-// Bet-row: one chip per selected lane (animal emoji); the winning lane's
-// animal gets a 🏆 cup added next to it once the race ends.
-function g9UpdateBetRow(){
-  const row=document.getElementById('g9-bet-row');
-  if(!row) return;
-  const sorted=S.g9.selected.slice().sort((a,b)=>a-b);
-  if(sorted.length===0){ row.innerHTML=''; return; }
-  const items=sorted.map(h=>{
-    const animal=S.g9.animals[h-1];
-    const isWinningPick=S.g9.winner===h && (S.g9.payout||0)>0;
-    const cup=isWinningPick?'<span class="g8-cup shown">🏆</span>':'';
-    return `<span style="display:inline-flex;align-items:center;line-height:1;margin:0 0.0625rem">${animal}${cup}</span>`;
-  });
-  row.innerHTML=items.join('');
-}
-
-function g9TrackHTML(lanesLen, maxLen, animals){
+function g9TrackHTML(lanesLen, maxLen, animals, houseLane){
   return lanesLen.map((len,i)=>{
     const h=i+1;
     const animal=animals[i];
     const widthPct=(len/maxLen)*100;
+    const isHouse = (h===houseLane);
+    const houseTokens = isHouse ? g9CoinStackSVG(12) : '';
+    const houseFlag   = isHouse ? '🏆' : '';
     return `<div class="g8-lane" data-horse="${h}">
-      <span class="g9-lane-tokens" id="g9-tokens-${h}"></span>
-      <div class="g8-flag" id="g9-flag-${h}" onclick="g9LaneToggle(${h})" title="Pick lane ${h}">🏆</div>
+      <div class="g9-bet-cell house-cell">
+        <span class="g9-lane-tokens g9-house-tokens" id="g9-house-tokens-${h}">${houseTokens}</span>
+        <div class="g8-flag g9-house-flag${isHouse?' selected':''}" id="g9-house-flag-${h}">${houseFlag}</div>
+      </div>
+      <div class="g9-bet-cell player-cell">
+        <span class="g9-lane-tokens" id="g9-tokens-${h}"></span>
+        <div class="g8-flag" id="g9-flag-${h}" onclick="g9LaneToggle(${h})" title="Pick lane ${h}">🏆</div>
+      </div>
       <span class="g8-label">${h}</span>
       <div class="g8-bar-zone">
         <div class="g8-bar" style="width:${widthPct}%">
@@ -2695,6 +2548,19 @@ function g9SumPMF(diceSides, biasName){
   return pmf;
 }
 
+// Modal lane (1-indexed) for the given dice + bias. Returns the lane in 1..12
+// with the highest PMF mass; ties broken by lowest lane index. Used as the
+// House's bet in the head-to-head game.
+function g9ModeLane(diceSides, biasName){
+  const pmf = g9SumPMF(diceSides, biasName);
+  let best = 1, bestP = -1;
+  for(let h = 1; h <= 12; h++){
+    const p = pmf[h] || 0;
+    if(p > bestP){ bestP = p; best = h; }
+  }
+  return best;
+}
+
 // Head-start per lane so every reachable lane has ~equal race-win probability.
 // Same Poissonization argument as g8ComputeHandicap, generalised to Game 9's
 // per-lane lanesLen array and biased PMF.
@@ -2728,8 +2594,6 @@ function g9RollStep(){
   S.g9.rolls.push(dice);
   const won=g9AdvanceHorse(sum);
   for(let i=0;i<S.g9.diceSides.length;i++) g8SpinRoller('g8-r'+(i+1),dice[i],S.g9.diceSides[i]);
-  const sumEl=document.getElementById('g8-sum');
-  if(sumEl) sumEl.textContent=sum;
   if(sum>=1&&sum<=S.g9.maxSum) g9UpdateTokenPos(sum);
   if(won){S.g9.winner=sum;setTimeout(g9Finish,350*diceSpeedFactor());return;}
   setTimeout(g9RollStep,prefersReducedMotion()?30:500*diceSpeedFactor());
@@ -2747,8 +2611,6 @@ function g9Skip(){
   // Show the winning roll on the rollers + sum so they match the winner.
   if(lastDice){
     for(let i=0;i<S.g9.diceSides.length;i++) g8SpinRoller('g8-r'+(i+1),lastDice[i],S.g9.diceSides[i]);
-    const sumEl=document.getElementById('g8-sum');
-    if(sumEl) sumEl.textContent=lastSum;
   }
   for(let h=1;h<=S.g9.maxSum;h++) g9UpdateTokenPos(h);
   g9Finish();
@@ -2761,115 +2623,56 @@ function g9Finish(){
   const winIdx=S.g9.winner-1;
   const tokensOnWinner=S.g9.laneTokens[winIdx]||0;
   const lanesUsed=S.g9.laneTokens.filter(t=>t>0).length;
-  const payout=tokensOnWinner*tokensOnWinner;
+  // alpha=1 (linear) payout: player gets the tokens placed on the winning lane.
+  // House always bet all 12 on the modal lane: scores 12 iff that lane wins.
+  const payout=tokensOnWinner;
+  const housePayout = (S.g9.winner===rd.houseLane) ? 12 : 0;
   S.g9.payout=payout;
   rd.winner=S.g9.winner;
   rd.rollsUsed=S.g9.rolls.length;
   rd.tokensOnWinner=tokensOnWinner;
   rd.lanesUsed=lanesUsed;
   rd.payout=payout;
-  rd.correct=payout>0;
+  rd.housePayout=housePayout;
+  // "correct" means player beat or matched the house this round (used for ✓/✗ display elsewhere).
+  rd.correct=payout>=housePayout && (payout>0||housePayout===0);
   S.scores[8]+=payout;
+  S.houseScores[8]+=housePayout;
   const winLane=document.querySelector(`.g8-lane[data-horse="${S.g9.winner}"]`);
   if(winLane) winLane.style.background='rgba(255,215,0,0.15)';
-  const head=payout>0
-    ? `Lane ${S.g9.winner} wins. ${tokensOnWinner}² = +${payout}`
-    : `Lane ${S.g9.winner} wins. No tokens on it.`;
+  const head = `Lane ${S.g9.winner} wins — You +${payout} / House +${housePayout}`;
   rd.resultMsg=head;
   // Update persistent slots in place — no innerHTML replacement, no jump.
   const msg=document.getElementById('g9-msg');
-  if(msg){
-    msg.textContent = payout>0
-      ? `Lane ${S.g9.winner} wins — ${tokensOnWinner}² = +${payout}`
-      : `Lane ${S.g9.winner} wins. No tokens on it.`;
-  }
-  // Re-render bet row so a 🏆 cup pops up next to the winning animal (if bet).
-  g9UpdateBetRow();
+  if(msg) msg.textContent = head;
   // Disable Skip button.
   const skipBtn=document.getElementById('g8-skip-btn');
   if(skipBtn) skipBtn.disabled=true;
   renderStatsTable(Z.table,9);
+  // Refresh the round-counter so the dual-score readout updates after this round.
+  const rc=document.getElementById('round-counter');
+  if(rc) rc.textContent=g9RoundCounterText();
   enableNextBtn();
 }
 
-
-// Bias state (used by Game 9 horse race)
-let cltDieSides=6;
-let cltBias=[1,1,1,1,1,1]; // relative weights, length = cltDieSides
-
-function setBias(preset){
-  const n=cltDieSides;
-  if(preset==='fair') cltBias=Array(n).fill(1);
-  else if(preset==='line') cltBias=Array.from({length:n},(_,i)=>(n-i)/n);
-  else if(preset==='curve') cltBias=Array.from({length:n},(_,i)=>((i+1)*(i+1))/(n*n));
-  else if(preset==='twin'){cltBias=Array(n).fill(0.2);cltBias[0]=5;cltBias[1]=5;}
-  else if(preset==='boat'){const b=Array.from({length:n},(_,i)=>{const m=(n-1)/2;const d=Math.abs(i-m)/m;return 1+2*d;});cltBias=b;}
-  else if(preset==='arch'){const b=Array.from({length:n},(_,i)=>{const m=(n-1)/2;const d=Math.abs(i-m)/m;return 3-2*d;});cltBias=b;}
-  else if(preset==='step'){const h=Math.floor(n/2);cltBias=Array.from({length:n},(_,i)=>i<h?3:1);}
-  else if(preset==='edge'){cltBias=Array(n).fill(0.5);cltBias[0]=5;}
-  // Rebuild editor to update slider max range
-  const ed=document.getElementById('bias-editor');
-  if(ed) ed.innerHTML=renderBiasEditor();
-  document.querySelectorAll('.bias-preset').forEach(b=>b.classList.toggle('selected',b.dataset.preset===preset));
-  setTimeout(updateBiasLine,50);
+// Round counter text for Game 9: shows round number + cumulative head-to-head scores.
+function g9RoundCounterText(){
+  return `Round ${S.currentRound+1}/10 · You ${S.scores[8]} · House ${S.houseScores[8]}`;
 }
 
-function renderBiasEditor(){
-  const n=cltDieSides;
-  const maxW=Math.max(1,...cltBias);
-  const bars=Array.from({length:n},(_, i)=>{
-    const h=maxW>0?((cltBias[i]||0)/maxW)*100:0;
-    return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0">
-      <div style="height:5rem;width:100%;display:flex;align-items:flex-end">
-        <div class="bias-bar" style="width:100%;height:${h}%;background:var(--c-blue);border-radius:var(--r-sm) var(--r-sm) 0 0;transition:height .2s"></div>
-      </div>
-      <div style="font-size:${(n>10?9:n>6?10:12)/16}rem;font-weight:var(--fw-bold);color:var(--c-text);margin-top:var(--sz-0)">${i+1}</div>
-    </div>`;
-  }).join('');
-  return `<div style="margin-top:var(--sz-1)">
-    <div style="display:flex;gap:var(--sz-0);justify-content:center;margin-bottom:var(--sz-1);max-width:26rem;margin-left:auto;margin-right:auto">
-      <button class="bias-preset${cltBias.every(v=>Math.abs(v-cltBias[0])<0.01)?' selected':''}" data-preset="fair" onclick="setBias('fair')"><span class="bias-word">Dice</span>Fair<span class="bias-word">Bias</span></button>
-      <button class="bias-preset${cltBias.every((v,i)=>Math.abs(v-(i+1)/n)<0.01)?' selected':''}" data-preset="line" onclick="setBias('line')"><span class="bias-word">Dice</span>Line<span class="bias-word">Bias</span></button>
-      <button class="bias-preset${cltBias.every((v,i)=>Math.abs(v-((i+1)*(i+1))/(n*n))<0.01)?' selected':''}" data-preset="curve" onclick="setBias('curve')"><span class="bias-word">Dice</span>Bend<span class="bias-word">Bias</span></button>
-      <button class="bias-preset${(()=>{const b=biasForPreset('twin',n);return cltBias.every((v,i)=>Math.abs(v-b[i])<0.01)})()?' selected':''}" data-preset="twin" onclick="setBias('twin')"><span class="bias-word">Dice</span>Twin<span class="bias-word">Bias</span></button>
-      <button class="bias-preset${(()=>{const b=biasForPreset('boat',n);return cltBias.every((v,i)=>Math.abs(v-b[i])<0.01)})()?' selected':''}" data-preset="boat" onclick="setBias('boat')"><span class="bias-word">Dice</span>Boat<span class="bias-word">Bias</span></button>
-      <button class="bias-preset${(()=>{const b=biasForPreset('arch',n);return cltBias.every((v,i)=>Math.abs(v-b[i])<0.01)})()?' selected':''}" data-preset="arch" onclick="setBias('arch')"><span class="bias-word">Dice</span>Arch<span class="bias-word">Bias</span></button>
-      <button class="bias-preset${(()=>{const h=Math.floor(n/2);const b=Array.from({length:n},(_,i)=>i<h?1:3);return cltBias.every((v,i)=>Math.abs(v-b[i])<0.01)})()?' selected':''}" data-preset="step" onclick="setBias('step')"><span class="bias-word">Dice</span>Step<span class="bias-word">Bias</span></button>
-      <button class="bias-preset${(()=>{const b=biasForPreset('edge',n);return cltBias.every((v,i)=>Math.abs(v-b[i])<0.01)})()?' selected':''}" data-preset="edge" onclick="setBias('edge')"><span class="bias-word">Dice</span>Edge<span class="bias-word">Bias</span></button>
-    </div>
-    <div style="max-width:24rem;margin:var(--sz-0) auto">
-      <div style="display:flex;gap:var(--sz-0);align-items:flex-end">${bars}</div>
-    </div>
-  </div>`;
-}
 
-function updateBiasLine(){
-  const svg=document.getElementById('bias-line');
-  if(!svg)return;
-  const sliderEls=document.querySelectorAll('.bias-slider');
-  const svgRect=svg.getBoundingClientRect();
-  const thumbR=10; // approximate thumb radius in px
-  const pts=[];
-  sliderEls.forEach((s,i)=>{
-    const rect=s.getBoundingClientRect();
-    const x=rect.left+rect.width/2-svgRect.left;
-    // Slider track runs from (top+thumbR) to (bottom-thumbR)
-    const trackTop=rect.top+thumbR-svgRect.top;
-    const trackBot=rect.bottom-thumbR-svgRect.top;
-    const frac=+s.max>0?+s.value/+s.max:0;
-    const y=trackBot-(trackBot-trackTop)*frac;
-    pts.push({x,y});
-  });
-  const line=pts.map(p=>`${p.x},${p.y}`).join(' ');
-  const dots=pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="5" fill="var(--c-blue)"/>`).join('');
-  svg.innerHTML=`<polyline points="${line}" fill="none" stroke="var(--c-blue)" stroke-width="2.5"/>${dots}`;
-}
+// Bias presets used by the Games 9, 10 (and Game 5 indirectly): name + label
+// for the button row, and the weight pattern for biasForPreset(). Shared so
+// both g9BiasButtonsHTML and g10RenderBias render the same buttons.
+const BIAS_PRESETS = [
+  ['fair','Fair'], ['line','Line'], ['twin','Twin'],
+  ['boat','Boat'], ['arch','Arch'], ['step','Step'], ['edge','Edge'],
+];
 
 // Bias weights for a preset name and die size
 function biasForPreset(preset, n){
   if(preset==='fair') return Array(n).fill(1);
   if(preset==='line') return Array.from({length:n},(_,i)=>(n-i)/n);
-  if(preset==='curve') return Array.from({length:n},(_,i)=>((i+1)*(i+1))/(n*n));
   if(preset==='twin'){const b=Array(n).fill(0.2);b[0]=5;b[1]=5;return b;}
   if(preset==='boat') return Array.from({length:n},(_,i)=>{const m=(n-1)/2;const d=Math.abs(i-m)/m;return 1+2*d;});
   if(preset==='arch') return Array.from({length:n},(_,i)=>{const m=(n-1)/2;const d=Math.abs(i-m)/m;return 3-2*d;});
@@ -2879,11 +2682,11 @@ function biasForPreset(preset, n){
 }
 
 // ===== GAME 10: REVERSE THE RACE =====
-// Player sees a finished race distribution (always over 30 lanes) and must
-// guess the dieSides + bias that produced it. Each race uses 3 hidden dice
-// of the same type. 4 races × 3 attempts = 12 rounds.
+// Player sees a finished race distribution (12 lanes) and must guess the dice
+// combination (1–4 dice from {d4,d6,d8,d10}) and bias that produced it.
+// One hidden race per game, 10 attempts at it.
 
-const G10_PRESET_LETTERS = {fair:'F', line:'L', curve:'C', twin:'T', boat:'B', arch:'A', step:'S', edge:'E'};
+const G10_PRESET_LETTERS = {fair:'F', line:'L', twin:'T', boat:'B', arch:'A', step:'S', edge:'E'};
 const G10_MAX_LANES = 12;
 
 // Analytical Gaussian "race": no simulation — just compute the theoretical
@@ -2932,7 +2735,7 @@ function g10GaussianRace(diceSides, biasName, trackLen){
   };
 }
 
-// 30-lane race track; positions length may be < 30 (lanes beyond → 0 → token at start).
+// 12-lane race track; positions length may be < 12 (lanes beyond → 0 → token at start).
 function g10TrackHTML(positions, animals, trackLen, winnerLane, isPlayer){
   const lanes = Array.from({length:G10_MAX_LANES},(_,i)=>{
     const h = i+1;
@@ -3054,12 +2857,10 @@ function g10RenderBias(){
   const buttonsArea = document.getElementById('g10-bias-buttons');
   const barsArea = document.getElementById('g10-bias-bars');
   if(!buttonsArea || !barsArea) return;
-  const presets = [['fair','Fair'],['line','Line'],['twin','Twin'],
-                   ['boat','Boat'],['arch','Arch'],['step','Step'],['edge','Edge']];
   const disabled = S.g10.submitted;
   // DICE xxx BIAS button row, mirroring Game 9.
   buttonsArea.innerHTML = `<div style="display:flex;gap:var(--sz-0);justify-content:center;max-width:26rem;margin:0 auto var(--sz-0)">
-    ${presets.map(([k,lbl])=>`<button class="bias-preset${S.g10.bias===k?' selected':''}" data-preset="${k}" onclick="g10SetBias('${k}')"${disabled?' disabled':''}><span class="bias-word">Dice</span>${lbl}<span class="bias-word">Bias</span></button>`).join('')}
+    ${BIAS_PRESETS.map(([k,lbl])=>`<button class="bias-preset${S.g10.bias===k?' selected':''}" data-preset="${k}" onclick="g10SetBias('${k}')"${disabled?' disabled':''}><span class="bias-word">Dice</span>${lbl}<span class="bias-word">Bias</span></button>`).join('')}
   </div>`;
 
   // Bias bars — shared with Game 9 (sub-bars per die, color-coded by die type).
@@ -3095,7 +2896,7 @@ function g10Submit(){
   const guessDice = S.g10.selectedDice.slice();
   const guessBias = S.g10.bias;
   const sim = g10GaussianRace(guessDice, guessBias, rd.trackLen);
-  // Loss = sqrt( Σ (actual − player)² ) over all 30 lanes (Euclidean distance). Lower = better.
+  // Loss = sqrt( Σ (actual − player)² ) over all 12 lanes (Euclidean distance). Lower = better.
   let sumSq = 0;
   for(let i=0;i<G10_MAX_LANES;i++){
     const a = rd.actualPositions[i] || 0;
@@ -3111,7 +2912,7 @@ function g10Submit(){
   rd.points = diff;
   rd.correct = diff===0;
   S.scores[9] += diff;
-  // Per-attempt colour (rotates within a race so the 3 attempts are distinguishable)
+  // Per-attempt colour (rotates so successive attempts are distinguishable on the track)
   const G10_DOT_COLORS = ['var(--c-blue)','var(--c-amber)','var(--c-purple)'];
   rd.dotColor = G10_DOT_COLORS[rd.attemptIdx % G10_DOT_COLORS.length];
   g10ShowDots(S.currentRound);
@@ -3152,27 +2953,6 @@ function g10HideDots(roundIdx){
 function g10ToggleDots(roundIdx){
   const existing = document.querySelectorAll(`.g10-track [data-dot-round="${roundIdx}"]`);
   if(existing.length) g10HideDots(roundIdx); else g10ShowDots(roundIdx);
-}
-
-// ===== SHARED: LIKELIHOOD BARS =====
-function showLikelihoodBars(containerId, rollVal, dice, customProbs, customLabels, heading, hideStar){
-  const probs=customProbs||dice.map(d=>rollVal==null?0:prob(rollVal,d));
-  const maxP=Math.max(...probs);
-  const minP=Math.min(...probs);
-  const allEqual=maxP===minP;
-  const c=document.getElementById(containerId);
-  const headHtml=heading?`<div class="lbar-heading">${heading}</div>`:'';
-  c.innerHTML=headHtml+'<div class="likelihood-bars">'+dice.map((d,i)=>{
-    const p=probs[i];const h=maxP>0?p/maxP*100:0;const best=!allEqual&&p===maxP&&p>0;
-    const label=customLabels?customLabels[i]
-      :customProbs?(p>0?p.toExponential(1):'0')
-      :frac(rollVal,d);
-    return `<div class="lbar-col">
-      <div class="lbar-val">${label}${best&&!hideStar?' <span class="lbar-star">★</span>':''}</div>
-      <div class="lbar-track-v"><div class="lbar-fill-v d${d}${best?' best':''}" style="height:0" data-h="${h}"></div></div>
-    </div>`;
-  }).join('')+'</div>';
-  requestAnimationFrame(()=>c.querySelectorAll('.lbar-fill-v').forEach(f=>f.style.height=f.dataset.h+'%'));
 }
 
 // ===== SHARED: STATS TABLE =====
@@ -3262,10 +3042,10 @@ function renderStatsTable(bot, gameId){
     ];
   } else if(gameId===9){
     rowDefs=[
-      {label:'Bet',     cells:col(rd=>rd.tokensOnWinner!=null,rd=>rd.tokensOnWinner)},
       {label:'Lanes',   cells:col(rd=>rd.lanesUsed!=null,rd=>rd.lanesUsed)},
       {label:'Winner',  cells:col(rd=>rd.winner!=null,rd=>rd.winner)},
-      {label:'Payout',  cells:col(rd=>rd.payout!=null,rd=>rd.payout.toFixed(0))},
+      {label:'You',     cells:col(rd=>rd.payout!=null,rd=>rd.payout)},
+      {label:'House',   cells:col(rd=>rd.housePayout!=null,rd=>rd.housePayout)},
     ];
   } else if(gameId===10){
     const dotMarker = (i)=>{
@@ -3315,6 +3095,17 @@ function renderStatsTable(bot, gameId){
   } else if(gameId===10){
     // Lower-is-better cumulative loss; no playedCount denominator.
     scoreLine=`<div class="score-line" style="justify-content:center"><span>${score}</span></div>`;
+  } else if(gameId===9){
+    // Head-to-head: you vs the House. Show a winner verdict once the session ends.
+    const houseScore = S.houseScores[8];
+    const playedCount = S.rounds.slice(0,played).filter(r=>r.payout!=null).length;
+    let verdict = '';
+    if(playedCount >= 10){
+      if(score > houseScore) verdict = ' — you beat the House';
+      else if(score < houseScore) verdict = ' — House beat you';
+      else verdict = ' — tied with the House';
+    }
+    scoreLine=`<div class="score-line" style="justify-content:center;gap:var(--sz-2);flex-wrap:wrap"><span>You ${score}</span><span>·</span><span>House ${houseScore}</span><span style="opacity:.7">${verdict}</span></div>`;
   } else {
     const playedCount=S.rounds.slice(0,played).filter(r=>r.correct!=null).length;
     scoreLine=`<div class="score-line" style="justify-content:center"><span>${score} / ${playedCount}</span></div>`;
