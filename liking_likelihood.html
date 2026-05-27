@@ -185,7 +185,9 @@ button:active{transform:scale(.95)}
 .g9-tokens-row span:first-child{margin-left:0}
 .g9-lane-tokens{display:inline-flex;flex-shrink:0;align-items:center;justify-content:flex-end;height:var(--sz-4);min-width:1.5rem}
 .g9-lane-tokens svg{display:block;flex-shrink:0}
-.g9-bet-cell{display:flex;align-items:center;gap:var(--sz-0);flex-shrink:0;min-width:3rem;justify-content:flex-end}
+.g9-bet-cell{display:flex;align-items:center;gap:var(--sz-0);flex-shrink:0;min-width:3.5rem;justify-content:flex-end;padding-right:var(--sz-1)}
+.g9-bet-cell .g8-flag{font-size:calc(var(--sz-4) * 0.9)}
+.g9-bet-cell .g8-flag.selected{opacity:1;filter:none;transform:scale(1.5);font-size:var(--sz-4)}
 .g9-bet-headers{display:flex;align-items:center;gap:var(--sz-0);padding:0 var(--sz-0);font-size:var(--sz-2);font-weight:var(--fw-bold);color:var(--c-text);margin-top:var(--sz-0)}
 .g9-bet-header-cell{justify-content:center}
 .g9-house-flag{cursor:default;pointer-events:none;min-width:var(--sz-4)}
@@ -2437,11 +2439,12 @@ function g9LaneToggle(h){
   const idx=S.g9.selected.indexOf(h);
   if(idx>=0) S.g9.selected.splice(idx,1);
   else S.g9.selected.push(h);
-  // Update flag visuals.
-  document.querySelectorAll('.g8-flag').forEach(f=>{
-    const lane=+f.id.replace('g9-flag-','');
-    f.classList.toggle('selected', S.g9.selected.indexOf(lane)>=0);
-  });
+  // Update Player flag visuals only — the House flag's selected state is
+  // fixed by the round (locked to the mode lane) and must not be touched.
+  for(let lane=1; lane<=S.g9.maxSum; lane++){
+    const f=document.getElementById('g9-flag-'+lane);
+    if(f) f.classList.toggle('selected', S.g9.selected.indexOf(lane)>=0);
+  }
   g9UpdateSelectionUI();
   g9UpdateLaneTokens();
 }
