@@ -24,7 +24,7 @@
   --c-die-1:#e74c3c; --c-die-2:#3498db; --c-die-3:#27ae60; --c-die-4:#9b59b6;
   --c-primary:#e94560; --c-primary-dark:#d63851;
   --c-blue:#3498db; --c-purple:#9b59b6;
-  --c-gold:#d4a017; --c-amber:#f39c12;
+  --c-gold:#d4a017; --c-amber:#f39c12; --c-orange:#e67e22; --c-teal:#1abc9c;
   --c-success:#27ae60; --c-success-bg:#d4edda; --c-success-fg:#155724;
   --c-danger:#e74c3c; --c-danger-bg:#f8d7da; --c-danger-fg:#721c24;
   --c-bg:#f5f5f5; --c-surface:#fff; --c-text:#222; --c-text-muted:#444;
@@ -95,6 +95,11 @@ button:active{transform:scale(.95)}
 .result-indicator.correct{display:inline-flex;background:var(--c-success)}
 .result-indicator.wrong{display:inline-flex;background:var(--c-danger)}
 
+/* ===== INSTRUCTIONS POPUP ===== */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:var(--sz-3)}
+.modal-card{background:var(--c-surface);color:var(--c-text);max-width:32rem;width:100%;max-height:80vh;overflow-y:auto;border-radius:var(--r-lg);padding:var(--sz-4) var(--sz-3) var(--sz-3);position:relative;box-shadow:0 var(--sz-2) var(--sz-3) rgba(0,0,0,.3);line-height:1.5}
+.modal-close{position:absolute;top:var(--sz-1);right:var(--sz-1);background:transparent;border:none;font-size:var(--sz-4);line-height:1;cursor:pointer;color:var(--c-text);padding:var(--sz-0) var(--sz-1)}
+
 /* ===== REEL SPINNER ===== */
 .reel-strip{transition:transform 2s cubic-bezier(.15,.85,.35,1);will-change:transform}
 .reel-strip.spinning{filter:blur(var(--sz-0))}
@@ -129,7 +134,7 @@ button:active{transform:scale(.95)}
 .confidence-row{display:flex;gap:var(--sz-1);width:100%;max-width:18.75rem}
 .conf-btn{flex:1;padding:var(--sz-2);font-size:var(--sz-2);font-weight:var(--fw-bold);border-radius:var(--r-lg);color:var(--c-surface)}
 .conf-btn[data-conf="low"]{background:var(--c-amber)}
-.conf-btn[data-conf="medium"]{background:#e67e22}
+.conf-btn[data-conf="medium"]{background:var(--c-orange)}
 .conf-btn[data-conf="high"]{background:var(--c-danger)}
 .conf-btn:disabled{opacity:.4}
 .conf-btn.selected{box-shadow:0 0 0 var(--sz-0) gold}
@@ -141,7 +146,7 @@ button:active{transform:scale(.95)}
 .g3-conf-btn{padding:var(--sz-0) var(--sz-1);font-size:var(--sz-2);font-weight:var(--fw-bold);border-radius:var(--r-sm);color:var(--c-surface);text-align:center;
   width:100%;transition:all .15s}
 .g3-conf-btn[data-conf="low"]{background:var(--c-amber)}
-.g3-conf-btn[data-conf="medium-high"]{background:#e67e22}
+.g3-conf-btn[data-conf="medium-high"]{background:var(--c-orange)}
 .g3-conf-btn[data-conf="certain"]{background:var(--c-danger)}
 .g3-conf-btn.selected{box-shadow:0 0 0 var(--sz-0) gold;transform:scale(1.05)}
 .g3-bars-wrap{grid-column:1/3}
@@ -196,8 +201,6 @@ button:active{transform:scale(.95)}
 .g10-arrow{padding:0 var(--sz-1);font-size:var(--sz-4);background:none;border:none;cursor:pointer;color:var(--c-text);min-width:0;min-height:0;line-height:1}
 .g10-arrow:hover{color:var(--c-blue)}
 .g10-arrow:disabled{opacity:.35;cursor:default}
-.g10-spin-btn{font-size:var(--sz-4);line-height:1;cursor:pointer;flex-shrink:0;user-select:none;margin-left:var(--sz-1);transition:transform .2s}
-.g10-spin-btn:hover{transform:rotate(20deg) scale(1.1)}
 .g8-dice-count{padding:var(--sz-0) var(--sz-2);font-size:var(--sz-2);font-weight:var(--fw-bold);border-radius:var(--r-sm);background:var(--c-border);color:var(--c-text);min-height:0;cursor:pointer}
 .g8-dice-count.selected{background:var(--c-blue);color:var(--c-surface)}
 .g8-bar-zone{flex:1;display:flex;align-items:center;height:var(--sz-4)}
@@ -227,16 +230,6 @@ button:active{transform:scale(.95)}
 @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(calc(var(--sz-1) * -1))}40%,80%{transform:translateX(var(--sz-1))}}
 .shake{animation:shake .4s}
 
-/* ===== BAYES VISUAL ===== */
-/* ===== GAME 6 BAYES BARS ===== */
-.b6-die-col{flex:1}
-.b6-bars{display:flex;gap:0;align-items:flex-end;height:7.5rem;width:100%}
-.b6-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:7.5rem;position:relative}
-.b6-bar{width:100%;border-radius:var(--border-1) var(--r-sm) 0 0;transition:height .6s ease-out;position:relative;overflow:hidden;min-width:var(--sz-3);height:0}
-.b6-bar.post{background:#999}
-.b6-vlabel{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-90deg);font-size:var(--sz-2);font-weight:var(--fw-bold);color:var(--c-text);white-space:nowrap;pointer-events:none;z-index:2}
-.b6-vals{display:flex;width:100%}
-.b6-vals span{flex:1;text-align:center;font-size:var(--sz-2);font-weight:var(--fw-bold);color:var(--c-text)}
 
 /* ===== BOX ANIMATION ===== */
 .box-scene{position:relative;width:12.5rem;height:11.25rem;margin:0 auto}
@@ -264,6 +257,7 @@ button:active{transform:scale(.95)}
 @keyframes boxShake{0%,100%{transform:rotate(0)}15%{transform:rotate(-3deg)}30%{transform:rotate(3deg)}45%{transform:rotate(-2deg)}60%{transform:rotate(2deg)}75%{transform:rotate(-1deg)}90%{transform:rotate(1deg)}}
 .box-shaking{animation:boxShake .6s ease-in-out}
 .question-mark{width:3.25rem;height:3.25rem;border-radius:50%;background:var(--c-gold);color:var(--c-surface);display:flex;align-items:center;justify-content:center;font-size:var(--sz-4);font-weight:var(--fw-bold);box-shadow:0 var(--sz-0) var(--sz-2) rgba(212,160,23,.4);overflow:hidden;position:relative}
+.question-mark.plain{background:transparent;box-shadow:none;color:#000}
 .question-mark .qm-text{position:relative;z-index:1}
 .question-mark .qm-reel{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;border-radius:50%;display:flex;justify-content:center}
 .question-mark .qm-reel .reel-strip{width:100%;transition:transform 2s cubic-bezier(.15,.85,.35,1);will-change:transform}
@@ -305,7 +299,7 @@ body.pal-cb{
   --c-die-1:#E69F00; --c-die-2:#56B4E9; --c-die-3:#009E73; --c-die-4:#CC79A7;
   --c-primary:#D55E00; --c-primary-dark:#A8480B;
   --c-blue:#56B4E9; --c-purple:#CC79A7;
-  --c-gold:#F0E442; --c-amber:#E69F00;
+  --c-gold:#F0E442; --c-amber:#E69F00; --c-orange:#E69F00; --c-teal:#009E73;
   --c-success:#0072B2; --c-danger:#D55E00;
   --c-success-bg:#D6E9F4; --c-success-fg:#003F62;
 }
@@ -336,6 +330,13 @@ button{min-height:var(--tap);min-width:var(--tap)}
 .pal-card.selected{border-color:var(--c-primary);background:rgba(255,255,255,.22)}
 .pal-swatches{display:flex;flex:1;justify-content:space-around;align-items:center}
 .pal-swatch{flex:1;max-width:2.5rem;height:1rem;border-radius:var(--r-sm);flex-shrink:0;margin:0 0.125rem;border:var(--border-1) solid rgba(255,255,255,.3)}
+
+/* ===== SPEED PICKER (title page) ===== */
+.speed-picker{display:flex;flex-direction:column;gap:var(--sz-1);width:100%;margin-top:var(--sz-1)}
+.speed-picker h3{font-size:var(--sz-3);font-weight:var(--fw-normal);color:var(--c-surface);text-align:center}
+.speed-row{display:flex;gap:var(--sz-1);width:100%}
+.speed-card{flex:1;padding:var(--sz-1) var(--sz-2);background:rgba(255,255,255,.1);border:var(--border-2) solid transparent;border-radius:var(--r-lg);min-height:var(--tap);cursor:pointer;color:var(--c-surface);font-family:inherit;font-weight:var(--fw-bold);text-align:center}
+.speed-card.selected{border-color:var(--c-primary);background:rgba(255,255,255,.22)}
 
 /* ===== ACCESSIBILITY MEDIA QUERIES ===== */
 @media (prefers-reduced-motion: reduce){
@@ -396,6 +397,13 @@ if('serviceWorker' in navigator){
       </span>
     </button>
   </div>
+  <div class="speed-picker" id="speed-picker">
+    <h3>Dice Roll Speed</h3>
+    <div class="speed-row">
+      <button class="speed-card selected" data-speed="slow" onclick="setDiceSpeed('slow')" aria-pressed="true">Slow</button>
+      <button class="speed-card" data-speed="fast" onclick="setDiceSpeed('fast')" aria-pressed="false">Fast</button>
+    </div>
+  </div>
   <button id="start-btn" onclick="goToGameList()">Start</button>
 </div>
 
@@ -423,7 +431,7 @@ if('serviceWorker' in navigator){
       <div style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:var(--sz-0) var(--sz-2)">
         <span id="round-counter" class="t-sm-b"></span>
         <div style="display:flex;align-items:center;gap:var(--sz-1)">
-          <button class="next-btn btn-compact" id="g9-start-btn" disabled style="display:none;margin:0" onclick="g9Start()">Race Start</button>
+          <button class="next-btn btn-compact" id="g9-start-btn" disabled style="display:none;margin:0;background:var(--c-success)" onclick="g9Start()">Race Start</button>
           <button class="next-btn btn-compact" id="g8-skip-btn" disabled style="display:none;background:var(--c-overlay-dark);margin:0" onclick="raceSkip()">Skip to end</button>
           <span class="result-indicator" id="result-indicator"></span>
           <button class="next-btn btn-compact" id="next-round-btn" disabled onclick="nextButtonClick()" style="margin:0">Next Round</button>
@@ -511,10 +519,37 @@ function initPaletteUI(){
     c.setAttribute('aria-pressed',sel?'true':'false');
   });
 }
+
+// ===== DICE ROLL SPEED =====
+// Multiplier applied to spin durations: 1 = slow (default), 0.5 = fast.
+var _diceSpeed='slow';
+function diceSpeedFactor(){
+  return _diceSpeed==='fast' ? 0.5 : 1;
+}
+function setDiceSpeed(name){
+  _diceSpeed=name;
+  document.querySelectorAll('.speed-card').forEach(function(c){
+    var sel=c.dataset.speed===name;
+    c.classList.toggle('selected',sel);
+    c.setAttribute('aria-pressed',sel?'true':'false');
+  });
+}
+function initDiceSpeedUI(){
+  // Speed always defaults to 'slow' on page load (not persisted).
+  try{ localStorage.removeItem('diceSpeed'); }catch(e){}
+  _diceSpeed='slow';
+  document.querySelectorAll('.speed-card').forEach(function(c){
+    var sel=c.dataset.speed==='slow';
+    c.classList.toggle('selected',sel);
+    c.setAttribute('aria-pressed',sel?'true':'false');
+  });
+}
+
 if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded',initPaletteUI);
+  document.addEventListener('DOMContentLoaded',function(){initPaletteUI();initDiceSpeedUI();});
 }else{
   initPaletteUI();
+  initDiceSpeedUI();
 }
 
 // ===== SHARED HELPERS =====
@@ -527,15 +562,15 @@ function prefersReducedMotion(){
 
 // ===== GAME DEFINITIONS =====
 const GAMES = [
-  {id:1, title:'Probability', topic:'Section 2', desc:'Guess the dice — no data!', color:'var(--c-primary)'},
-  {id:2, title:'Likelihood', topic:'Section 3', desc:'One roll — which dice?', color:'var(--c-blue)'},
-  {id:3, title:'Likelihood Ratio', topic:'Section 4', desc:'How confident are you?', color:'#e67e22'},
-  {id:4, title:'Independence', topic:'Section 5', desc:'Three rolls — more data!', color:'var(--c-success)'},
+  {id:1, title:'Probability', topic:'Section 2', desc:'Guess the dice', color:'var(--c-primary)'},
+  {id:2, title:'Likelihood', topic:'Section 3', desc:'Guess the dice with data', color:'var(--c-blue)'},
+  {id:3, title:'Likelihood Ratio', topic:'Section 4', desc:'How confident are you?', color:'var(--c-orange)'},
+  {id:4, title:'Independence', topic:'Section 5', desc:'Guess the dice with more data', color:'var(--c-success)'},
   {id:5, title:'Log-Likelihood', topic:'Section 6', desc:'House vs Player — spot the bias!', color:'var(--c-purple)'},
-  {id:6, title:"Bayes' Theorem", topic:'Section 8', desc:'Many copies of a dice', color:'var(--c-danger)'},
-  {id:7, title:'Marginalization', topic:'Section 9', desc:'Unknown variable', color:'var(--c-amber)'},
-  {id:8, title:'Dice Sums', topic:'Horse Race', desc:'Sum of two dice — pick the winner!', color:'#1abc9c'},
-  {id:9, title:'Central Limit Theorem', topic:'Section 12', desc:'Average of many rolls', color:'var(--c-purple)'},
+  {id:6, title:"Bayes' Theorem", topic:'Section 8', desc:'Guess the dice again', color:'var(--c-danger)'},
+  {id:7, title:'Marginalization', topic:'Section 9', desc:'Guess which box', color:'var(--c-amber)'},
+  {id:8, title:'Dice Sums', topic:'Horse Race', desc:'Guess the winner', color:'var(--c-teal)'},
+  {id:9, title:'Central Limit Theorem', topic:'Section 12', desc:'Spread your bet', color:'var(--c-purple)'},
   {id:10, title:'Reverse the Race', topic:'Inference', desc:'Guess the dice + bias!', color:'var(--c-gold)'},
 ];
 
@@ -1007,25 +1042,57 @@ function boxDiceForGame(id){
     return d;
   }
   if(id===7) return null; // special: two boxes
+  if(id===3){
+    // Likelihood-ratio game: only the two candidate dice for the round.
+    const rd=S.rounds[S.currentRound];
+    const pair=rd&&rd.pair?rd.pair:[4,8];
+    return pair.map(d=>({cls:'d'+d,label:''+d}));
+  }
   return [{cls:'d4',label:'4'},{cls:'d6',label:'6'},{cls:'d8',label:'8'},{cls:'d10',label:'10'}];
 }
 
-// One-paragraph premise + aim for games 1–4, 6–7, styled to match Game 5's
-// blurb in g5TopHTML (line ~1558). Placed under the box in Z.top.
+// One-paragraph premise + aim for each game with a blurb. Rendered into the
+// instructions popup via openInstructions(gameId); the under-box helper
+// gameDescHTML now emits only the trigger button.
 const GAME_DESCRIPTIONS = {
   1: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>nothing</b>: no rolls, no clues. Every dice is equally likely, so the guess is right just <b>one time in four</b>.`,
   2: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>one roll</b> from the chosen dice. Some dice are more likely to produce that roll than others — use the <b>likelihood</b> to guess which dice was chosen.`,
   3: `Two candidate dice, <b>one roll</b>. Pick the dice the data favours <i>and</i> rate how strongly: when the less-likely dice makes the roll <b>impossible</b>, you're <b>certain</b>; when both dice make it almost equally likely, you have <b>low confidence</b>. You should guess correctly more often when the <b>likelihood ratio</b> is <b>high</b>.`,
   4: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>three independent rolls</b> from the chosen dice. Independent rolls <b>multiply</b> their likelihoods — combine all three to guess which dice was chosen.`,
+  5: `Is the dice <b>Fair</b> or <b>biased</b>? The <b>House</b> tracks the <b>likelihood ratio</b> <b>L(A) / L(B)</b>; you track the <b>likelihood gain</b> <b>log L(A) − log L(B)</b>. They carry the same information — the gain is just the log of the ratio — but the gain grows by <b>addition</b> instead of <b>multiplication</b>, so it stays on a friendly numeric scale much longer.<br><br>Each roll costs <b>1 token per tracked value</b>, plus <b>+1</b> every time that value crosses a new order of magnitude. Both sides track <b>2</b> values, so the minimum is <b>2 tokens</b> per roll. You each start with <b>14 tokens</b>; logs grow slowly, so the player's precision wall is much further off. <b>Commit to a guess whenever you're ready</b> — every unused coin (yours <i>and</i> the house's) goes straight into the prize pot.`,
   6: `The box holds <b>eight dice</b>: some of one type, some of another. A dice is selected from the box, chosen at random. You see <b>one roll</b> from the chosen dice. Combine the <b>prior</b> (how many of each type are in the box) with the <b>likelihood</b> (which type fits the roll) to guess which dice was chosen — that's <b>Bayes' theorem</b>.`,
-  7: `Two boxes, <b>Amber</b> and <b>Blue</b>, each hold <b>two dice</b>. A box is chosen at random, then a dice is selected from that box, chosen at random. You see <b>one roll</b> from the chosen dice. <b>Marginalize</b> over the two possible dice in each box to guess which box the roll came from.`,
+  7: `Two boxes, <b>Amber</b> and <b>Blue</b>, each hold <b>two dice</b>. A box is chosen at random, then a dice is selected from that box, chosen at random. You see <b>one roll</b> from the chosen dice. <b>Marginalize / sum over the unknowns / integrate out the nuisance variable</b> — the two possible dice in each box — to get the <b>marginal probability / P(roll | box)</b>, then pick the more likely box.`,
+  8: `A handful of dice is rolled and summed; the animal in the lane equal to that sum advances one step. The first lane to reach the finish line wins. Before the race you <b>pick the lane you think will win</b> — score <b>3</b> for an exact match, <b>2</b> within one lane, <b>1</b> within two. The shape of the sum's <b>probability mass function / PMF / distribution</b> — peaked near its <b>mean / average / expected value / μ</b> and broadened by its <b>variance / spread / σ²</b> — gives you a better guess than picking the middle lane by reflex.`,
+  9: `Same race as <b>Dice Sums</b>, but every dice shares the <b>same bias</b> — picked from <b>Fair</b>, <b>Line</b>, <b>Twin</b>, <b>Boat</b>, <b>Arch</b>, <b>Step</b> or <b>Edge</b>. Bias <b>shifts the mean / average / expected value / μ</b> and <b>reshapes the variance / spread / σ²</b> of the sum's <b>probability mass function / PMF / distribution</b>, so the winning lane is no longer where you'd expect. Instead of one lane, <b>spread your bet</b> across <b>1, 2, 3, 4, 6 or 12 lanes</b> — narrow bets pay more, wide bets are safer. Match the spread to your confidence in the bias.`,
+  10: `You see the <b>finished distribution</b> of a hidden race: animals frozen at the positions their lane reached when the winner crossed. By the <b>Central Limit Theorem / CLT</b>, the sum's <b>PMF</b> is approximately <b>Gaussian / Normal / bell-curve</b>, so the shape is captured by its <b>mean / μ</b> and <b>variance / σ²</b>. <b>Reverse the race</b> — figure out which dice combination (1–4 dice from {d4, d6, d8, d10}) and which bias produced that mean and variance. You get <b>10 attempts</b> at the <i>same</i> race; each prediction is dropped onto the track as coloured dots. The score is the <b>Euclidean distance / L2 distance / root-sum-squared</b> between your predicted lane heights and the actual ones — <b>lower is better</b>.`,
 };
 
 function gameDescHTML(gameId){
-  const text = GAME_DESCRIPTIONS[gameId];
-  if(!text) return '';
-  return `<div class="t-sm ta-c" style="opacity:.75;padding:var(--sz-1) var(--sz-1) 0;line-height:1.4;max-width:32rem;margin:0 auto">${text}</div>`;
+  if(!GAME_DESCRIPTIONS[gameId]) return '';
+  return `<div class="ta-c" style="padding:var(--sz-1) 0 0"><button class="next-btn btn-compact" style="background:var(--c-overlay-dark);margin:0" onclick="openInstructions(${gameId})">Instructions</button></div>`;
 }
+
+function openInstructions(gameId){
+  const modal=document.getElementById('instructions-modal');
+  const body=document.getElementById('instructions-modal-body');
+  if(!modal||!body) return;
+  body.innerHTML=GAME_DESCRIPTIONS[gameId]||'';
+  modal.style.display='flex';
+}
+function closeInstructions(evt){
+  // Backdrop onclick: only close if the click target IS the backdrop itself.
+  // Clicks inside the card bubble up here too (no stopPropagation on the card)
+  // — filtering by target.id keeps the popup open when the card is clicked.
+  if(evt && evt.target && evt.target.id!=='instructions-modal') return;
+  const modal=document.getElementById('instructions-modal');
+  if(modal) modal.style.display='none';
+}
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape'){
+    const m=document.getElementById('instructions-modal');
+    if(m && m.style.display!=='none') m.style.display='none';
+  }
+});
 
 function getBoxHTML(gameId){
   if(gameId===7){
@@ -1065,7 +1132,7 @@ function getBoxHTML(gameId){
       <div class="box-dice" style="${isSmallBox?'flex-wrap:wrap;gap:var(--sz-0)':''}">${diceHtml}</div>
     </div>
     <div class="hand-arm" id="box-hand"><div class="hand-shape">🤚</div></div>
-    <div class="hand-held" id="box-held"><div class="question-mark" id="qm-circle"><span class="qm-text">?</span><div class="qm-reel" style="display:none"><div class="reel-strip" id="reel0"></div></div></div></div>
+    <div class="hand-held" id="box-held"><div class="question-mark${gameId===1?' plain':''}" id="qm-circle"><span class="qm-text">?</span><div class="qm-reel" style="display:none"><div class="reel-strip" id="reel0"></div></div></div></div>
 
   </div>`;
 }
@@ -1105,6 +1172,9 @@ function revealDieInHand(dieValue, correct, boxHint){
   // Change circle colour and content — keep same size
   const color=DIE_COLORS[sides]||'#888';
   if(qm){
+    // Game 1 starts with .plain (transparent bg, black "?") — once a real die
+    // is revealed, drop .plain so the number renders white like other dice.
+    qm.classList.remove('plain');
     qm.style.background=color;
     qm.style.clipPath=DIE_CLIPS[sides]||'';
     qm.style.borderRadius=DIE_CLIPS[sides]?'0':'50%';
@@ -1124,20 +1194,26 @@ function startBoxAnimation(){
   const hand=document.getElementById('box-hand');
   const held=document.getElementById('box-held');
   if(!hand)return;
-  // Sequence: shake(0-600ms) → lid opens(600ms) → hand reaches in(800ms) → hand pulls out(1200ms) → ? appears(1400ms)
-  if(lid) setTimeout(()=>{lid.classList.add('open')},600);
+  // Sequence delays + lid rotation duration are scaled by diceSpeedFactor()
+  // so "Fast" halves both the lid swing and the whole box sequence.
+  const f=diceSpeedFactor();
+  const lidDur=(0.4*f)+'s';
   // Game 7 lids
   const lidA=document.getElementById('box-lid-a');
   const lidB=document.getElementById('box-lid-b');
-  if(lidA) setTimeout(()=>{lidA.classList.add('open')},600);
-  if(lidB) setTimeout(()=>{lidB.classList.add('open')},700);
-  setTimeout(()=>{hand.classList.add('reaching')},800);
+  if(lid)  lid.style.transitionDuration=lidDur;
+  if(lidA) lidA.style.transitionDuration=lidDur;
+  if(lidB) lidB.style.transitionDuration=lidDur;
+  if(lid)  setTimeout(()=>{lid.classList.add('open')},600*f);
+  if(lidA) setTimeout(()=>{lidA.classList.add('open')},600*f);
+  if(lidB) setTimeout(()=>{lidB.classList.add('open')},700*f);
+  setTimeout(()=>{hand.classList.add('reaching')},800*f);
   setTimeout(()=>{
     hand.classList.remove('reaching');hand.classList.add('pulling');
     const shape=hand.querySelector('.hand-shape');
     if(shape) shape.textContent='✊';
-  },1300);
-  setTimeout(()=>{held.classList.add('shown')},1500);
+  },1300*f);
+  setTimeout(()=>{held.classList.add('shown')},1500*f);
 }
 
 // Zone accessors
@@ -1151,7 +1227,7 @@ const Z = {
 };
 
 function disableNextBtn(){
-  const b=Z.nextBtn;if(b){b.disabled=true;b.textContent='Next Round';}
+  const b=Z.nextBtn;if(b){b.disabled=true;b.textContent='Next Round';b.style.background='';b.style.opacity='';}
   const ind=document.getElementById('result-indicator');
   if(ind){ind.className='result-indicator';ind.textContent='';}
 }
@@ -1163,7 +1239,10 @@ function enableNextBtn(){
   const ind=document.getElementById('result-indicator');
   if(ind){
     ind.className='result-indicator';
-    if(rd && rd.correct===true){ind.classList.add('correct');ind.textContent='✓';}
+    // Games 8 and 10 use graded scoring (points / distance), not a binary
+    // right/wrong — suppress the ✓/✗ badge there to avoid mis-signalling.
+    if(S.currentGame===8 || S.currentGame===10){ind.textContent='';}
+    else if(rd && rd.correct===true){ind.classList.add('correct');ind.textContent='✓';}
     else if(rd && rd.correct===false){ind.classList.add('wrong');ind.textContent='✗';}
     else {ind.textContent='';}
   }
@@ -1171,9 +1250,13 @@ function enableNextBtn(){
     S.completed[S.currentGame-1]=true;
     b.disabled=true;
     b.textContent='Game Over';
+    b.style.background='#000';
+    b.style.opacity='1';
   } else {
     b.disabled=false;
     b.textContent='Next Round';
+    b.style.background='';
+    b.style.opacity='';
   }
   const gid=S.currentGame;
   logEvent({
@@ -1586,10 +1669,12 @@ function renderGame5(){
   };
   // Match Game 9's slim top padding so the board has more vertical room.
   Z.top.style.padding='var(--sz-3) var(--sz-0) var(--sz-1) var(--sz-0)';
-  Z.text.style.flexBasis='4.5rem';
+  // Slim "Fair or biased?" prompt: match Games 8/9 (2rem) so the stats table
+  // can move up to fill the space.
+  Z.text.style.flexBasis='2rem';
   Z.text.style.alignItems='center';
   Z.buttons.style.display='';
-  Z.table.style.flexBasis='13rem';
+  Z.table.style.flexBasis='15.5rem';
   Z.top.innerHTML=g5TopHTML();
   // Plain div inside zone-text inherits the zone's font-size:var(--sz-4) — same
   // styling Game 9 uses for its prompt.
@@ -1618,9 +1703,7 @@ function g5TopHTML(){
     <div id="g5-bias-buttons">${g5BiasButtonsHTML(st.A, st.B)}</div>
     <div id="g5-bias-bars">${g5BiasBarsHTML(st.n, st.A, st.B)}</div>
     <div id="g5-board">${g5BoardHTML()}</div>
-    <div class="t-sm ta-c" style="opacity:.75;padding:var(--sz-1) var(--sz-1) 0;line-height:1.4">
-      Is the dice <b>Fair</b> or <b>biased</b>? Each roll costs <b>1 token per tracked value</b>, plus <b>+1</b> every time that value crosses a new order of magnitude. Both sides track <b>2</b> values, so the minimum is <b>2 tokens</b> per roll. You each start with <b>14 tokens</b>; logs grow slowly, so the player's precision wall is much further off. <b>Commit to a guess whenever you're ready</b> — every unused coin (yours <i>and</i> the house's) goes straight into the prize pot.
-    </div>
+    ${gameDescHTML(5)}
   </div>`;
 }
 
@@ -1696,8 +1779,8 @@ function g5BoardHTML(){
   const rowStyle='display:flex;flex-direction:column;align-items:stretch;gap:0;padding:var(--sz-0) var(--sz-1);background:var(--c-surface);border:var(--border-1) solid var(--c-border);border-radius:var(--r-sm)';
   const A=`<span style="color:var(--c-gold);font-weight:var(--fw-bold)">${G5_BIAS_LABEL[st.A]}</span>`;
   const B=`<span style="color:var(--c-blue);font-weight:var(--fw-bold)">${G5_BIAS_LABEL[st.B]}</span>`;
-  const ratioLabel=`L(${A}) / L(${B})`;
-  const llgLabel=`log L(${A}) − log L(${B})`;
+  // Equation forms now live in the Instructions popup; the board labels keep
+  // just the plain-language name so the row stays compact.
   const houseLvl=Math.max(st.houseLevelA, st.houseLevelB);
   const playerLvl=Math.max(st.playerLevelA, st.playerLevelB);
   return `
@@ -1707,9 +1790,11 @@ function g5BoardHTML(){
         <div class="g9-tokens-row" id="g5-house-tokens" style="margin:0">${g5TokenSpans(st.houseTokens)}</div>
         <div class="t-sm-b" id="g5-house-stuck" style="margin-left:auto;color:var(--c-danger);text-align:right">${g5HouseFrozen(st) ? g5StuckMsg(st.houseTokens) : ''}</div>
       </div>
-      <div class="t-sm ta-c" style="opacity:.7">likelihood ratio  ${ratioLabel}</div>
-      <div class="t-sm-b ta-c" id="g5-ratio">${g5HouseSumStr(st.houseLA, st.houseLB)}</div>
-      <div class="t-sm ta-c" style="opacity:.55" id="g5-house-meta">order ${houseLvl} · ${st.houseRolls} roll${st.houseRolls===1?'':'s'}</div>
+      <div style="display:flex;align-items:center;gap:var(--sz-1)">
+        <div class="t-sm" style="opacity:.7">likelihood ratio</div>
+        <div class="t-sm-b" id="g5-ratio" style="margin-left:auto;margin-right:auto">${g5HouseSumStr(st.houseLA, st.houseLB)}</div>
+        <div class="t-sm" style="opacity:.55" id="g5-house-meta">order ${houseLvl} · ${st.houseRolls} roll${st.houseRolls===1?'':'s'}</div>
+      </div>
     </div>
     <div style="${rowStyle}" id="g5-player-row">
       <div style="display:flex;align-items:center;gap:var(--sz-1)">
@@ -1717,9 +1802,11 @@ function g5BoardHTML(){
         <div class="g9-tokens-row" id="g5-player-tokens" style="margin:0">${g5TokenSpans(st.playerTokens)}</div>
         <div class="t-sm-b" id="g5-player-stuck" style="margin-left:auto;color:var(--c-danger);text-align:right">${g5PlayerStuck(st) ? g5StuckMsg(st.playerTokens) : ''}</div>
       </div>
-      <div class="t-sm ta-c" style="opacity:.7">likelihood gain  ${llgLabel}</div>
-      <div class="t-sm-b ta-c" id="g5-LLG">${g5PlayerSumStr(st.playerLogLA, st.playerLogLB)}</div>
-      <div class="t-sm ta-c" style="opacity:.55" id="g5-player-meta">order ${playerLvl} · ${st.playerRolls} roll${st.playerRolls===1?'':'s'}</div>
+      <div style="display:flex;align-items:center;gap:var(--sz-1)">
+        <div class="t-sm" style="opacity:.7">likelihood gain</div>
+        <div class="t-sm-b" id="g5-LLG" style="margin-left:auto;margin-right:auto">${g5PlayerSumStr(st.playerLogLA, st.playerLogLB)}</div>
+        <div class="t-sm" style="opacity:.55" id="g5-player-meta">order ${playerLvl} · ${st.playerRolls} roll${st.playerRolls===1?'':'s'}</div>
+      </div>
     </div>
   `;
 }
@@ -1811,7 +1898,7 @@ function g5RenderControls(){
   const guessLive = S.phase!=='reveal';
   Z.buttons.innerHTML=`
     <div style="display:flex;gap:var(--sz-2);align-items:center;justify-content:space-between;flex-wrap:wrap;width:100%">
-      <button class="next-btn btn-compact" id="g5-buy-btn" style="background:var(--c-gold)" ${canRoll?'':'disabled'} onclick="g5PurchaseNextRoll()">Purchase next roll</button>
+      <button class="next-btn btn-compact" id="g5-buy-btn" style="background:var(--c-success)" ${canRoll?'':'disabled'} onclick="g5PurchaseNextRoll()">Purchase next roll</button>
       <div class="guess-grid" style="grid-template-columns:auto auto;max-width:13rem;gap:var(--sz-1)">
         <button class="guess-btn" data-pick="${st.A}" ${guessLive?'':'disabled'} onclick="g5Guess('${st.A}')" style="background:var(--c-gold);color:var(--c-surface);clip-path:none;border-radius:var(--r-lg);width:auto;font-size:var(--sz-3)">${G5_BIAS_LABEL[st.A]}</button>
         <button class="guess-btn" data-pick="${st.B}" ${guessLive?'':'disabled'} onclick="g5Guess('${st.B}')" style="background:var(--c-blue);color:var(--c-surface);clip-path:none;border-radius:var(--r-lg);width:auto;font-size:var(--sz-3)">${G5_BIAS_LABEL[st.B]}</button>
@@ -1891,14 +1978,14 @@ function g5PurchaseNextRoll(){
   // (min cost is 2 — one per tracked value), or all 10 reveal slots are used.
   if(!playerActive || st.playerTokens<2 || st.rolls.length>=G5_MAX_ROLLS){
     st.ended=true;
-    setTimeout(g5EndRolling, reduce?30:700);
+    setTimeout(g5EndRolling, reduce?30:700*diceSpeedFactor());
     return;
   }
   setTimeout(()=>{
     if(!S.g5) return;
     S.g5.locked=false;
     g5RenderControls();
-  }, reduce?30:400);
+  }, reduce?30:400*diceSpeedFactor());
 }
 
 // Persist the current rolling state to the round record and lock in the
@@ -2014,13 +2101,19 @@ function guessGame6(guess){
 
 // ===== GAME 7: MARGINALIZATION =====
 function renderGame7(rd){
-  Z.top.innerHTML=getBoxHTML(7)+gameDescHTML(7)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which box?</div>`;
+  // Amber/Blue selectors live inside zone-top right under "Which box?" so they
+  // sit close to the box graphic (rather than at the bottom of the screen in
+  // zone-buttons). Same compact button styling as the Instructions button.
+  Z.top.innerHTML=getBoxHTML(7)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which box?</div>`+
+    `<div class="hidden-guess" id="guess-area" style="display:flex;gap:var(--sz-3);justify-content:center;margin:var(--sz-1) auto 0">
+      <button class="next-btn btn-compact" style="background:var(--c-amber);margin:0" onclick="guessGame7('amber')">Amber</button>
+      <button class="next-btn btn-compact" style="background:var(--c-blue);margin:0" onclick="guessGame7('blue')">Blue</button>
+    </div>`+
+    gameDescHTML(7);
   Z.text.innerHTML='';
   Z.text.style.display='none';
-  Z.buttons.innerHTML=`<div class="hidden-guess" id="guess-area" style="display:flex;gap:var(--sz-5);justify-content:center;width:17.5rem;margin:0 auto">
-    <button class="guess-btn" style="background:var(--c-amber);width:7.5rem;min-height:3.5rem" onclick="guessGame7('amber')">Amber</button>
-    <button class="guess-btn" style="background:var(--c-blue);width:7.5rem;min-height:3.5rem" onclick="guessGame7('blue')">Blue</button>
-  </div>`;
+  Z.buttons.innerHTML='';
+  Z.buttons.style.display='none';
   renderStatsTable(Z.table,7);
   startBoxAnimation();
   spinReel('reel0',rd.roll,()=>{
@@ -2086,26 +2179,21 @@ function renderGame8(rd){
   // Tighten Z.top horizontal padding so the lanes get a bit more width while
   // the page itself keeps its normal 30rem column.
   Z.top.style.padding='var(--sz-3) var(--sz-0) var(--sz-1) var(--sz-0)';
-  // Pin Z.text high enough to fit the post-bet 2-line content (text + animal+cup
-  // row) so the layout doesn't jump when the bet is placed.
-  Z.text.style.flexBasis='4.5rem';
+  // Z.text just holds the persistent status line — no animal/cup row.
+  Z.text.style.flexBasis='2rem';
   Z.text.style.alignItems='center';
   // Z.buttons is empty for Game 8 (Skip moved into the zone-next row);
   // hide it so it doesn't reserve whitespace under the animal.
   Z.buttons.style.display='none';
-  Z.table.style.flexBasis='13rem';
+  Z.table.style.flexBasis='15.5rem';
   Z.top.innerHTML=`<div class="g8-wrap" style="width:100%;margin:0 auto">
     <div class="g8-dice-row" id="g8-dice">${g8DiceRowHTML(rd.diceSides)}</div>
-    <div class="t-sm ta-c" style="opacity:.7;margin:var(--sz-0) auto">animal that is in the lane of the dice roll sum advances</div>
     <div class="g8-track" id="g8-track">${g8TrackHTML(rd.lanesLen, rd.trackLen, animals)}</div>
     <div class="hcap-toggle visible" id="hcap-toggle" style="justify-content:flex-start;margin:var(--sz-1) 0 0 0"><div class="hcap-switch" id="hcap-switch" onclick="toggleHandicap()"></div><span>Handicap</span></div>
+    ${gameDescHTML(8)}
   </div>`;
-  // Persistent slots: text line + animal/cup row. Both always present so the
-  // layout doesn't jump when content is added later.
-  Z.text.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:var(--sz-0);width:100%">
-    <div id="g8-msg">Guess the winner</div>
-    <div class="g8-bet-row"><span id="g8-animal"></span><span id="g8-cup" class="g8-cup">🏆</span></div>
-  </div>`;
+  // Persistent status slot (text content swapped in place — no layout shifts).
+  Z.text.innerHTML=`<div id="g8-msg" style="text-align:center;width:100%">Guess the winner</div>`;
   Z.buttons.innerHTML='';
   // Show Skip button (greyed) — becomes active once a bet is placed.
   const skipBtn=document.getElementById('g8-skip-btn');
@@ -2133,12 +2221,13 @@ function g8DiceRowHTML(diceSides){
   // LHS: open hand + static die shapes (sized like Game 1 selection buttons)
   const hand=`<span class="g8-hand">🤚</span>`;
   const dieShapes=diceSides.map(s=>`<div class="g8-die d${s}">${s}</div>`).join('');
-  // RHS: one golden roller per die joined by "+", then "=", then 2-digit sum.
+  // RHS: one golden roller per die joined by "+".
+  // Games 8 (Dice Sums) and 9 (CLT) bracket them with "Lane … advances" labels.
   const rollers=diceSides.map((_,i)=>
     `<div class="g8-roller" id="g8-r${i+1}"><span class="qm-text">?</span>`+
       `<div class="qm-reel" style="display:none"><div class="reel-strip"></div></div>`+
     `</div>`).join('<span class="g8-eq">+</span>');
-  return `${hand}${dieShapes}<span class="g8-rhs">${rollers}<span class="g8-eq">=</span><span class="g8-sum" id="g8-sum">?</span></span>`;
+  return `${hand}${dieShapes}<span class="g8-rhs"><span class="g8-eq" style="font-size:var(--sz-3)">Lane</span>${rollers}<span class="g8-eq" style="font-size:var(--sz-3)">advances</span></span>`;
 }
 
 // Exact PMF of dice-sum via discrete convolution. pmf[k] = P(sum = k); pmf[0] is unused.
@@ -2170,27 +2259,6 @@ function g8ComputeHandicap(diceSides, lanesLen){
   return lanePmf.map((p,i)=>p>0
     ? Math.max(0, lanesLen[i]-Math.round(lanesLen[i]*p/maxP))
     : 0);
-}
-
-// Blue prediction dots, one per reachable lane, positioned proportionally to PMF.
-function g8ShowPredictionDots(diceSides){
-  const pmf=g8SumPMF(diceSides);
-  const lanePmf=[];
-  for(let h=1;h<=12;h++) lanePmf.push(pmf[h]||0);
-  const maxP=Math.max(...lanePmf);
-  if(maxP<=0) return;
-  document.querySelectorAll('#g8-track .g8-lane').forEach(lane=>{
-    const h=+lane.dataset.horse;
-    const p=lanePmf[h-1]||0;
-    if(p<=0) return;
-    const bar=lane.querySelector('.g8-bar');
-    if(!bar) return;
-    const pct=(p/maxP)*100;
-    const dot=document.createElement('div');
-    dot.dataset.predictionDot='1';
-    dot.style.cssText=`position:absolute;width:0.5rem;height:0.5rem;border-radius:50%;background:var(--c-blue);top:50%;left:calc(${pct}% - 0.25rem);transform:translateY(-50%);z-index:2;box-shadow:0 0 0 0.0625rem var(--c-surface)`;
-    bar.appendChild(dot);
-  });
 }
 
 function g8TrackHTML(lanesLen, maxLen, animals){
@@ -2226,7 +2294,7 @@ function g8SpinRoller(rollerId, value, sides){
   strip.style.transition='none';
   strip.style.transform='translateY(0)';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    strip.style.transition=prefersReducedMotion()?'none':'transform .3s cubic-bezier(.2,.8,.3,1)';
+    strip.style.transition=prefersReducedMotion()?'none':`transform ${0.3*diceSpeedFactor()}s cubic-bezier(.2,.8,.3,1)`;
     strip.style.transform=`translateY(-${targetIdx*itemH}rem)`;
   }));
 }
@@ -2285,8 +2353,8 @@ function g8RollStep(){
   const sumEl=document.getElementById('g8-sum');
   if(sumEl) sumEl.textContent=sum;
   if(sum>=1&&sum<=12) g8UpdateTokenPos(sum);
-  if(won){S.g8.winner=sum;setTimeout(g8Finish,350);return;}
-  setTimeout(g8RollStep,prefersReducedMotion()?30:500);
+  if(won){S.g8.winner=sum;setTimeout(g8Finish,350*diceSpeedFactor());return;}
+  setTimeout(g8RollStep,prefersReducedMotion()?30:500*diceSpeedFactor());
 }
 
 function g8Skip(){
@@ -2321,10 +2389,6 @@ function g8Finish(){
   // Highlight winner lane
   const winLane=document.querySelector(`.g8-lane[data-horse="${S.g8.winner}"]`);
   if(winLane) winLane.style.background='rgba(255,215,0,0.15)';
-  // Blue prediction dots: theoretical PMF over reachable lanes.
-  // Suppressed in handicap mode — the head-starts intentionally distort the
-  // race away from the PMF, so the curve would be misleading.
-  if(!S.g8Handicap) g8ShowPredictionDots(S.g8.diceSides);
   // Plain text everywhere — no bold, no colour overrides
   const head=points===3?`Lane ${S.g8.winner} wins — exact!`
     :points>0?`Lane ${S.g8.winner} wins. You bet on lane ${S.g8.bet} — close!`
@@ -2385,10 +2449,10 @@ function renderGame9(){
   S.phase='guess';
   // Match Game 8's slimmer top padding so the lanes get more horizontal real-estate.
   Z.top.style.padding='var(--sz-3) var(--sz-0) var(--sz-1) var(--sz-0)';
-  Z.text.style.flexBasis='4.5rem';
+  Z.text.style.flexBasis='2rem';
   Z.text.style.alignItems='center';
   Z.buttons.style.display='none';
-  Z.table.style.flexBasis='13rem';
+  Z.table.style.flexBasis='15.5rem';
   Z.top.innerHTML=`<div class="g8-wrap" style="width:100%;margin:0 auto">
     <div class="g8-dice-row" id="g8-dice">${g8DiceRowHTML(rd.diceSides)}</div>
     <div id="g9-bias-buttons">${g9BiasButtonsHTML(rd.bias)}</div>
@@ -2397,13 +2461,10 @@ function renderGame9(){
     <div class="t-sm ta-c" style="opacity:.7;margin:var(--sz-0) auto">${biasCaptionFor(rd.bias)}</div>
     <div class="g8-track" id="g8-track">${g9TrackHTML(rd.lanesLen, rd.trackLen, animals)}</div>
     <div class="hcap-toggle visible" id="hcap-toggle" style="justify-content:flex-start;margin:var(--sz-1) 0 0 0"><div class="hcap-switch" id="hcap-switch" onclick="toggleHandicap()"></div><span>Handicap</span></div>
+    ${gameDescHTML(9)}
   </div>`;
-  // Persistent text + bet-row slots, mirroring Game 8 (text line on top, animals
-  // with cups beneath). Cups appear on race-end next to winning animals.
-  Z.text.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:var(--sz-0);width:100%">
-    <div id="g9-msg">Pick 1, 2, 3, 4, 6 or 12 lanes</div>
-    <div class="g8-bet-row" id="g9-bet-row" style="font-size:var(--sz-3);min-height:var(--sz-4);justify-content:center;flex-wrap:nowrap;max-width:100%"></div>
-  </div>`;
+  // Persistent status slot only — animal/cup row removed.
+  Z.text.innerHTML=`<div id="g9-msg" style="text-align:center;width:100%">Pick 1, 2, 3, 4, 6 or 12 lanes</div>`;
   Z.buttons.innerHTML='';
   renderStatsTable(Z.table,9);
   // Render initial token positions (matters when handicap is on).
@@ -2649,27 +2710,6 @@ function g9ComputeHandicap(diceSides, biasName, lanesLen){
     : 0);
 }
 
-// Blue prediction dots, one per reachable lane, positioned proportionally to PMF.
-function g9ShowPredictionDots(diceSides, biasName, maxSum){
-  const pmf=g9SumPMF(diceSides, biasName);
-  const lanePmf=[];
-  for(let h=1;h<=maxSum;h++) lanePmf.push(pmf[h]||0);
-  const maxP=Math.max(...lanePmf);
-  if(maxP<=0) return;
-  document.querySelectorAll('#g8-track .g8-lane').forEach(lane=>{
-    const h=+lane.dataset.horse;
-    const p=lanePmf[h-1]||0;
-    if(p<=0) return;
-    const bar=lane.querySelector('.g8-bar');
-    if(!bar) return;
-    const pct=(p/maxP)*100;
-    const dot=document.createElement('div');
-    dot.dataset.predictionDot='1';
-    dot.style.cssText=`position:absolute;width:0.5rem;height:0.5rem;border-radius:50%;background:var(--c-blue);top:50%;left:calc(${pct}% - 0.25rem);transform:translateY(-50%);z-index:2;box-shadow:0 0 0 0.0625rem var(--c-surface)`;
-    bar.appendChild(dot);
-  });
-}
-
 function g9AdvanceHorse(s){
   if(s<1||s>S.g9.maxSum) return false;
   S.g9.positions[s-1]++;
@@ -2691,8 +2731,8 @@ function g9RollStep(){
   const sumEl=document.getElementById('g8-sum');
   if(sumEl) sumEl.textContent=sum;
   if(sum>=1&&sum<=S.g9.maxSum) g9UpdateTokenPos(sum);
-  if(won){S.g9.winner=sum;setTimeout(g9Finish,350);return;}
-  setTimeout(g9RollStep,prefersReducedMotion()?30:500);
+  if(won){S.g9.winner=sum;setTimeout(g9Finish,350*diceSpeedFactor());return;}
+  setTimeout(g9RollStep,prefersReducedMotion()?30:500*diceSpeedFactor());
 }
 
 function g9Skip(){
@@ -2732,8 +2772,6 @@ function g9Finish(){
   S.scores[8]+=payout;
   const winLane=document.querySelector(`.g8-lane[data-horse="${S.g9.winner}"]`);
   if(winLane) winLane.style.background='rgba(255,215,0,0.15)';
-  // Blue prediction dots over the biased PMF (skipped in handicap mode).
-  if(!S.g9Handicap) g9ShowPredictionDots(S.g9.diceSides, S.g9.biasName, S.g9.maxSum);
   const head=payout>0
     ? `Lane ${S.g9.winner} wins. ${tokensOnWinner}² = +${payout}`
     : `Lane ${S.g9.winner} wins. No tokens on it.`;
@@ -2940,6 +2978,7 @@ function renderGame10(){
       ${newRaceBtn}
     </div>
     ${g10TrackHTML(rd.actualPositions, rd.animals, rd.trackLen, null, false)}
+    ${gameDescHTML(10)}
     <div id="g10-dice-row" style="display:flex;justify-content:center;align-items:center;gap:var(--sz-1);margin:var(--sz-1) auto"></div>
     <div id="g10-bias-buttons"></div>
     <div id="g10-bias-bars"></div>
@@ -2956,6 +2995,13 @@ function renderGame10(){
   renderStatsTable(Z.table, 10);
   g10RenderDiceRow();
   g10RenderBias();
+  // Replay all earlier attempts' dots so the player keeps a visual history of
+  // their guesses against the same hidden race. (Rendering the round rebuilds
+  // the track DOM, which wipes any dots; restore them here.)
+  for(let i=0;i<S.currentRound;i++){
+    const pr=S.rounds[i];
+    if(pr && pr.playerPositions) g10ShowDots(i);
+  }
 }
 
 // All 28 valid dice combos (1, 2, 3, or 4 dice from {4,6,8,10}) whose sum-mode
@@ -2978,8 +3024,7 @@ function g10RenderDiceRow(){
   row.innerHTML=`<span class="g8-hand">🤚</span>
     <button class="g10-arrow" onclick="g10AdvanceCombo(-1)" title="Previous combo">◀</button>
     <div class="g10-combo-bar">${dieIcons}</div>
-    <button class="g10-arrow" onclick="g10AdvanceCombo(1)" title="Next combo">▶</button>
-    <span class="g10-spin-btn" onclick="g10SpinReels()" title="Random combo">🎰</span>`;
+    <button class="g10-arrow" onclick="g10AdvanceCombo(1)" title="Next combo">▶</button>`;
 }
 function g10AdvanceCombo(dir){
   if(!S.g10 || S.g10.submitted) return;
@@ -2992,15 +3037,6 @@ function g10AdvanceCombo(dir){
   g10RenderBias();
   g10UpdateSubmit();
 }
-function g10SpinReels(){
-  if(!S.g10 || S.g10.submitted) return;
-  const idx=Math.floor(Math.random()*G10_VALID_COMBOS.length);
-  S.g10.selectedDice=G10_VALID_COMBOS[idx].slice();
-  g10RenderDiceRow();
-  g10RenderBias();
-  g10UpdateSubmit();
-}
-
 // Game-9 style bias picker (reuses .bias-preset.selected = gold). Always enabled.
 function g10SetBias(preset){
   if(!S.g10 || S.g10.submitted) return;
@@ -3328,14 +3364,22 @@ function spinReel(reelId, targetVal, onDone, delay=0){
         strip.classList.remove('spinning');
         if(onDone)onDone();
       }else{
-        strip.style.transition='transform 2s cubic-bezier(.15,.85,.35,1)';
+        const dur=2*diceSpeedFactor();
+        strip.style.transition=`transform ${dur}s cubic-bezier(.15,.85,.35,1)`;
         strip.style.transform=`translateY(${offset}px)`;
         strip.classList.remove('spinning');
-        setTimeout(()=>{if(onDone)onDone()},2050);
+        setTimeout(()=>{if(onDone)onDone()},dur*1000+50);
       }
     })});
   }, delay);
 }
 </script>
+
+<div id="instructions-modal" class="modal-backdrop" style="display:none" onclick="closeInstructions(event)">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeInstructions()" aria-label="Close">×</button>
+    <div id="instructions-modal-body"></div>
+  </div>
+</div>
 </body>
 </html>
