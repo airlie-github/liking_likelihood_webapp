@@ -5,7 +5,7 @@
 // liking_likelihood.html and dashboard.html.
 
 const SHEET_NAME = 'log';
-const COLS = ['ts','room','player','event','game','round','correct','score','is_last'];
+const COLS = ['ts','room','player','event','game','round','correct','score','is_last','conf','player_pot','house_pot','loss'];
 
 function doPost(e) {
   try {
@@ -16,11 +16,15 @@ function doPost(e) {
       data.room    || '',
       data.player  || '',
       data.event   || '',
-      data.game     !== undefined ? data.game    : '',
-      data.round    !== undefined ? data.round   : '',
-      data.correct  !== undefined ? data.correct : '',
-      data.score    !== undefined ? data.score   : '',
-      data.is_last  !== undefined ? data.is_last : ''
+      data.game       !== undefined ? data.game       : '',
+      data.round      !== undefined ? data.round      : '',
+      data.correct    !== undefined ? data.correct    : '',
+      data.score      !== undefined ? data.score      : '',
+      data.is_last    !== undefined ? data.is_last    : '',
+      data.conf       || '',
+      data.player_pot !== undefined && data.player_pot !== null ? data.player_pot : '',
+      data.house_pot  !== undefined && data.house_pot  !== null ? data.house_pot  : '',
+      data.loss       !== undefined && data.loss       !== null ? data.loss       : ''
     ]);
     return json_({ok: true});
   } catch (err) {

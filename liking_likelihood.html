@@ -1298,7 +1298,11 @@ function enableNextBtn(){
     game:gid,
     round:S.currentRound+1,
     correct:rd?(rd.correct===true):null,
+    conf:rd&&rd.conf?rd.conf:null,
     score:S.scores[gid-1],
+    player_pot:rd?(rd.playerPot!=null?rd.playerPot:(rd.payout!=null?rd.payout:null)):null,
+    house_pot:rd?(rd.housePot!=null?rd.housePot:(rd.housePayout!=null?rd.housePayout:null)):null,
+    loss:rd&&rd.points!=null?rd.points:null,
     is_last:isLast
   });
 }
@@ -1752,7 +1756,7 @@ function g5TokenSpans(n){
 // Format a small/medium number with sensible precision for the in-row arithmetic.
 function g5FmtNum(x){
   if(!isFinite(x)) return '?';
-  if(x===0) return '0';
+  if(x===0) return '0.00';
   const a=Math.abs(x);
   if(a>=1000 || a<0.001) return x.toExponential(2);
   if(a>=100) return x.toFixed(1);
@@ -1904,8 +1908,8 @@ function g5RenderControls(){
     <div style="display:flex;gap:var(--sz-2);align-items:center;justify-content:space-between;flex-wrap:wrap;width:100%">
       <button class="next-btn btn-compact" id="g5-buy-btn" style="background:var(--c-success)" ${canRoll?'':'disabled'} onclick="g5PurchaseNextRoll()">Purchase next roll</button>
       <div class="guess-grid" style="grid-template-columns:auto auto;max-width:13rem;gap:var(--sz-1)">
-        <button class="guess-btn" data-pick="${st.A}" ${guessLive?'':'disabled'} onclick="g5Guess('${st.A}')" style="background:var(--c-gold);color:var(--c-surface);clip-path:none;border-radius:var(--r-lg);width:auto;font-size:var(--sz-3)">${G5_BIAS_LABEL[st.A]}</button>
-        <button class="guess-btn" data-pick="${st.B}" ${guessLive?'':'disabled'} onclick="g5Guess('${st.B}')" style="background:var(--c-blue);color:var(--c-surface);clip-path:none;border-radius:var(--r-lg);width:auto;font-size:var(--sz-3)">${G5_BIAS_LABEL[st.B]}</button>
+        <button class="guess-btn" data-pick="${st.A}" ${guessLive?'':'disabled'} onclick="g5Guess('${st.A}')" style="background:var(--c-gold);color:var(--c-surface);clip-path:none;border-radius:var(--r-lg);width:auto;height:auto;padding:var(--sz-1) var(--sz-4);font-size:var(--sz-2)">${G5_BIAS_LABEL[st.A]}</button>
+        <button class="guess-btn" data-pick="${st.B}" ${guessLive?'':'disabled'} onclick="g5Guess('${st.B}')" style="background:var(--c-blue);color:var(--c-surface);clip-path:none;border-radius:var(--r-lg);width:auto;height:auto;padding:var(--sz-1) var(--sz-4);font-size:var(--sz-2)">${G5_BIAS_LABEL[st.B]}</button>
       </div>
     </div>
   `;
@@ -2077,12 +2081,11 @@ function renderGame7(rd){
   // Amber/Blue selectors live inside zone-top right under "Which box?" so they
   // sit close to the box graphic (rather than at the bottom of the screen in
   // zone-buttons). Same compact button styling as the Instructions button.
-  Z.top.innerHTML=getBoxHTML(7)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which box?</div>`+
+  Z.top.innerHTML=getBoxHTML(7)+gameDescHTML(7)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which box?</div>`+
     `<div class="hidden-guess" id="guess-area" style="display:flex;gap:var(--sz-3);justify-content:center;margin:var(--sz-1) auto 0">
       <button class="next-btn btn-compact" style="background:var(--c-amber);margin:0" onclick="guessGame7('amber')">Amber</button>
       <button class="next-btn btn-compact" style="background:var(--c-blue);margin:0" onclick="guessGame7('blue')">Blue</button>
-    </div>`+
-    gameDescHTML(7);
+    </div>`;
   Z.text.innerHTML='';
   Z.text.style.display='none';
   Z.buttons.innerHTML='';

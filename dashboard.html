@@ -17,30 +17,45 @@ header{display:flex;align-items:baseline;justify-content:space-between;flex-wrap
 h1{margin:0;font-size:var(--fs-4);font-weight:700}
 .room-badge{font-size:var(--fs-3);color:var(--accent);font-weight:700;letter-spacing:0.05em}
 .meta{color:var(--muted);font-size:var(--fs-2)}
+
 .setup{background:var(--panel);padding:2rem;border-radius:1rem;max-width:36rem;margin:4rem auto;text-align:center}
 .setup h2{margin:0 0 1rem 0;font-size:var(--fs-3)}
 .setup input{font-size:var(--fs-3);padding:0.75rem 1rem;border-radius:0.5rem;border:1px solid #2a3f5f;background:#0a1426;color:var(--ink);width:100%;text-align:center;text-transform:uppercase;letter-spacing:0.1em}
 .setup button{margin-top:1rem;font-size:var(--fs-2);padding:0.75rem 2rem;background:var(--accent);color:white;border:none;border-radius:0.5rem;cursor:pointer;font-weight:600}
 .setup button:hover{background:#3a78c4}
 .setup .hint{color:var(--muted);font-size:var(--fs-1);margin-top:1rem}
+
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(16rem,1fr));gap:1rem;margin-top:1rem}
+.game-tile{background:var(--panel);border-radius:0.75rem;padding:1.25rem 1.25rem;cursor:pointer;border:2px solid transparent;transition:border-color 120ms ease, transform 120ms ease;text-align:left}
+.game-tile:hover{border-color:var(--accent);transform:translateY(-2px)}
+.game-tile .gnum{font-size:var(--fs-1);color:var(--muted);letter-spacing:0.08em;text-transform:uppercase}
+.game-tile .gtitle{font-size:var(--fs-3);font-weight:700;margin:0.25rem 0 0.5rem 0}
+.game-tile .gdesc{color:var(--muted);font-size:var(--fs-1);line-height:1.4}
+.game-tile .gplayed{margin-top:0.75rem;font-size:var(--fs-1);color:var(--good)}
+.game-tile.disabled{cursor:not-allowed;opacity:0.6}
+.game-tile.disabled:hover{border-color:transparent;transform:none}
+.game-tile.disabled .gdesc{font-style:italic}
+
 table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:0.75rem;overflow:hidden;font-size:var(--fs-2)}
-thead th{background:#0a1426;padding:0.75rem 0.5rem;font-weight:600;text-align:center;color:var(--muted);font-size:var(--fs-1);letter-spacing:0.05em;text-transform:uppercase}
+thead th{background:#0a1426;padding:0.75rem 0.75rem;font-weight:600;text-align:center;color:var(--muted);font-size:var(--fs-1);letter-spacing:0.05em;text-transform:uppercase}
 thead th.player{text-align:left;padding-left:1.25rem}
-tbody td{padding:0.75rem 0.5rem;text-align:center;border-top:1px solid #1f3354}
-tbody td:not(.player):not(.total){font-size:var(--fs-1);padding:0.75rem 0.25rem}
+thead th.rank{width:3.5rem}
+tbody td{padding:0.75rem 0.75rem;text-align:center;border-top:1px solid #1f3354}
 tbody td.player{text-align:left;padding-left:1.25rem;font-weight:600}
-tbody td.total{font-weight:700;color:var(--accent);font-size:var(--fs-2)}
-thead th:not(.player):not(:last-child){padding:0.75rem 0.25rem}
-tbody tr:nth-child(1) td.player::before{content:"🥇 ";font-size:0.9em}
-tbody tr:nth-child(2) td.player::before{content:"🥈 ";font-size:0.9em}
-tbody tr:nth-child(3) td.player::before{content:"🥉 ";font-size:0.9em}
-.empty-cell{color:#3a4f6f}
+tbody td.rank{color:var(--muted);font-weight:700}
+tbody td.correct{color:var(--good);font-weight:700;font-size:var(--fs-2)}
+tbody td.wrong{color:var(--bad)}
+tbody td.total{font-weight:700}
+tbody tr:nth-child(1) td.rank::after{content:" 🥇"}
+tbody tr:nth-child(2) td.rank::after{content:" 🥈"}
+tbody tr:nth-child(3) td.rank::after{content:" 🥉"}
 .empty-state{text-align:center;color:var(--muted);padding:3rem;font-size:var(--fs-2)}
 .error{background:var(--bad);color:white;padding:0.75rem 1rem;border-radius:0.5rem;margin-bottom:1rem}
 .pulse{display:inline-block;width:0.5rem;height:0.5rem;background:var(--good);border-radius:50%;margin-right:0.4rem;vertical-align:middle;animation:pulse 1.6s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.2}}
 button.small{font-size:var(--fs-1);padding:0.25rem 0.75rem;background:transparent;color:var(--muted);border:1px solid var(--muted);border-radius:0.4rem;cursor:pointer;margin-left:0.5rem}
 button.small:hover{color:var(--ink);border-color:var(--ink)}
+
 .pie-panel{background:var(--panel);border-radius:0.75rem;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:2rem}
 .pie-panel h2{margin:0 0 0.25rem 0;font-size:var(--fs-3)}
 .pie-panel .pie-meta{color:var(--muted);font-size:var(--fs-2)}
@@ -48,6 +63,12 @@ button.small:hover{color:var(--ink);border-color:var(--ink)}
 .pie-legend{display:flex;flex-direction:column;gap:0.5rem;font-size:var(--fs-2)}
 .pie-legend .swatch{display:inline-block;width:1rem;height:1rem;border-radius:0.2rem;margin-right:0.5rem;vertical-align:-2px}
 .pie-empty{color:var(--muted);font-size:var(--fs-2)}
+.section-title{font-size:var(--fs-3);font-weight:700;margin:1.5rem 0 0.75rem 0}
+.three-pies{display:flex;gap:2rem;flex-wrap:wrap}
+.three-pie{flex:1 1 12rem;min-width:12rem;display:flex;flex-direction:column;align-items:center;gap:0.5rem;text-align:center}
+.three-pie-title{font-size:var(--fs-2);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em}
+.three-pie-stats{font-size:var(--fs-1);display:flex;flex-direction:column;gap:0.25rem;align-items:flex-start}
+.three-pie-panel{display:block !important}
 </style>
 </head>
 <body>
@@ -62,41 +83,80 @@ button.small:hover{color:var(--ink);border-color:var(--ink)}
   <div class="hint">Make sure students enter the same room code on their phones.</div>
 </div>
 
-<!-- Live view -->
-<div id="live" style="display:none">
+<!-- Game picker -->
+<div id="picker" style="display:none">
   <header>
     <div>
       <h1>Liking Likelihood</h1>
-      <div class="meta">Room <span class="room-badge" id="room-label"></span>
+      <div class="meta">Room <span class="room-badge" id="picker-room-label"></span>
         <button class="small" onclick="changeRoom()">change</button></div>
     </div>
     <div class="meta" style="text-align:right">
-      <div><span class="pulse"></span>Players: <b id="player-count">0</b></div>
+      <div><span class="pulse"></span>Players: <b id="picker-player-count">0</b></div>
+      <div>Last update: <span id="picker-last-update">—</span></div>
+    </div>
+  </header>
+  <div class="section-title">Pick a game to view</div>
+  <div id="error-box-picker"></div>
+  <div id="game-grid" class="game-grid"></div>
+</div>
+
+<!-- Live per-game view -->
+<div id="live" style="display:none">
+  <header>
+    <div>
+      <h1 id="game-title">—</h1>
+      <div class="meta">Room <span class="room-badge" id="live-room-label"></span>
+        <button class="small" onclick="backToPicker()">← back to games</button>
+        <button class="small" onclick="changeRoom()">change room</button></div>
+    </div>
+    <div class="meta" style="text-align:right">
+      <div><span class="pulse"></span>Completed: <b id="completed-count">0</b></div>
       <div>Last update: <span id="last-update">—</span></div>
     </div>
   </header>
   <div id="error-box"></div>
   <div id="pie-container"></div>
-  <div id="table-container"></div>
+  <div class="section-title">Leaderboard</div>
+  <div id="leaderboard-container"></div>
 </div>
 
 </div>
 
 <script>
-// Paste your Apps Script web-app URL here (same URL the game uses for LOG_URL).
 const LOG_URL = 'https://script.google.com/a/macros/cam.ac.uk/s/AKfycbySlckSQFQV9dLGm5c6V2VZZEuO4bGWWab8bfgF8J0buHduyvgHQp_XrCMnDUO-19ERPw/exec';
+
+// Mirror of liking_likelihood.html's GAMES array (titles/descs only).
+// `pie` true = render the correct/wrong pie panel above the leaderboard.
+// `leaderboard` true = render the correct/wrong/total leaderboard.
+const GAMES = [
+  {id:1,  title:'Probability',           desc:'Guess the dice',                       pie:true,  leaderboard:true},
+  {id:2,  title:'Likelihood',            desc:'Guess the dice with data',             pie:true,  leaderboard:true},
+  {id:3,  title:'Likelihood Ratio',      desc:'How confident are you?',               pie:'three', leaderboard:true},
+  {id:4,  title:'Independence',          desc:'Guess the dice with more data',        pie:true,  leaderboard:true},
+  {id:5,  title:'Log-Likelihood',        desc:'House vs Player — spot the bias!',     pie:'winners', leaderboard:'tokens_ahead'},
+  {id:6,  title:"Bayes' Theorem",        desc:'Guess the dice again',                 pie:true,      leaderboard:true},
+  {id:7,  title:'Marginalization',       desc:'Guess which box',                      pie:true,      leaderboard:true},
+  {id:8,  title:'Dice Sums',             desc:'Guess the winner',                     pie:'winners', leaderboard:'tokens_ahead'},
+  {id:9,  title:'Biased Dice Sums',      desc:'Pick a lane — biased dice',            pie:'winners', leaderboard:'tokens_ahead'},
+  {id:10, title:'Central Limit Theorem', desc:'Spread your bet',                      pie:'winners', leaderboard:'tokens_ahead'},
+  {id:11, title:'Reverse the Race',      desc:'Guess the dice + bias!',               pie:'solved',  leaderboard:'solve_loss'},
+  {id:12, title:'Constrained Reverse',   desc:'Guess the dice given the bias',        pie:'solved',  leaderboard:'solve_loss'},
+];
 
 const POLL_MS = 4000;
 let pollTimer = null;
 let currentRoom = '';
+let currentGameId = null;     // null = on picker; 1–12 = on live view
+let latestRows = [];          // cache from last fetch, used for picker counts
+
+// ===== Navigation =====
 
 function startWatching(){
   const room = document.getElementById('room-input').value.trim();
   if(!room){ alert('Enter a room code'); return; }
   currentRoom = room;
-  document.getElementById('setup').style.display = 'none';
-  document.getElementById('live').style.display = '';
-  document.getElementById('room-label').textContent = room;
+  showPicker();
   fetchAndRender();
   if(pollTimer) clearInterval(pollTimer);
   pollTimer = setInterval(fetchAndRender, POLL_MS);
@@ -105,56 +165,350 @@ function startWatching(){
 function changeRoom(){
   if(pollTimer) clearInterval(pollTimer);
   pollTimer = null;
-  document.getElementById('live').style.display = 'none';
+  currentGameId = null;
+  latestRows = [];
   document.getElementById('setup').style.display = '';
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('live').style.display = 'none';
   document.getElementById('room-input').value = currentRoom;
   document.getElementById('room-input').focus();
 }
 
+function showPicker(){
+  currentGameId = null;
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('live').style.display = 'none';
+  document.getElementById('picker').style.display = '';
+  document.getElementById('picker-room-label').textContent = currentRoom;
+  renderPicker(latestRows);
+}
+
+function pickGame(id){
+  const g = GAMES.find(x => x.id === id);
+  if(!g || !g.leaderboard){ return; }
+  currentGameId = id;
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('live').style.display = '';
+  document.getElementById('live-room-label').textContent = currentRoom;
+  document.getElementById('game-title').textContent = `Game ${id}: ${g.title}`;
+  fetchAndRender();
+}
+
+function backToPicker(){
+  showPicker();
+}
+
+// ===== Fetch + render dispatch =====
+
 function showError(msg){
-  document.getElementById('error-box').innerHTML = msg
-    ? `<div class="error">${msg}</div>` : '';
+  const el = document.getElementById(currentGameId === null ? 'error-box-picker' : 'error-box');
+  el.innerHTML = msg ? `<div class="error">${msg}</div>` : '';
 }
 
 async function fetchAndRender(){
-  if(!LOG_URL){
-    showError('LOG_URL is not set in dashboard.html — see setup instructions.');
-    return;
-  }
+  if(!LOG_URL){ showError('LOG_URL is not set in dashboard.html — see setup instructions.'); return; }
   try {
     const url = LOG_URL + (LOG_URL.includes('?')?'&':'?') + 'room=' + encodeURIComponent(currentRoom);
     const resp = await fetch(url);
     if(!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
-    const rows = data.rows || [];
-    renderGame1Pie(rows);
-    renderTable(rows);
-    document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+    latestRows = data.rows || [];
     showError('');
+    if(currentGameId === null){
+      renderPicker(latestRows);
+      document.getElementById('picker-last-update').textContent = new Date().toLocaleTimeString();
+    } else {
+      renderGameView(latestRows, currentGameId);
+      document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+    }
   } catch (err){
     showError('Failed to fetch data: ' + err.message);
   }
 }
 
-function renderGame1Pie(rows){
-  let correct = 0, wrong = 0;
+// ===== Data processing =====
+
+function isTrue(v){ return v === true  || v === 'true'  || v === 'TRUE'; }
+function isFalse(v){ return v === false || v === 'false' || v === 'FALSE'; }
+
+// For each player, return their latest *completed* attempt at the given game.
+// An attempt is the run starting from the latest round=1 event for that
+// (player, game), as long as it contains an is_last:true row.
+function summarizeForGame(rows, gameId){
+  const byPlayer = {};
   rows.forEach(r => {
-    if(Number(r.game) !== 1) return;
+    if(Number(r.game) !== gameId) return;
     if(String(r.event) !== 'round') return;
-    const c = r.correct;
-    if(c === true || c === 'true' || c === 'TRUE') correct++;
-    else if(c === false || c === 'false' || c === 'FALSE') wrong++;
+    const p = r.player || '(anon)';
+    if(!byPlayer[p]) byPlayer[p] = [];
+    byPlayer[p].push({
+      ts: +new Date(r.ts) || 0,
+      round: Number(r.round),
+      correct: isTrue(r.correct),
+      wrong: isFalse(r.correct),
+      isLast: isTrue(r.is_last),
+      conf: r.conf || null,
+      playerPot: Number(r.player_pot) || 0,
+      housePot: Number(r.house_pot) || 0,
+      loss: (r.loss === '' || r.loss == null) ? null : Number(r.loss)
+    });
   });
-  const total = correct + wrong;
+  const out = [];
+  Object.entries(byPlayer).forEach(([player, evs]) => {
+    evs.sort((a,b) => a.ts - b.ts);
+    let startIdx = -1;
+    for(let i = evs.length - 1; i >= 0; i--){
+      if(evs[i].round === 1){ startIdx = i; break; }
+    }
+    if(startIdx < 0) return;
+    const attempt = evs.slice(startIdx);
+    const isWinByLossGame = (gameId === 11 || gameId === 12);
+    const wonByLoss = isWinByLossGame && attempt.some(e => e.loss === 0);
+    if(!attempt.some(e => e.isLast) && !wonByLoss) return;
+    let correct = 0, wrong = 0, wins = 0, losses = 0, playerPotSum = 0, housePotSum = 0;
+    let bestLoss = null, totalLoss = 0, attemptsToSolve = null;
+    attempt.forEach(e => {
+      if(e.correct) correct++; else if(e.wrong) wrong++;
+      playerPotSum += e.playerPot;
+      housePotSum  += e.housePot;
+      if(e.playerPot > e.housePot) wins++;
+      else if(e.housePot > e.playerPot) losses++;
+      if(e.loss != null){
+        totalLoss += e.loss;
+        if(bestLoss == null || e.loss < bestLoss) bestLoss = e.loss;
+        if(attemptsToSolve == null && e.loss === 0) attemptsToSolve = e.round;
+      }
+    });
+    out.push({
+      player, correct, wrong, total: correct + wrong,
+      wins, losses, playerPotSum, housePotSum,
+      tokensAhead: playerPotSum - housePotSum,
+      solved: attemptsToSolve != null,
+      attemptsToSolve, bestLoss, totalLoss,
+      rounds: attempt
+    });
+  });
+  out.sort((a,b) => b.correct - a.correct || a.wrong - b.wrong || a.player.localeCompare(b.player));
+  return out;
+}
+
+// Count distinct players who have *any* event for this game (in progress or completed).
+function countActivePlayersForGame(rows, gameId){
+  const seen = new Set();
+  rows.forEach(r => {
+    if(Number(r.game) === gameId && String(r.event) === 'round'){
+      seen.add(r.player || '(anon)');
+    }
+  });
+  return seen.size;
+}
+
+// ===== Picker =====
+
+function renderPicker(rows){
+  const tiles = GAMES.map(g => {
+    const summary = g.leaderboard ? summarizeForGame(rows, g.id) : [];
+    const playing = countActivePlayersForGame(rows, g.id);
+    const completed = summary.length;
+    const disabledCls = g.leaderboard ? '' : ' disabled';
+    const onclick = g.leaderboard ? `onclick="pickGame(${g.id})"` : '';
+    const status = g.leaderboard
+      ? (completed === 0
+          ? (playing === 0 ? '' : `<div class="gplayed">${playing} playing…</div>`)
+          : `<div class="gplayed">${completed} completed${playing > completed ? `, ${playing - completed} in progress` : ''}</div>`)
+      : `<div class="gplayed" style="color:var(--muted)">view not configured</div>`;
+    return `<div class="game-tile${disabledCls}" ${onclick}>
+      <div class="gnum">Game ${g.id}</div>
+      <div class="gtitle">${g.title}</div>
+      <div class="gdesc">${g.desc}</div>
+      ${status}
+    </div>`;
+  }).join('');
+  document.getElementById('game-grid').innerHTML = tiles;
+  // Show total distinct players seen across any game.
+  const allPlayers = new Set();
+  rows.forEach(r => { if(String(r.event) === 'round') allPlayers.add(r.player || '(anon)'); });
+  document.getElementById('picker-player-count').textContent = allPlayers.size;
+}
+
+// ===== Per-game view =====
+
+function renderGameView(rows, gameId){
+  const g = GAMES.find(x => x.id === gameId);
+  const summary = summarizeForGame(rows, gameId);
+  document.getElementById('completed-count').textContent = summary.length;
+  if(g && g.pie === 'three')        renderThreePies(summary);
+  else if(g && g.pie === 'winners') renderWinnersPie(summary);
+  else if(g && g.pie === 'solved')  renderSolvedPie(summary);
+  else if(g && g.pie)               renderGame1Pie(summary, gameId);
+  else                              document.getElementById('pie-container').innerHTML = '';
+  if(g && g.leaderboard === 'tokens_ahead')      renderTokensAheadLeaderboard(summary);
+  else if(g && g.leaderboard === 'solve_loss')   renderSolveLossLeaderboard(summary);
+  else                                           renderLeaderboard(summary);
+}
+
+function renderWinnersPie(summary){
+  let winners = 0, losers = 0, ties = 0;
+  summary.forEach(p => {
+    if(p.tokensAhead > 0) winners++;
+    else if(p.tokensAhead < 0) losers++;
+    else ties++;
+  });
+  const container = document.getElementById('pie-container');
+  const total = summary.length;
+  if(total === 0){
+    container.innerHTML =
+      `<div class="pie-panel"><div><h2>Winners vs Losers</h2>` +
+      `<div class="pie-empty">No completed games yet for room <b>${currentRoom}</b>.</div></div></div>`;
+    return;
+  }
+  const frac = winners / total;
+  const r = 80, cx = 100, cy = 100;
+  let arcs;
+  if(frac >= 1)      arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--good)"/>`;
+  else if(frac <= 0) arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bad)"/>`;
+  else {
+    const angle = frac * 2 * Math.PI;
+    const x = cx + r * Math.sin(angle);
+    const y = cy - r * Math.cos(angle);
+    const largeArc = angle > Math.PI ? 1 : 0;
+    arcs =
+      `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bad)"/>` +
+      `<path d="M${cx},${cy} L${cx},${cy - r} A${r},${r} 0 ${largeArc} 1 ${x.toFixed(2)},${y.toFixed(2)} Z" fill="var(--good)"/>`;
+  }
+  const pct = Math.round(frac * 100);
+  container.innerHTML =
+    `<div class="pie-panel">` +
+      `<svg viewBox="0 0 200 200" width="200" height="200" aria-label="winners vs losers">${arcs}</svg>` +
+      `<div>` +
+        `<h2>Winners vs Losers — ${total} player${total===1?'':'s'} completed</h2>` +
+        `<div class="pie-meta">A "win" = the player ended with more tokens than the House.</div>` +
+        `<div class="pie-legend" style="margin-top:0.75rem">` +
+          `<div><span class="swatch" style="background:var(--good)"></span>Beat the House: <b>${winners}</b> (${pct}%)</div>` +
+          `<div><span class="swatch" style="background:var(--bad)"></span>Lost to the House: <b>${losers}</b> (${100 - pct}%)</div>` +
+          (ties ? `<div><span class="swatch" style="background:var(--muted)"></span>Tied: <b>${ties}</b></div>` : '') +
+        `</div>` +
+      `</div>` +
+    `</div>`;
+}
+
+function renderTokensAheadLeaderboard(summary){
+  const container = document.getElementById('leaderboard-container');
+  if(summary.length === 0){
+    container.innerHTML = `<div class="empty-state">No players have finished this game yet.<br>Results appear once a player completes all rounds.</div>`;
+    return;
+  }
+  const sorted = summary.slice().sort((a,b) => b.tokensAhead - a.tokensAhead || b.wins - a.wins || a.player.localeCompare(b.player));
+  const rowsHtml = sorted.map((p, i) => {
+    const aheadStr = p.tokensAhead > 0 ? `+${p.tokensAhead}` : `${p.tokensAhead}`;
+    const aheadColor = p.tokensAhead > 0 ? 'var(--good)' : p.tokensAhead < 0 ? 'var(--bad)' : 'var(--muted)';
+    return `<tr>
+      <td class="rank">${i + 1}</td>
+      <td class="player">${escapeHtml(p.player)}</td>
+      <td class="correct">${p.wins}</td>
+      <td class="wrong">${p.losses}</td>
+      <td class="total" style="color:${aheadColor}">${aheadStr}</td>
+    </tr>`;
+  }).join('');
+  container.innerHTML = `<table>
+    <thead><tr>
+      <th class="rank">#</th>
+      <th class="player">Player</th>
+      <th>Wins</th>
+      <th>Losses</th>
+      <th>Tokens ahead</th>
+    </tr></thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>`;
+}
+
+function renderThreePies(summary){
+  const buckets = {low:{c:0,w:0}, 'medium-high':{c:0,w:0}, certain:{c:0,w:0}};
+  summary.forEach(p => p.rounds.forEach(r => {
+    if(!r.conf || !buckets[r.conf]) return;
+    if(r.correct) buckets[r.conf].c++;
+    else if(r.wrong) buckets[r.conf].w++;
+  }));
+  const labels = [
+    {key:'low',         title:'Low confidence'},
+    {key:'medium-high', title:'Medium-high'},
+    {key:'certain',     title:'Certain'},
+  ];
+  const totalCompleted = summary.length;
+  if(totalCompleted === 0){
+    document.getElementById('pie-container').innerHTML =
+      `<div class="pie-panel"><div><h2>Class Aggregate by Confidence</h2>` +
+      `<div class="pie-empty">No completed games yet for room <b>${currentRoom}</b>.</div></div></div>`;
+    return;
+  }
+  const panels = labels.map(L => {
+    const b = buckets[L.key];
+    const total = b.c + b.w;
+    const svg = pieSvg(b.c, total);
+    if(total === 0){
+      return `<div class="three-pie">
+        <div class="three-pie-title">${L.title}</div>
+        ${svg}
+        <div class="pie-empty" style="text-align:center">no answers yet</div>
+      </div>`;
+    }
+    const pct = Math.round(b.c / total * 100);
+    return `<div class="three-pie">
+      <div class="three-pie-title">${L.title}</div>
+      ${svg}
+      <div class="three-pie-stats">
+        <div><span class="swatch" style="background:var(--good)"></span>${b.c} correct (${pct}%)</div>
+        <div><span class="swatch" style="background:var(--bad)"></span>${b.w} wrong (${100 - pct}%)</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('pie-container').innerHTML =
+    `<div class="pie-panel three-pie-panel">
+      <div style="flex:1">
+        <h2>Class Aggregate by Confidence</h2>
+        <div class="pie-meta" style="margin-bottom:1rem">${totalCompleted} player${totalCompleted===1?'':'s'} completed</div>
+        <div class="three-pies">${panels}</div>
+      </div>
+    </div>`;
+}
+
+function pieSvg(correct, total){
+  const r = 60, cx = 75, cy = 75;
+  if(total === 0){
+    return `<svg viewBox="0 0 150 150" width="150" height="150"><circle cx="${cx}" cy="${cy}" r="${r}" fill="#0a1426" stroke="var(--muted)" stroke-dasharray="4 4"/></svg>`;
+  }
+  const frac = correct / total;
+  let arcs;
+  if(frac >= 1){
+    arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--good)"/>`;
+  } else if(frac <= 0){
+    arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bad)"/>`;
+  } else {
+    const angle = frac * 2 * Math.PI;
+    const x = cx + r * Math.sin(angle);
+    const y = cy - r * Math.cos(angle);
+    const largeArc = angle > Math.PI ? 1 : 0;
+    arcs =
+      `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bad)"/>` +
+      `<path d="M${cx},${cy} L${cx},${cy - r} A${r},${r} 0 ${largeArc} 1 ${x.toFixed(2)},${y.toFixed(2)} Z" fill="var(--good)"/>`;
+  }
+  return `<svg viewBox="0 0 150 150" width="150" height="150">${arcs}</svg>`;
+}
+
+function renderGame1Pie(summary, gameId){
+  const totalC = summary.reduce((s,p) => s + p.correct, 0);
+  const totalW = summary.reduce((s,p) => s + p.wrong, 0);
+  const total = totalC + totalW;
   const container = document.getElementById('pie-container');
   if(total === 0){
     container.innerHTML =
-      `<div class="pie-panel"><div><h2>Game 1 — Class Aggregate</h2>` +
-      `<div class="pie-empty">Waiting for Game 1 answers…</div></div></div>`;
+      `<div class="pie-panel"><div><h2>Class Aggregate</h2>` +
+      `<div class="pie-empty">No completed games yet for room <b>${currentRoom}</b>.</div></div></div>`;
     return;
   }
   const r = 80, cx = 100, cy = 100;
-  const frac = correct / total;
+  const frac = totalC / total;
   let arcs = '';
   if(frac >= 1){
     arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--good)"/>`;
@@ -172,70 +526,123 @@ function renderGame1Pie(rows){
   const pct = Math.round(frac * 100);
   container.innerHTML =
     `<div class="pie-panel">` +
-      `<svg viewBox="0 0 200 200" width="200" height="200" aria-label="Game 1 correct vs wrong">${arcs}</svg>` +
+      `<svg viewBox="0 0 200 200" width="200" height="200" aria-label="correct vs wrong">${arcs}</svg>` +
       `<div>` +
-        `<h2>Game 1 — Class Aggregate</h2>` +
-        `<div class="pie-meta">${total} answers from ${countPlayersForGame(rows, 1)} players</div>` +
+        `<h2>Class Aggregate — ${summary.length} player${summary.length===1?'':'s'} completed</h2>` +
+        `<div class="pie-meta">${total} answers logged from finished games</div>` +
         `<div class="pie-legend" style="margin-top:0.75rem">` +
-          `<div><span class="swatch" style="background:var(--good)"></span>Correct: <b>${correct}</b> (${pct}%)</div>` +
-          `<div><span class="swatch" style="background:var(--bad)"></span>Wrong: <b>${wrong}</b> (${100 - pct}%)</div>` +
+          `<div><span class="swatch" style="background:var(--good)"></span>Correct: <b>${totalC}</b> (${pct}%)</div>` +
+          `<div><span class="swatch" style="background:var(--bad)"></span>Wrong: <b>${totalW}</b> (${100 - pct}%)</div>` +
         `</div>` +
       `</div>` +
     `</div>`;
 }
 
-function countPlayersForGame(rows, gameId){
-  const seen = new Set();
-  rows.forEach(r => {
-    if(Number(r.game) === gameId && String(r.event) === 'round'){
-      seen.add(r.player || '(anon)');
-    }
-  });
-  return seen.size;
-}
-
-function renderTable(rows){
-  // Latest score per (player, game) — rows are appended in time order, so last wins.
-  const byPlayer = {};
-  rows.forEach(r => {
-    const p = r.player || '(anon)';
-    if(!byPlayer[p]) byPlayer[p] = {games:{}, lastTs:0};
-    const g = Number(r.game);
-    const s = Number(r.score);
-    if(g >= 1 && g <= 12 && !isNaN(s)){
-      byPlayer[p].games[g] = s;
-    }
-    const ts = +new Date(r.ts);
-    if(ts > byPlayer[p].lastTs) byPlayer[p].lastTs = ts;
-  });
-
-  const players = Object.keys(byPlayer).map(p => {
-    const total = Object.values(byPlayer[p].games).reduce((a,b)=>a+b,0);
-    return {name:p, games:byPlayer[p].games, total, lastTs:byPlayer[p].lastTs};
-  }).sort((a,b) => b.total - a.total || a.name.localeCompare(b.name));
-
-  document.getElementById('player-count').textContent = players.length;
-
-  const container = document.getElementById('table-container');
-  if(players.length === 0){
-    container.innerHTML = `<div class="empty-state">No players yet. Waiting for scores from room <b>${currentRoom}</b>…</div>`;
+function renderSolvedPie(summary){
+  let solved = 0, unsolved = 0;
+  summary.forEach(p => { if(p.solved) solved++; else unsolved++; });
+  const container = document.getElementById('pie-container');
+  const total = summary.length;
+  if(total === 0){
+    container.innerHTML =
+      `<div class="pie-panel"><div><h2>Solved vs Not Solved</h2>` +
+      `<div class="pie-empty">No completed games yet for room <b>${currentRoom}</b>.</div></div></div>`;
     return;
   }
-  const headerCols = Array.from({length:12}, (_,i) => `<th>G${i+1}</th>`).join('');
-  const rowsHtml = players.map(p => {
-    const cells = Array.from({length:12}, (_,i) => {
-      const v = p.games[i+1];
-      return `<td${v==null?' class="empty-cell"':''}>${v==null?'–':v}</td>`;
-    }).join('');
-    return `<tr><td class="player">${p.name}</td>${cells}<td class="total">${p.total}</td></tr>`;
+  const frac = solved / total;
+  const r = 80, cx = 100, cy = 100;
+  let arcs;
+  if(frac >= 1)      arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--good)"/>`;
+  else if(frac <= 0) arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bad)"/>`;
+  else {
+    const angle = frac * 2 * Math.PI;
+    const x = cx + r * Math.sin(angle);
+    const y = cy - r * Math.cos(angle);
+    const largeArc = angle > Math.PI ? 1 : 0;
+    arcs =
+      `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bad)"/>` +
+      `<path d="M${cx},${cy} L${cx},${cy - r} A${r},${r} 0 ${largeArc} 1 ${x.toFixed(2)},${y.toFixed(2)} Z" fill="var(--good)"/>`;
+  }
+  const pct = Math.round(frac * 100);
+  container.innerHTML =
+    `<div class="pie-panel">` +
+      `<svg viewBox="0 0 200 200" width="200" height="200" aria-label="solved vs not solved">${arcs}</svg>` +
+      `<div>` +
+        `<h2>Solved vs Not Solved — ${total} player${total===1?'':'s'}</h2>` +
+        `<div class="pie-meta">"Solved" = reached Loss = 0 within 10 attempts.</div>` +
+        `<div class="pie-legend" style="margin-top:0.75rem">` +
+          `<div><span class="swatch" style="background:var(--good)"></span>Solved: <b>${solved}</b> (${pct}%)</div>` +
+          `<div><span class="swatch" style="background:var(--bad)"></span>Not solved: <b>${unsolved}</b> (${100 - pct}%)</div>` +
+        `</div>` +
+      `</div>` +
+    `</div>`;
+}
+
+function renderSolveLossLeaderboard(summary){
+  const container = document.getElementById('leaderboard-container');
+  if(summary.length === 0){
+    container.innerHTML = `<div class="empty-state">No players have finished this game yet.<br>Results appear once a player solves it or completes 10 attempts.</div>`;
+    return;
+  }
+  const sorted = summary.slice().sort((a,b) => {
+    if(a.solved && !b.solved) return -1;
+    if(!a.solved && b.solved) return 1;
+    if(a.solved && b.solved) return a.attemptsToSolve - b.attemptsToSolve || a.player.localeCompare(b.player);
+    return (a.bestLoss == null ? Infinity : a.bestLoss) - (b.bestLoss == null ? Infinity : b.bestLoss) || a.player.localeCompare(b.player);
+  });
+  const rowsHtml = sorted.map((p, i) => {
+    const attemptsCell = p.solved
+      ? `<td class="correct">${p.attemptsToSolve}</td>`
+      : `<td class="wrong">—</td>`;
+    return `<tr>
+      <td class="rank">${i + 1}</td>
+      <td class="player">${escapeHtml(p.player)}</td>
+      ${attemptsCell}
+      <td>${p.bestLoss == null ? '—' : p.bestLoss}</td>
+      <td class="total">${p.totalLoss}</td>
+    </tr>`;
   }).join('');
   container.innerHTML = `<table>
-    <thead><tr><th class="player">Player</th>${headerCols}<th>Total</th></tr></thead>
+    <thead><tr>
+      <th class="rank">#</th>
+      <th class="player">Player</th>
+      <th>Attempts to solve</th>
+      <th>Best loss</th>
+      <th>Total loss</th>
+    </tr></thead>
     <tbody>${rowsHtml}</tbody>
   </table>`;
 }
 
-// Allow Enter key to submit room code
+function renderLeaderboard(summary){
+  const container = document.getElementById('leaderboard-container');
+  if(summary.length === 0){
+    container.innerHTML = `<div class="empty-state">No players have finished this game yet.<br>Results appear once a player completes all rounds.</div>`;
+    return;
+  }
+  const rowsHtml = summary.map((p, i) => `<tr>
+    <td class="rank">${i + 1}</td>
+    <td class="player">${escapeHtml(p.player)}</td>
+    <td class="correct">${p.correct}</td>
+    <td class="wrong">${p.wrong}</td>
+    <td class="total">${p.total}</td>
+  </tr>`).join('');
+  container.innerHTML = `<table>
+    <thead><tr>
+      <th class="rank">#</th>
+      <th class="player">Player</th>
+      <th>Correct</th>
+      <th>Wrong</th>
+      <th>Total</th>
+    </tr></thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>`;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 document.getElementById('room-input').addEventListener('keydown', e => {
   if(e.key === 'Enter') startWatching();
 });
