@@ -1773,13 +1773,13 @@ function g5FmtSigned(x){
 
 // House's `LA / LB = ratio` line (always positive operands).
 function g5HouseSumStr(LA, LB){
-  return `${g5FmtNum(LA)} / ${g5FmtNum(LB)} = ${g5FmtRatio(LA, LB)}`;
+  return `<span style="color:var(--c-gold)">${g5FmtNum(LA)}</span> / <span style="color:var(--c-blue)">${g5FmtNum(LB)}</span> = ${g5FmtRatio(LA, LB)}`;
 }
 
 // Player's `log LA − log LB = gain` line (log operands are usually negative).
 function g5PlayerSumStr(logLA, logLB){
   const gain=logLA-logLB;
-  return `${g5FmtSigned(logLA)} − ${g5FmtSigned(logLB)} = ${g5FmtNum(gain)}`;
+  return `<span style="color:var(--c-gold)">${g5FmtSigned(logLA)}</span> − <span style="color:var(--c-blue)">${g5FmtSigned(logLB)}</span> = ${g5FmtNum(gain)}`;
 }
 
 // Top row = house (likelihood ratio), bottom row = player (likelihood gain).
@@ -1871,8 +1871,8 @@ function g5UpdateBoard(){
   if(pt) pt.innerHTML=g5TokenSpans(st.playerTokens);
   if(hStuck) hStuck.textContent=g5HouseFrozen(st) ? g5StuckMsg(st.houseTokens) : '';
   if(pStuck) pStuck.textContent=g5PlayerStuck(st) ? g5StuckMsg(st.playerTokens) : '';
-  if(ratio) ratio.textContent=g5HouseSumStr(st.houseLA, st.houseLB);
-  if(llg)   llg.textContent=g5PlayerSumStr(st.playerLogLA, st.playerLogLB);
+  if(ratio) ratio.innerHTML=g5HouseSumStr(st.houseLA, st.houseLB);
+  if(llg)   llg.innerHTML=g5PlayerSumStr(st.playerLogLA, st.playerLogLB);
   if(hmeta) hmeta.textContent=`order ${Math.max(st.houseLevelA, st.houseLevelB)} · ${st.houseRolls} roll${st.houseRolls===1?'':'s'}`;
   if(pmeta) pmeta.textContent=`order ${Math.max(st.playerLevelA, st.playerLevelB)} · ${st.playerRolls} roll${st.playerRolls===1?'':'s'}`;
 }
