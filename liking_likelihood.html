@@ -623,16 +623,16 @@ const TUT = {
   game8: [
     {diceSides:[6,6],     lanesLen:[10,10,10,10,10,10,10,10,10,10,10,10]},  // 1: 2d6 uniform
     {diceSides:[4,4,4],   lanesLen:[8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]},   // 2: 3d4 uniform
-    {diceSides:[6,8],     lanesLen:[4, 5, 6, 7, 8, 9, 10,11,12,11,10,9]},   // 3: d6+d8 triangular, peak=lane 9
+    {diceSides:[6,6],     lanesLen:[4, 5, 6, 7, 8, 9, 10,11,12,11,10,9]},   // 3: 2d6 triangular, peak=lane 9
     {diceSides:[8,8],     lanesLen:[14,14,14,14,14,14,14,14,14,14,14,14]},  // 4: 2d8 uniform
-    {diceSides:[4,6],     lanesLen:[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6]},   // 5: d4+d6 uniform
+    {diceSides:[4,4],     lanesLen:[6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6]},   // 5: 2d4 uniform
     {diceSides:[6,6,6],   lanesLen:[12,12,12,12,12,12,12,12,12,12,12,12]},  // 6: 3d6 uniform
     {diceSides:[4,4,4],   lanesLen:[3, 4, 5, 6, 7, 8, 9, 10,9, 8, 7, 6]},   // 7: 3d4 triangular, peak=lane 8
-    {diceSides:[4,8],     lanesLen:[9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]},   // 8: d4+d8 uniform
-    {diceSides:[6,8],     lanesLen:[16,16,16,16,16,16,16,16,16,16,16,16]},  // 9: d6+d8 uniform long
+    {diceSides:[8,8],     lanesLen:[9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]},   // 8: 2d8 uniform medium
+    {diceSides:[10,10],   lanesLen:[16,16,16,16,16,16,16,16,16,16,16,16]},  // 9: 2d10 uniform long
     {diceSides:[4,4],     lanesLen:[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]},   // 10: 2d4 uniform short
     {diceSides:[6,6],     lanesLen:[4, 5, 6, 7, 8, 9, 10,9, 8, 7, 6, 5]},   // 11: 2d6 triangular, peak=lane 7
-    {diceSides:[4,6,6],   lanesLen:[20,20,20,20,20,20,20,20,20,20,20,20]},  // 12: d4+2d6 uniform longest
+    {diceSides:[4,4,4,4], lanesLen:[20,20,20,20,20,20,20,20,20,20,20,20]},  // 12: 4d4 uniform longest
   ],
 
   // ---- GAME 9: Central Limit Theorem (Biased Horse Race) ----
@@ -649,18 +649,19 @@ const TUT = {
     {numDice:2, dieSides:4,  bias:'arch'},   // 8:  2d4 arch (peaked)
     {numDice:1, dieSides:4,  bias:'step'},   // 9:  1d4 step
     {numDice:2, dieSides:10, bias:'boat'},   // 10: 2d10 U-shape
-    {numDice:3, dieSides:8,  bias:'fair'},   // 11: 3d8 fair
-    {numDice:3, dieSides:10, bias:'edge'},   // 12: 3d10 edge
+    {numDice:4, dieSides:4,  bias:'fair'},   // 11: 4d4 fair
+    {numDice:4, dieSides:6,  bias:'edge'},   // 12: 4d6 edge
   ],
 
-  // ---- GAME 10: Reverse the Race ----
-  // ONE hidden race per game, played over 12 attempts (= 12 rounds).
-  // Player must figure out the 3 dice + bias from the lane distribution.
+  // ---- GAMES 11 (Guided Reverse) & 12 (Reverse the Race) ----
+  // ONE hidden race per game, played over 10 attempts (= 10 rounds).
+  // Game 11 reveals the bias; Game 12 hides it. Either way the player must
+  // figure out the dice combination from the lane distribution.
   // The race result is computed analytically as a Gaussian (sum of weighted dice).
-  // diceSides = the 3 dice (any mix of 4, 6, 8, 10).
+  // diceSides = 1–4 dice, all the same type, drawn from {4, 6, 8, 10}.
   // bias      = 'fair','line','twin','boat','arch','step','edge'.
   game10: [
-    {diceSides:[4,6,10], bias:'boat'},   // tutorial race
+    {diceSides:[6,6,6], bias:'boat'},   // tutorial race (3d6 boat — single type)
   ],
 
 };
