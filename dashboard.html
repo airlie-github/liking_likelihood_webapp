@@ -27,8 +27,10 @@ table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:
 thead th{background:#0a1426;padding:0.75rem 0.5rem;font-weight:600;text-align:center;color:var(--muted);font-size:var(--fs-1);letter-spacing:0.05em;text-transform:uppercase}
 thead th.player{text-align:left;padding-left:1.25rem}
 tbody td{padding:0.75rem 0.5rem;text-align:center;border-top:1px solid #1f3354}
+tbody td:not(.player):not(.total){font-size:var(--fs-1);padding:0.75rem 0.25rem}
 tbody td.player{text-align:left;padding-left:1.25rem;font-weight:600}
 tbody td.total{font-weight:700;color:var(--accent);font-size:var(--fs-2)}
+thead th:not(.player):not(:last-child){padding:0.75rem 0.25rem}
 tbody tr:nth-child(1) td.player::before{content:"🥇 ";font-size:0.9em}
 tbody tr:nth-child(2) td.player::before{content:"🥈 ";font-size:0.9em}
 tbody tr:nth-child(3) td.player::before{content:"🥉 ";font-size:0.9em}
@@ -39,6 +41,13 @@ tbody tr:nth-child(3) td.player::before{content:"🥉 ";font-size:0.9em}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.2}}
 button.small{font-size:var(--fs-1);padding:0.25rem 0.75rem;background:transparent;color:var(--muted);border:1px solid var(--muted);border-radius:0.4rem;cursor:pointer;margin-left:0.5rem}
 button.small:hover{color:var(--ink);border-color:var(--ink)}
+.pie-panel{background:var(--panel);border-radius:0.75rem;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:2rem}
+.pie-panel h2{margin:0 0 0.25rem 0;font-size:var(--fs-3)}
+.pie-panel .pie-meta{color:var(--muted);font-size:var(--fs-2)}
+.pie-panel svg{flex:0 0 auto}
+.pie-legend{display:flex;flex-direction:column;gap:0.5rem;font-size:var(--fs-2)}
+.pie-legend .swatch{display:inline-block;width:1rem;height:1rem;border-radius:0.2rem;margin-right:0.5rem;vertical-align:-2px}
+.pie-empty{color:var(--muted);font-size:var(--fs-2)}
 </style>
 </head>
 <body>
@@ -67,6 +76,7 @@ button.small:hover{color:var(--ink);border-color:var(--ink)}
     </div>
   </header>
   <div id="error-box"></div>
+  <div id="pie-container"></div>
   <div id="table-container"></div>
 </div>
 
@@ -74,7 +84,7 @@ button.small:hover{color:var(--ink);border-color:var(--ink)}
 
 <script>
 // Paste your Apps Script web-app URL here (same URL the game uses for LOG_URL).
-const LOG_URL = '';
+const LOG_URL = 'https://script.google.com/a/macros/cam.ac.uk/s/AKfycbySlckSQFQV9dLGm5c6V2VZZEuO4bGWWab8bfgF8J0buHduyvgHQp_XrCMnDUO-19ERPw/exec';
 
 const POLL_MS = 4000;
 let pollTimer = null;
@@ -116,12 +126,72 @@ async function fetchAndRender(){
     const resp = await fetch(url);
     if(!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
-    renderTable(data.rows || []);
+    const rows = data.rows || [];
+    renderGame1Pie(rows);
+    renderTable(rows);
     document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
     showError('');
   } catch (err){
     showError('Failed to fetch data: ' + err.message);
   }
+}
+
+function renderGame1Pie(rows){
+  let correct = 0, wrong = 0;
+  rows.forEach(r => {
+    if(Number(r.game) !== 1) return;
+    if(String(r.event) !== 'round') return;
+    const c = r.correct;
+    if(c === true || c === 'true' || c === 'TRUE') correct++;
+    else if(c === false || c === 'false' || c === 'FALSE') wrong++;
+  });
+  const total = correct + wrong;
+  const container = document.getElementById('pie-container');
+  if(total === 0){
+    container.innerHTML =
+      `<div class="pie-panel"><div><h2>Game 1 — Class Aggregate</h2>` +
+      `<div class="pie-empty">Waiting for Game 1 answers…</div></div></div>`;
+    return;
+  }
+  const r = 80, cx = 100, cy = 100;
+  const frac = correct / total;
+  let arcs = '';
+  if(frac >= 1){
+    arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--good)"/>`;
+  } else if(frac <= 0){
+    arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bad)"/>`;
+  } else {
+    const angle = frac * 2 * Math.PI;
+    const x = cx + r * Math.sin(angle);
+    const y = cy - r * Math.cos(angle);
+    const largeArc = angle > Math.PI ? 1 : 0;
+    arcs =
+      `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bad)"/>` +
+      `<path d="M${cx},${cy} L${cx},${cy - r} A${r},${r} 0 ${largeArc} 1 ${x.toFixed(2)},${y.toFixed(2)} Z" fill="var(--good)"/>`;
+  }
+  const pct = Math.round(frac * 100);
+  container.innerHTML =
+    `<div class="pie-panel">` +
+      `<svg viewBox="0 0 200 200" width="200" height="200" aria-label="Game 1 correct vs wrong">${arcs}</svg>` +
+      `<div>` +
+        `<h2>Game 1 — Class Aggregate</h2>` +
+        `<div class="pie-meta">${total} answers from ${countPlayersForGame(rows, 1)} players</div>` +
+        `<div class="pie-legend" style="margin-top:0.75rem">` +
+          `<div><span class="swatch" style="background:var(--good)"></span>Correct: <b>${correct}</b> (${pct}%)</div>` +
+          `<div><span class="swatch" style="background:var(--bad)"></span>Wrong: <b>${wrong}</b> (${100 - pct}%)</div>` +
+        `</div>` +
+      `</div>` +
+    `</div>`;
+}
+
+function countPlayersForGame(rows, gameId){
+  const seen = new Set();
+  rows.forEach(r => {
+    if(Number(r.game) === gameId && String(r.event) === 'round'){
+      seen.add(r.player || '(anon)');
+    }
+  });
+  return seen.size;
 }
 
 function renderTable(rows){
@@ -132,7 +202,7 @@ function renderTable(rows){
     if(!byPlayer[p]) byPlayer[p] = {games:{}, lastTs:0};
     const g = Number(r.game);
     const s = Number(r.score);
-    if(g >= 1 && g <= 10 && !isNaN(s)){
+    if(g >= 1 && g <= 12 && !isNaN(s)){
       byPlayer[p].games[g] = s;
     }
     const ts = +new Date(r.ts);
@@ -151,9 +221,9 @@ function renderTable(rows){
     container.innerHTML = `<div class="empty-state">No players yet. Waiting for scores from room <b>${currentRoom}</b>…</div>`;
     return;
   }
-  const headerCols = Array.from({length:10}, (_,i) => `<th>G${i+1}</th>`).join('');
+  const headerCols = Array.from({length:12}, (_,i) => `<th>G${i+1}</th>`).join('');
   const rowsHtml = players.map(p => {
-    const cells = Array.from({length:10}, (_,i) => {
+    const cells = Array.from({length:12}, (_,i) => {
       const v = p.games[i+1];
       return `<td${v==null?' class="empty-cell"':''}>${v==null?'–':v}</td>`;
     }).join('');
