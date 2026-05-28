@@ -653,7 +653,7 @@ function escapeHtml(s){
 async function clearAllResults(){
   if(!confirm(`Clear ALL results for room "${currentRoom}"?\n\nThis cannot be undone.`)) return;
   await sendClear({room: currentRoom});
-  await new Promise(r => setTimeout(r, 1200));
+  await new Promise(r => setTimeout(r, 2000));
   fetchAndRender();
 }
 
@@ -662,7 +662,7 @@ async function clearGameResults(){
   if(!g) return;
   if(!confirm(`Clear results for "${g.title}" in room "${currentRoom}"?\n\nThis cannot be undone.`)) return;
   await sendClear({room: currentRoom, game: currentGameId});
-  await new Promise(r => setTimeout(r, 1200));
+  await new Promise(r => setTimeout(r, 2000));
   fetchAndRender();
 }
 

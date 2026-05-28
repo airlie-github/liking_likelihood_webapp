@@ -58,15 +58,21 @@ function clearRows_(data) {
   const sheet = getSheet_();
   const last = sheet.getLastRow();
   if (last < 2) return json_({ok:true, deleted:0});
-  const values = sheet.getRange(2, 1, last - 1, COLS.length).getValues();
-  const toDelete = [];
+  const range = sheet.getRange(2, 1, last - 1, COLS.length);
+  const values = range.getValues();
+  const kept = [];
+  let deleted = 0;
   for (let i = 0; i < values.length; i++) {
-    if (String(values[i][1]) !== room) continue;
-    if (gameId !== null && Number(values[i][4]) !== gameId) continue;
-    toDelete.push(i + 2);
+    const matchRoom = (String(values[i][1]) === room);
+    const matchGame = (gameId === null) || (Number(values[i][4]) === gameId);
+    if (matchRoom && matchGame) { deleted++; continue; }
+    kept.push(values[i]);
   }
-  for (let j = toDelete.length - 1; j >= 0; j--) sheet.deleteRow(toDelete[j]);
-  return json_({ok:true, deleted: toDelete.length});
+  range.clearContent();
+  if (kept.length > 0) {
+    sheet.getRange(2, 1, kept.length, COLS.length).setValues(kept);
+  }
+  return json_({ok:true, deleted: deleted});
 }
 
 function getSheet_() {
