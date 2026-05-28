@@ -1819,7 +1819,7 @@ function g5BoardHTML(){
   `;
 }
 
-const g5StuckMsg = (tokens) => tokens<=0 ? 'no coins to purchase next roll' : 'not enough coins to purchase next roll';
+const g5StuckMsg = (tokens) => tokens<=0 ? 'no coins for next roll' : 'not enough coins for next roll';
 function g5PlayerStuck(st){
   return !!st.playerStuck || st.playerTokens<2;
 }
@@ -1829,7 +1829,7 @@ function g5PlayerStuck(st){
 // included). Player chip is gold, house chip is blue.
 function g5PayoutCoinsHTML(playerPot, housePot){
   if(!playerPot && !housePot) return '';
-  const chip=(label, n, color)=>`<span style="display:inline-flex;align-items:center;gap:0.25rem;font-weight:var(--fw-bold)"><span class="t-sm" style="opacity:.7;font-weight:normal">${label}</span><span style="color:${color}">🪙</span><span>×${n}</span></span>`;
+  const chip=(label, n, color)=>`<span class="t-sm" style="display:inline-flex;align-items:center;gap:0.25rem;font-weight:normal"><span style="opacity:.7">${label}</span><span style="color:${color}">🪙</span><span>×${n}</span></span>`;
   const parts=[];
   if(playerPot) parts.push(chip('Player', playerPot, 'var(--c-gold)'));
   if(housePot)  parts.push(chip('House',  housePot, 'var(--c-blue)'));
