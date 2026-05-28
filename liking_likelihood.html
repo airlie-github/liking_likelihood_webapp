@@ -842,7 +842,7 @@ function generateRounds(gameId) {
     rounds.push(...g5GenerateMatch());
   } else if (gameId===9) {
     // NEW: Biased Dice Sums — Game 8 mechanics + biased dice.
-    // Dice combos drawn from the same 28-combo extended set as Games 10 (CLT) and 11 (Reverse).
+    // Dice combos drawn from the same 16-combo single-type set as Games 10 (CLT) and 11 (Reverse).
     // Player picks one lane; house picks one lane uniformly across ALL 12 (including impossible).
     const TRACK_LEN_9=24;
     const BS_PRESETS=['fair','line','twin','boat','arch','step','edge'];
@@ -879,7 +879,7 @@ function generateRounds(gameId) {
     } else {
       const PRESETS=['fair','line','twin','boat','arch','step','edge'];
       for(let i=0;i<10;i++){
-        // Random rounds now draw from the full 28-combo set (1–4 mixed dice),
+        // Random rounds now draw from the 16-combo set (1–4 single-type dice),
         // matching Games 8 and 10.
         const diceSides=G10_VALID_COMBOS[Math.floor(Math.random()*G10_VALID_COMBOS.length)].slice();
         const bias=PRESETS[Math.floor(Math.random()*PRESETS.length)];
@@ -1098,8 +1098,8 @@ const GAME_DESCRIPTIONS = {
   8: `A few <b>fair</b> dice are rolled and summed; the animal in the lane equal to that sum advances one step. The first lane to reach the finish line wins. Before the race <b>you</b> pick a lane and the <b>House</b> picks one for itself, at random across the lanes that can win. If the winning lane is yours, <b>you</b> score <b>1</b>; if it's the House's, the <b>House</b> scores <b>1</b>; if you both bet the same lane, you both score when it wins. Read the sum's <b>probability mass function / PMF / distribution</b> — peaked near its <b>mean / average / expected value / μ</b> and made wider by its <b>variance / spread / σ²</b> — and pick the lane closest to the peak. Over <b>10 rounds</b>, a smart player should beat the random House.`,
   9: `Same race against the House as <b>Dice Sums</b>, but every dice shares the <b>same bias</b> — picked from <b>Fair</b>, <b>Line</b>, <b>Twin</b>, <b>Boat</b>, <b>Arch</b>, <b>Step</b> or <b>Edge</b>. Bias <b>shifts the mean / μ</b> and <b>changes the variance / σ²</b> of the dice sum, so the winning lane is no longer where you'd expect. The <b>House</b> picks a lane <b>uniformly at random across all 12</b> — including unreachable ones — so it's an even worse player than in Dice Sums. <b>Read the bias bars</b>, pick the lane closest to the peak of the biased PMF, and you should beat the House over <b>10 rounds</b>. One token to win per round (you +1 / House +1 / both 0).`,
   10: `Same biased race as <b>Biased Dice Sums</b>, but now the betting is different. The <b>House</b> always places all <b>12 tokens</b> on the <b>modal lane</b> (the most-probable sum given the bias) — winning <b>12</b> if that lane wins, <b>0</b> otherwise. You have <b>12 tokens</b> to <b>spread your bet</b> across <b>1, 2, 3, 4, 6 or 12 lanes</b> — <b>12/n tokens per lane</b>. If a covered lane wins, you score the <b>12/n tokens</b> on it; otherwise <b>0</b>. <b>Narrow bets pay more, rarely</b>; <b>wide bets pay less, often</b>. The trade-off isn't equal on both sides: on a <b>low-variance</b> bias (most of the chance on one lane) the mode bet has the highest expected score; on a <b>high-variance</b> bias (chance spread across many lanes) every spread has nearly the same expected score, so a wider bet can <b>win more sessions</b> over the 10-round game by avoiding the runs of zero scores the narrow bet suffers. Match the spread to the variance you expect.`,
-  11: `You see the <b>finished distribution</b> of a hidden race shown as <b>black target dots</b>: the lane heights at the moment the winner crossed. By the <b>Central Limit Theorem / CLT</b>, the sum's <b>PMF</b> is approximately <b>Gaussian / Normal / bell-curve</b>, so the shape is captured by its <b>mean / μ</b> and <b>variance / σ²</b>. <b>Reverse the race</b> — figure out which dice combination (1–4 dice from {d4, d6, d8, d10}) and which bias would produce that mean and variance. You have <b>10 attempts</b> at the <i>same</i> race; each prediction draws a coloured line + dots through your 12 lane heights. <b>Win the game by reaching a Loss of 0</b> (your prediction exactly matches the targets) within those 10 attempts. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane height adds 1 — shown per attempt in the stats table.`,
-  12: `Same hidden race as <b>Reverse the Race</b>, but with the bias <b>given</b> — it's highlighted at the top of the page and stays locked for the whole game. You only need to figure out the <b>dice combination</b> (1–4 dice from {d4, d6, d8, d10}) that produces the observed lane heights (the <b>black target dots</b>). <b>Win the game by reaching a Loss of 0</b> within <b>10 attempts</b>. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane height adds 1 — shown per attempt in the stats table.`,
+  11: `You see the <b>finished distribution</b> of a hidden race shown as <b>black target dots</b>: the lane heights at the moment the winner crossed. By the <b>Central Limit Theorem / CLT</b>, the sum's <b>PMF</b> is approximately <b>Gaussian / Normal / bell-curve</b>, so the shape is captured by its <b>mean / μ</b> and <b>variance / σ²</b>. <b>Reverse the race</b> — figure out which dice combination (1–4 dice, all the same type, from {d4, d6, d8, d10}) and which bias would produce that mean and variance. You have <b>10 attempts</b> at the <i>same</i> race; each prediction draws a coloured line + dots through your 12 lane heights. <b>Win the game by reaching a Loss of 0</b> (your prediction exactly matches the targets) within those 10 attempts. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane height adds 1 — shown per attempt in the stats table.`,
+  12: `Same hidden race as <b>Reverse the Race</b>, but with the bias <b>given</b> — it's highlighted at the top of the page and stays locked for the whole game. You only need to figure out the <b>dice combination</b> (1–4 dice, all the same type, from {d4, d6, d8, d10}) that produces the observed lane heights (the <b>black target dots</b>). <b>Win the game by reaching a Loss of 0</b> within <b>10 attempts</b>. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane height adds 1 — shown per attempt in the stats table.`,
 };
 
 function gameDescHTML(gameId){
@@ -2500,7 +2500,7 @@ function g9BiasButtonsHTML(currentBias){
 function renderBiasBars(diceSides, biasName){
   const N_SLOTS=10;
   const dieColor=(n)=> n===4?'var(--c-die-1)' : n===6?'var(--c-die-2)' : n===8?'var(--c-die-3)' : n===10?'var(--c-die-4)' : 'var(--c-border)';
-  const sortedDice=(diceSides||[]).slice().sort((a,b)=>a-b);
+  const sortedDice=[...new Set((diceSides||[]).slice().sort((a,b)=>a-b))];
   const dieWeights=sortedDice.map(sides=>{
     if(!sides||!biasName) return null;
     const w=biasForPreset(biasName, sides);
@@ -2951,10 +2951,14 @@ function renderGame10(){
 // All 28 valid dice combos (1, 2, 3, or 4 dice from {4,6,8,10}) whose sum-mode
 // lies within the 12-lane track (peak ≤ 12, computed under fair bias).
 const G10_VALID_COMBOS = [
+  // singles
   [4],[6],[8],[10],
-  [4,4],[4,6],[4,8],[4,10],[6,6],[6,8],[6,10],[8,8],[8,10],[10,10],
-  [4,4,4],[4,4,6],[4,4,8],[4,4,10],[4,6,6],[4,6,8],[4,6,10],[4,8,8],[6,6,6],[6,6,8],
-  [4,4,4,4],[4,4,4,6],[4,4,4,8],[4,4,6,6],
+  // doubles
+  [4,4],[6,6],[8,8],[10,10],
+  // triples
+  [4,4,4],[6,6,6],[8,8,8],[10,10,10],
+  // quads
+  [4,4,4,4],[6,6,6,6],[8,8,8,8],[10,10,10,10],
 ];
 
 // Single-bar fruit-machine spinner: shows the current combo, ◀ ▶ to scroll
@@ -2977,9 +2981,9 @@ function g10RenderComboGrid(){
   // G10_VALID_COMBOS is pre-sorted: 4 singles, 10 doubles, 10 triples, 4 quads.
   const rows = [
     {cls:'row-singles', from:0,  to:4},
-    {cls:'row-doubles', from:4,  to:14},
-    {cls:'row-triples', from:14, to:24},
-    {cls:'row-quads',   from:24, to:28},
+    {cls:'row-doubles', from:4,  to:8},
+    {cls:'row-triples', from:8,  to:12},
+    {cls:'row-quads',   from:12, to:16},
   ];
   row.innerHTML = `<div class="g10-combo-grid">${rows.map(r=>
     `<div class="g10-combo-row ${r.cls}">${
