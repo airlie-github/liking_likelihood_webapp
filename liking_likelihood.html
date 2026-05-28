@@ -160,7 +160,7 @@ button:active{transform:scale(.95)}
 /* ===== HORSE RACE (game 8) ===== */
 .g8-wrap{display:flex;flex-direction:column;gap:var(--sz-1)}
 .g8-controls{display:flex;align-items:center;gap:var(--sz-1);justify-content:center;flex-wrap:wrap}
-.g8-dice-row{display:flex;align-items:center;gap:var(--sz-1);min-height:3.5rem;font-size:var(--sz-4);font-weight:var(--fw-bold)}
+.g8-dice-row{display:flex;align-items:center;gap:var(--sz-1);min-height:3.5rem;font-size:var(--sz-4);font-weight:var(--fw-bold);flex-wrap:wrap;justify-content:center}
 .g8-hand{font-size:var(--sz-4);line-height:1;flex-shrink:0;display:inline-block;transform:rotate(90deg)}
 .g8-die{width:1.5rem;height:1.5rem;color:var(--c-surface);font-size:var(--sz-2);font-weight:var(--fw-bold);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .g8-die.d4{background:var(--c-die-1);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%)}
@@ -168,7 +168,7 @@ button:active{transform:scale(.95)}
 .g8-die.d8{background:var(--c-die-3);clip-path:polygon(30% 0%,70% 0%,100% 30%,100% 70%,70% 100%,30% 100%,0% 70%,0% 30%)}
 .g8-die.d10{background:var(--c-die-4);clip-path:polygon(50% 0%,79% 10%,100% 38%,97% 69%,79% 95%,50% 100%,21% 95%,3% 69%,0% 38%,21% 10%)}
 .g8-rhs{margin-left:auto;display:flex;align-items:center;gap:var(--sz-1);flex-shrink:0}
-.g8-roller{width:2.625rem;height:2.625rem;border-radius:50%;background:var(--c-gold);color:var(--c-surface);display:flex;align-items:center;justify-content:center;font-size:var(--sz-3);font-weight:var(--fw-bold);overflow:hidden;position:relative;flex-shrink:0}
+.g8-roller{width:1.5rem;height:1.5rem;border-radius:50%;background:var(--c-gold);color:var(--c-surface);display:flex;align-items:center;justify-content:center;font-size:var(--sz-2);font-weight:var(--fw-bold);overflow:hidden;position:relative;flex-shrink:0}
 .g8-roller .qm-text{position:relative;z-index:1}
 .g8-roller .qm-reel{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;border-radius:50%;display:flex;justify-content:center}
 .g8-roller .qm-reel .reel-strip{width:100%;will-change:transform}
@@ -195,6 +195,19 @@ button:active{transform:scale(.95)}
 .g10-arrow{padding:0 var(--sz-1);font-size:var(--sz-4);background:none;border:none;cursor:pointer;color:var(--c-text);min-width:0;min-height:0;line-height:1}
 .g10-arrow:hover{color:var(--c-blue)}
 .g10-arrow:disabled{opacity:.35;cursor:default}
+.g10-combo-grid{display:flex;flex-direction:column;gap:var(--sz-0);max-width:30rem;margin:var(--sz-1) auto}
+.g10-combo-row{display:flex;gap:var(--sz-0)}
+.g10-combo-row .g10-combo-cell{flex:1;min-width:0}
+.g10-combo-row.row-doubles .g10-combo-cell .combo-dice,
+.g10-combo-row.row-triples .g10-combo-cell .combo-dice{flex-direction:column;flex-wrap:nowrap;gap:0.0625rem}
+.g10-combo-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--sz-0);background:var(--c-border);border-radius:var(--r-sm);border:0.0625rem solid transparent;cursor:pointer;font-weight:var(--fw-bold);min-height:3.5rem;line-height:1}
+.g10-combo-cell.selected{background:var(--c-gold);border-color:#a87a0d}
+.g10-combo-cell:disabled{cursor:not-allowed}
+.g10-combo-cell .combo-num{font-size:var(--sz-1);opacity:0.7;margin-bottom:0.125rem}
+.g10-combo-cell.selected .combo-num{opacity:1}
+.g10-combo-cell .combo-dice{display:flex;flex-wrap:wrap;gap:0.125rem;justify-content:center;align-items:center}
+.g10-combo-cell .box-die{width:1rem;height:1rem;font-size:0.5rem}
+.g10-combo-cell:not(.selected) .box-die{filter:grayscale(100%);opacity:0.45}
 .g8-bar-zone{flex:1;display:flex;align-items:center;height:var(--sz-4)}
 .g8-observer{flex:0 0 var(--sz-4);width:var(--sz-4);height:var(--sz-4);font-size:var(--sz-4);line-height:1;display:flex;align-items:center;justify-content:center;opacity:.55;margin-left:var(--sz-1)}
 .g8-bar{position:relative;height:100%;background:var(--c-border);border-radius:var(--r-sm);overflow:visible}
@@ -241,6 +254,9 @@ button:active{transform:scale(.95)}
 
 /* ===== REVERSE THE RACE (game 10) — compact 12-lane track; controls reuse .guess-btn / .bias-preset ===== */
 .g10-track{display:flex;flex-direction:column;gap:0;width:100%;max-width:30rem;margin:0 auto}
+.g10-target-dot{position:absolute;top:50%;width:0.875rem;height:0.875rem;border-radius:50%;background:#000;transform:translateY(-50%);z-index:2;box-shadow:0 0 0 0.125rem var(--c-surface)}
+.g10-curves-svg{position:absolute;left:2.5rem;top:0;width:calc(100% - 2.75rem);height:100%;pointer-events:none;z-index:3;overflow:visible;display:block}
+.g10-curve-path{fill:none;stroke-width:2;vector-effect:non-scaling-stroke;opacity:0.85}
 /* Game 10 lanes match Games 8/9 dimensions; only the winner highlight + step border differ. */
 .g10-track .g8-step{border-right-color:rgba(0,0,0,.08)}
 .g10-track .g8-lane.g10-winner{background:rgba(255,215,0,0.2);border-radius:var(--r-sm)}
@@ -432,15 +448,15 @@ function logEvent(payload){
 // ===== STATE =====
 const S = {
   mode: 'random', // per-game, toggled by slider
-  gameTutorial: {1:false,2:false,3:false,4:false,5:false,6:false,7:false,8:false,9:false,10:false},
+  gameTutorial: {1:false,2:false,3:false,4:false,5:false,6:false,7:false,8:false,9:false,10:false,11:false,12:false},
   roomCode: '',
   playerNickname: '',
   currentGame: null,
   rounds: [],
   currentRound: 0,
-  scores: Array(10).fill(0),
-  houseScores: Array(10).fill(0), // Game 9: per-game cumulative House score (only game 9 uses this)
-  completed: Array(10).fill(false), // tutorial-completion flag per game (1..10)
+  scores: Array(12).fill(0),
+  houseScores: Array(12).fill(0), // Games 8, 9, 10: per-game cumulative House score
+  completed: Array(12).fill(false), // tutorial-completion flag per game (1..12)
   phase: 'guess',
   game3ConfPick: null,
   g5: null, // bias-detective token game state
@@ -521,8 +537,10 @@ const GAMES = [
   {id:6, title:"Bayes' Theorem", topic:'Section 8', desc:'Guess the dice again', color:'var(--c-danger)'},
   {id:7, title:'Marginalization', topic:'Section 9', desc:'Guess which box', color:'var(--c-amber)'},
   {id:8, title:'Dice Sums', topic:'Horse Race', desc:'Guess the winner', color:'var(--c-teal)'},
-  {id:9, title:'Central Limit Theorem', topic:'Section 12', desc:'Spread your bet', color:'var(--c-purple)'},
-  {id:10, title:'Reverse the Race', topic:'Inference', desc:'Guess the dice + bias!', color:'var(--c-gold)'},
+  {id:9, title:'Biased Dice Sums', topic:'Biased Race', desc:'Pick a lane — biased dice', color:'#1abc9c'},
+  {id:10, title:'Central Limit Theorem', topic:'Section 12', desc:'Spread your bet', color:'var(--c-purple)'},
+  {id:11, title:'Reverse the Race', topic:'Inference', desc:'Guess the dice + bias!', color:'var(--c-gold)'},
+  {id:12, title:'Constrained Reverse', topic:'Inference', desc:'Guess the dice given the bias', color:'var(--c-success)'},
 ];
 
 // ============================================================================
@@ -731,21 +749,32 @@ function generateRounds(gameId) {
   } else if (gameId===8) {
     // Track length is always 24 across all 12 lanes.
     const TRACK_LEN_8=24;
+    // Random house lane drawn from the reachable lanes (non-zero PMF) per round.
+    const pickHouseLane=(diceSides)=>{
+      const pmf=g8SumPMF(diceSides);
+      const reachable=[];
+      for(let h=1;h<=12;h++) if((pmf[h]||0)>0) reachable.push(h);
+      return reachable[Math.floor(Math.random()*reachable.length)];
+    };
     if(S.mode==='tutorial'){
       for(const t of TUT.game8.slice(0,10)){
+        const diceSides=t.diceSides.slice();
         rounds.push({
           trackLen: TRACK_LEN_8,
           lanesLen: Array(12).fill(TRACK_LEN_8),
-          diceSides: t.diceSides.slice(),
+          diceSides,
           rolls: t.rolls.map(d=>d.slice()), // deterministic sequence
+          houseLane: pickHouseLane(diceSides),
         });
       }
     } else {
       for(let i=0;i<10;i++){
+        const diceSides=G8_DICE_COMBOS[Math.floor(Math.random()*G8_DICE_COMBOS.length)];
         rounds.push({
           trackLen: TRACK_LEN_8,
           lanesLen: Array(12).fill(TRACK_LEN_8),
-          diceSides: G8_DICE_COMBOS[Math.floor(Math.random()*G8_DICE_COMBOS.length)],
+          diceSides,
+          houseLane: pickHouseLane(diceSides),
         });
       }
     }
@@ -812,7 +841,26 @@ function generateRounds(gameId) {
     // an optimal player would win by ≥1 decisive round. See g5GenerateMatch.
     rounds.push(...g5GenerateMatch());
   } else if (gameId===9) {
-    // Track length is always 24. Tutorial: hardwired dice + bias + roll sequence per round.
+    // NEW: Biased Dice Sums — Game 8 mechanics + biased dice.
+    // Dice combos drawn from the same 28-combo extended set as Games 10 (CLT) and 11 (Reverse).
+    // Player picks one lane; house picks one lane uniformly across ALL 12 (including impossible).
+    const TRACK_LEN_9=24;
+    const BS_PRESETS=['fair','line','twin','boat','arch','step','edge'];
+    for(let i=0;i<10;i++){
+      const diceSides=G10_VALID_COMBOS[Math.floor(Math.random()*G10_VALID_COMBOS.length)].slice();
+      const bias=BS_PRESETS[Math.floor(Math.random()*BS_PRESETS.length)];
+      // House is uniformly random across ALL 12 lanes (including unreachable ones).
+      const houseLane=1+Math.floor(Math.random()*12);
+      rounds.push({
+        trackLen: TRACK_LEN_9,
+        lanesLen: Array(12).fill(TRACK_LEN_9),
+        diceSides,
+        bias,
+        houseLane,
+      });
+    }
+  } else if (gameId===10) {
+    // CLT (was id 9). Track length is always 24. Tutorial: hardwired dice + bias + roll sequence per round.
     const TRACK_LEN=24;
     if(S.mode==='tutorial'){
       // Lanes fixed at 12 (matches Game 8). Tutorial uses uniform-dice combos;
@@ -838,7 +886,7 @@ function generateRounds(gameId) {
         rounds.push({diceSides, maxSum:12, trackLen:TRACK_LEN, lanesLen:Array(12).fill(TRACK_LEN), bias, houseLane:g9ModeLane(diceSides, bias)});
       }
     }
-  } else if (gameId===10) {
+  } else if (gameId===11) {
     // Reverse the Race: ONE hidden race per game, 12 attempts.
     // The race result is a Gaussian (sum of bias-weighted dice — closed form, no simulation).
     // Player must figure out the dice combo + bias from the lane distribution shown.
@@ -868,6 +916,36 @@ function generateRounds(gameId) {
         actualWinner: actualRace.winner,
         animals,
         // Filled on submit:
+        guessDice: null, guessBias: null,
+        playerPositions: null, playerWinner: null,
+        points: null, correct: null,
+      });
+    }
+  } else if (gameId===12) {
+    // Constrained Reverse: same as Game 11 but the bias is given to the player.
+    const TRACK_LEN = 24;
+    const PRESETS = ['fair','line','twin','boat','arch','step','edge'];
+    let actualDiceSides, actualBias;
+    if (S.mode === 'tutorial') {
+      const t = TUT.game10[0];
+      actualDiceSides = t.diceSides.slice();
+      actualBias = t.bias;
+    } else {
+      actualDiceSides = G10_VALID_COMBOS[Math.floor(Math.random()*G10_VALID_COMBOS.length)].slice();
+      actualBias = pick(PRESETS);
+    }
+    const actualRace = g10GaussianRace(actualDiceSides, actualBias, TRACK_LEN);
+    const animals = g9SampleAnimals(12);
+    for (let i = 0; i < 10; i++) {
+      rounds.push({
+        attemptIdx: i,
+        diceSides: actualRace.diceSides.slice(),
+        bias: actualRace.bias,
+        maxSum: actualRace.maxSum,
+        trackLen: actualRace.trackLen,
+        actualPositions: actualRace.positions.slice(),
+        actualWinner: actualRace.winner,
+        animals,
         guessDice: null, guessBias: null,
         playerPositions: null, playerWinner: null,
         points: null, correct: null,
@@ -916,8 +994,10 @@ function startGame(id){
   S.phase='guess';
   S.mode=S.gameTutorial[id]?'tutorial':'random';
   S.rounds=generateRounds(id);
-  if(id===5||id===8||id===10){S.scores[id-1]=0;}
+  if(id===5||id===11||id===12){S.scores[id-1]=0;}
+  if(id===8){S.scores[7]=0; S.houseScores[7]=0;}
   if(id===9){S.scores[8]=0; S.houseScores[8]=0;}
+  if(id===10){S.scores[9]=0; S.houseScores[9]=0;}
   document.getElementById('game-title').textContent=GAMES[id-1].title;
   updateTutToggle();
   updateHcapToggle();
@@ -926,11 +1006,11 @@ function startGame(id){
 }
 
 function toggleHandicap(){
-  if(S.currentGame===8){
-    if(S.g8 && S.g8.bet!=null) return;
-    S.g8Handicap=!S.g8Handicap;
-  } else if(S.currentGame===9){
+  if(S.currentGame===8 || S.currentGame===9){
     // Don't allow toggling once the race has been started.
+    if(S.g8 && S.g8.locked) return;
+    S.g8Handicap=!S.g8Handicap;
+  } else if(S.currentGame===10){
     if(S.g9 && S.g9.locked) return;
     S.g9Handicap=!S.g9Handicap;
   } else return;
@@ -944,10 +1024,10 @@ function updateHcapToggle(){
   const sw=document.getElementById('hcap-switch');
   if(!toggle||!sw) return;
   let on=false, disabled=false;
-  if(S.currentGame===8){
+  if(S.currentGame===8 || S.currentGame===9){
     on=!!S.g8Handicap;
-    disabled=!!(S.g8 && S.g8.bet!=null);
-  } else if(S.currentGame===9){
+    disabled=!!(S.g8 && S.g8.locked);
+  } else if(S.currentGame===10){
     on=!!S.g9Handicap;
     disabled=!!(S.g9 && S.g9.locked);
   }
@@ -962,7 +1042,9 @@ function toggleTutorial(){
   updateTutToggle();
   // Restart game with new mode
   S.currentRound=0;S.scores[id-1]=0;
+  if(id===8) S.houseScores[7]=0;
   if(id===9) S.houseScores[8]=0;
+  if(id===10) S.houseScores[9]=0;
   S.rounds=generateRounds(id);
   renderRound();
 }
@@ -1012,9 +1094,11 @@ const GAME_DESCRIPTIONS = {
   5: `Is the dice <b>Fair</b> or <b>biased</b>? The <b>House</b> tracks the <b>likelihood ratio</b> <b>L(A) / L(B)</b>; you track the <b>likelihood gain</b> <b>log L(A) − log L(B)</b>. They carry the same information — the gain is just the log of the ratio — but the gain grows by <b>addition</b> instead of <b>multiplication</b>, so it stays on a friendly numeric scale much longer.<br><br>Each roll costs <b>1 token per tracked value</b>, plus <b>+1</b> every time that value crosses a new order of magnitude. Both sides track <b>2</b> values, so the minimum is <b>2 tokens</b> per roll. You each start with <b>14 tokens</b>; logs grow slowly, so the player's precision wall is much further off. <b>Commit to a guess whenever you're ready</b> — every unused coin (yours <i>and</i> the house's) goes straight into the prize pot.`,
   6: `The box holds <b>eight dice</b>: some of one type, some of another. A dice is selected from the box, chosen at random. You see <b>one roll</b> from the chosen dice. Combine the <b>prior</b> (how many of each type are in the box) with the <b>likelihood</b> (which type fits the roll) to guess which dice was chosen — that's <b>Bayes' theorem</b>.`,
   7: `Two boxes, <b>Amber</b> and <b>Blue</b>, each hold <b>two dice</b>. A box is chosen at random, then a dice is selected from that box, chosen at random. You see <b>one roll</b> from the chosen dice. <b>Marginalize / sum over the unknowns / integrate out the nuisance variable</b> — the two possible dice in each box — to get the <b>marginal probability / P(roll | box)</b>, then pick the more likely box.`,
-  8: `A handful of dice is rolled and summed; the animal in the lane equal to that sum advances one step. The first lane to reach the finish line wins. Before the race you <b>pick the lane you think will win</b> — score <b>3</b> for an exact match, <b>2</b> within one lane, <b>1</b> within two. The shape of the sum's <b>probability mass function / PMF / distribution</b> — peaked near its <b>mean / average / expected value / μ</b> and broadened by its <b>variance / spread / σ²</b> — gives you a better guess than picking the middle lane by reflex.`,
-  9: `Same race as <b>Dice Sums</b>, but every dice shares the <b>same bias</b> — picked from <b>Fair</b>, <b>Line</b>, <b>Twin</b>, <b>Boat</b>, <b>Arch</b>, <b>Step</b> or <b>Edge</b>. Bias <b>shifts the mean / average / expected value / μ</b> and <b>reshapes the variance / spread / σ²</b> of the dice sum, so the winning lane is no longer where you'd expect.<br><br>This round you bet against the <b>House</b>. The House always places all <b>12 tokens</b> on the <b>modal lane</b> (the most-probable sum given the bias) — winning <b>12</b> if that lane wins, <b>0</b> otherwise. You have <b>12 tokens</b> to <b>spread your bet</b> across <b>1, 2, 3, 4, 6 or 12 lanes</b> — <b>12/n tokens per lane</b>. If a covered lane wins, you score the <b>12/n tokens</b> on it; otherwise <b>0</b>. <b>Narrow bets pay more, rarely</b>; <b>wide bets pay less, often</b>. The trade-off isn't symmetric: on a <b>low-variance</b> bias (mass piled on one lane) the mode bet has the highest expected score; on a <b>high-variance</b> bias (mass spread across many lanes) every spread has nearly the same expected score, so a wider bet can <b>win more sessions</b> over the 10-round game by avoiding the streaks of zeroes the narrow bet suffers. Match the spread to the variance you expect.`,
-  10: `You see the <b>finished distribution</b> of a hidden race: animals frozen at the positions their lane reached when the winner crossed. By the <b>Central Limit Theorem / CLT</b>, the sum's <b>PMF</b> is approximately <b>Gaussian / Normal / bell-curve</b>, so the shape is captured by its <b>mean / μ</b> and <b>variance / σ²</b>. <b>Reverse the race</b> — figure out which dice combination (1–4 dice from {d4, d6, d8, d10}) and which bias produced that mean and variance. You get <b>10 attempts</b> at the <i>same</i> race; each prediction is dropped onto the track as coloured dots. The score is the <b>Euclidean distance / L2 distance / root-sum-squared</b> between your predicted lane heights and the actual ones — <b>lower is better</b>.`,
+  8: `A handful of <b>fair</b> dice is rolled and summed; the animal in the lane equal to that sum advances one step. The first lane to reach the finish line wins. Before the race <b>you</b> pick a lane and the <b>House</b> picks one for itself, <b>uniformly at random</b> across the reachable lanes. If the winning lane is yours, <b>you</b> score <b>1</b>; if it's the House's, the <b>House</b> scores <b>1</b>; if you both bet the same lane, you both score when it wins. Read the sum's <b>probability mass function / PMF / distribution</b> — peaked near its <b>mean / average / expected value / μ</b> and broadened by its <b>variance / spread / σ²</b> — and pick the lane closest to the peak. Over <b>10 rounds</b>, a strategic player should beat the random House.`,
+  9: `Same head-to-head race as <b>Dice Sums</b>, but every dice shares the <b>same bias</b> — picked from <b>Fair</b>, <b>Line</b>, <b>Twin</b>, <b>Boat</b>, <b>Arch</b>, <b>Step</b> or <b>Edge</b>. Bias <b>shifts the mean / μ</b> and <b>reshapes the variance / σ²</b> of the dice sum, so the winning lane is no longer where you'd expect. The <b>House</b> picks a lane <b>uniformly at random across all 12</b> — including unreachable ones — so it's an even worse bettor than in Dice Sums. <b>Read the bias bars</b>, pick the lane closest to the peak of the biased PMF, and you should beat the House over <b>10 rounds</b>. One token at stake per round (you +1 / House +1 / both 0).`,
+  10: `Same biased race as <b>Biased Dice Sums</b>, but now the betting is different. The <b>House</b> always places all <b>12 tokens</b> on the <b>modal lane</b> (the most-probable sum given the bias) — winning <b>12</b> if that lane wins, <b>0</b> otherwise. You have <b>12 tokens</b> to <b>spread your bet</b> across <b>1, 2, 3, 4, 6 or 12 lanes</b> — <b>12/n tokens per lane</b>. If a covered lane wins, you score the <b>12/n tokens</b> on it; otherwise <b>0</b>. <b>Narrow bets pay more, rarely</b>; <b>wide bets pay less, often</b>. The trade-off isn't symmetric: on a <b>low-variance</b> bias (mass piled on one lane) the mode bet has the highest expected score; on a <b>high-variance</b> bias (mass spread across many lanes) every spread has nearly the same expected score, so a wider bet can <b>win more sessions</b> over the 10-round game by avoiding the streaks of zeroes the narrow bet suffers. Match the spread to the variance you expect.`,
+  11: `You see the <b>finished distribution</b> of a hidden race shown as <b>black target dots</b>: the lane heights at the moment the winner crossed. By the <b>Central Limit Theorem / CLT</b>, the sum's <b>PMF</b> is approximately <b>Gaussian / Normal / bell-curve</b>, so the shape is captured by its <b>mean / μ</b> and <b>variance / σ²</b>. <b>Reverse the race</b> — figure out which dice combination (1–4 dice from {d4, d6, d8, d10}) and which bias would produce that mean and variance. You have <b>10 attempts</b> at the <i>same</i> race; each prediction draws a coloured polyline + dots through your 12 lane heights. <b>Win the game by reaching a Loss of 0</b> (your prediction exactly matches the targets) within those 10 attempts. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane height adds 1 — shown per attempt in the stats table.`,
+  12: `Same hidden race as <b>Reverse the Race</b>, but with the bias <b>given</b> — it's highlighted at the top of the page and stays locked for the whole game. You only need to figure out the <b>dice combination</b> (1–4 dice from {d4, d6, d8, d10}) that produces the observed lane heights (the <b>black target dots</b>). <b>Win the game by reaching a Loss of 0</b> within <b>10 attempts</b>. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane height adds 1 — shown per attempt in the stats table.`,
 };
 
 function gameDescHTML(gameId){
@@ -1191,7 +1275,7 @@ function enableNextBtn(){
     ind.className='result-indicator';
     // Games 8, 9 and 10 use graded scoring (head-to-head / points / distance),
     // not a binary right/wrong — suppress the ✓/✗ badge there to avoid mis-signalling.
-    if(S.currentGame===8 || S.currentGame===9 || S.currentGame===10){ind.textContent='';}
+    if(S.currentGame===8 || S.currentGame===9 || S.currentGame===10 || S.currentGame===11 || S.currentGame===12){ind.textContent='';}
     else if(rd && rd.correct===true){ind.classList.add('correct');ind.textContent='✓';}
     else if(rd && rd.correct===false){ind.classList.add('wrong');ind.textContent='✗';}
     else {ind.textContent='';}
@@ -1244,8 +1328,8 @@ function renderRound(){
   disableNextBtn();
 
   if(id===5){if(rc)rc.textContent=`Round ${S.currentRound+1}/10`;renderGame5();return;}
-  if(id===9){if(rc)rc.textContent=g9RoundCounterText();renderGame9();return;}
-  if(id===10){if(rc)rc.textContent=`Round ${S.currentRound+1}/10`;renderGame10();return;}
+  if(id===10){if(rc)rc.textContent=g9RoundCounterText();renderGame9();return;}
+  if(id===11||id===12){if(rc)rc.textContent=`Round ${S.currentRound+1}/10`;renderGame10();return;}
 
   const totalRounds=10;
   if(rc)rc.textContent=`Round ${S.currentRound+1}/${totalRounds}`;
@@ -1260,6 +1344,7 @@ function renderRound(){
   else if(id===6) renderGame6(rd);
   else if(id===7) renderGame7(rd);
   else if(id===8) renderGame8(rd);
+  else if(id===9) renderGame8(rd); // NEW: Biased Dice Sums — same renderer, rd.bias drives bias display
 }
 
 // ===== GAMES 1, 2, 4, 6: shared "guess the dice" template =====
@@ -2052,8 +2137,8 @@ function renderGame8(rd){
     rd.animals=[...G8_ANIMAL_SETS[S.currentRound % G8_ANIMAL_SETS.length]].sort(()=>Math.random()-.5);
   }
   const animals=rd.animals;
-  const startPos=S.g8Handicap ? g8ComputeHandicap(rd.diceSides, rd.lanesLen) : Array(12).fill(0);
-  S.g8={bet:null,trackLen:rd.trackLen,lanesLen:rd.lanesLen,diceSides:rd.diceSides,positions:startPos.slice(),rolls:[],winner:null,animating:false,animals,scriptedRolls:rd.rolls?rd.rolls.map(d=>d.slice()):null,scriptIdx:0};
+  const startPos=S.g8Handicap ? g8ComputeHandicap(rd.diceSides, rd.lanesLen, rd.bias) : Array(12).fill(0);
+  S.g8={bet:null,locked:false,bias:rd.bias||null,trackLen:rd.trackLen,lanesLen:rd.lanesLen,diceSides:rd.diceSides,positions:startPos.slice(),rolls:[],winner:null,animating:false,animals,scriptedRolls:rd.rolls?rd.rolls.map(d=>d.slice()):null,scriptIdx:0};
   S.phase='guess';
   // Tighten Z.top horizontal padding so the lanes get a bit more width while
   // the page itself keeps its normal 30rem column.
@@ -2065,26 +2150,40 @@ function renderGame8(rd){
   // hide it so it doesn't reserve whitespace under the animal.
   Z.buttons.style.display='none';
   Z.table.style.flexBasis='15.5rem';
+  // Optional bias display — only present when round has a bias (Game 9: Biased Dice Sums).
+  const biasHtml = rd.bias
+    ? `<div id="g8-bias-buttons">${g9BiasButtonsHTML(rd.bias)}</div>
+       <div id="g8-bias-bars">${renderBiasBars(rd.diceSides, rd.bias)}</div>`
+    : '';
   Z.top.innerHTML=`<div class="g8-wrap" style="width:100%;margin:0 auto">
     <div class="g8-dice-row" id="g8-dice">${g8DiceRowHTML(rd.diceSides)}</div>
-    <div class="g8-track" id="g8-track">${g8TrackHTML(rd.lanesLen, rd.trackLen, animals)}</div>
+    ${biasHtml}
+    <div class="g9-bet-headers">
+      <div class="g9-bet-cell g9-bet-header-cell">House</div>
+      <div class="g9-bet-cell g9-bet-header-cell">Player</div>
+      <span class="g8-label" style="visibility:hidden">12</span>
+      <div style="flex:1"></div>
+    </div>
+    <div class="g8-track" id="g8-track">${g8TrackHTML(rd.lanesLen, rd.trackLen, animals, rd.houseLane)}</div>
     <div class="hcap-toggle visible" id="hcap-toggle" style="justify-content:flex-start;margin:var(--sz-1) 0 0 0"><div class="hcap-switch" id="hcap-switch" onclick="toggleHandicap()"></div><span>Handicap</span></div>
-    ${gameDescHTML(8)}
+    ${gameDescHTML(S.currentGame)}
   </div>`;
   // Persistent status slot (text content swapped in place — no layout shifts).
-  Z.text.innerHTML=`<div id="g8-msg" style="text-align:center;width:100%">Guess the winner</div>`;
+  Z.text.innerHTML=`<div id="g8-msg" style="text-align:center;width:100%;font-size:var(--sz-2)">Pick a lane</div>`;
   Z.buttons.innerHTML='';
-  // Show Skip button (greyed) — becomes active once a bet is placed.
+  // Skip hidden until race starts; Race Start visible but disabled until a bet is placed.
   const skipBtn=document.getElementById('g8-skip-btn');
-  if(skipBtn){ skipBtn.style.display=''; skipBtn.disabled=true; }
-  renderStatsTable(Z.table,8);
+  if(skipBtn){ skipBtn.style.display='none'; skipBtn.disabled=true; }
+  const g9Btn=document.getElementById('g9-start-btn');
+  if(g9Btn){ g9Btn.style.display=''; g9Btn.disabled=true; g9Btn.textContent='Race Start'; g9Btn.onclick=g8Start; }
+  renderStatsTable(Z.table,S.currentGame);
   // Render initial token positions (matters when handicap is on).
   for(let h=1;h<=12;h++) g8UpdateTokenPos(h);
   // In handicap mode, take impossible-sum animals off the track and stand them
   // in the observer slot on the right of the lane, facing the other way (no
   // scaleX flip — opposite of the in-bar tokens which use scaleX(-1)).
   if(S.g8Handicap){
-    const pmf=g8SumPMF(rd.diceSides);
+    const pmf=rd.bias ? g9SumPMF(rd.diceSides, rd.bias) : g8SumPMF(rd.diceSides);
     for(let h=1;h<=12;h++){
       if((pmf[h]||0)>0) continue;
       const tok=document.getElementById('g8-tok-'+h);
@@ -2106,7 +2205,7 @@ function g8DiceRowHTML(diceSides){
     `<div class="g8-roller" id="g8-r${i+1}"><span class="qm-text">?</span>`+
       `<div class="qm-reel" style="display:none"><div class="reel-strip"></div></div>`+
     `</div>`).join('<span class="g8-eq">+</span>');
-  return `${hand}${dieShapes}<span class="g8-rhs"><span class="g8-eq" style="font-size:var(--sz-3)">Lane</span>${rollers}<span class="g8-eq" style="font-size:var(--sz-3)">advances</span></span>`;
+  return `<div style="display:flex;align-items:center;justify-content:center;gap:var(--sz-1);width:100%;flex-wrap:wrap">${hand}${dieShapes}</div><div style="display:flex;align-items:center;justify-content:center;gap:var(--sz-1);width:100%;flex-wrap:wrap;margin-top:var(--sz-0)"><span class="g8-eq" style="font-size:var(--sz-3)">Lane</span>${rollers}<span class="g8-eq" style="font-size:var(--sz-3)">advances</span></div>`;
 }
 
 // Exact PMF of dice-sum via discrete convolution. pmf[k] = P(sum = k); pmf[0] is unused.
@@ -2129,8 +2228,8 @@ function g8SumPMF(diceSides){
 // argument — each lane's completion time is Gamma(T_h, p_h); equal rates ⇒
 // equal P(min)). So set T_h = lanesLen * p_h / max(p), head-start = lanesLen − T_h.
 // Lanes with p_h=0 (impossible sums) stay at start-pos 0 — they can never win.
-function g8ComputeHandicap(diceSides, lanesLen){
-  const pmf=g8SumPMF(diceSides);
+function g8ComputeHandicap(diceSides, lanesLen, bias){
+  const pmf = bias ? g9SumPMF(diceSides, bias) : g8SumPMF(diceSides);
   const lanePmf=[];
   for(let h=1;h<=12;h++) lanePmf.push(pmf[h]||0);
   const maxP=Math.max(...lanePmf);
@@ -2140,13 +2239,21 @@ function g8ComputeHandicap(diceSides, lanesLen){
     : 0);
 }
 
-function g8TrackHTML(lanesLen, maxLen, animals){
+function g8TrackHTML(lanesLen, maxLen, animals, houseLane){
+  // Two-column betting layout: House (locked, set per round) | Player (clickable).
   return [1,2,3,4,5,6,7,8,9,10,11,12].map((h,i)=>{
     const animal=animals[i];
     const len=lanesLen[i];
     const widthPct=(len/maxLen)*100;
+    const isHouse=(h===houseLane);
+    const houseFlag=isHouse?'🏆':'';
     return `<div class="g8-lane" data-horse="${h}">
-      <div class="g8-flag" id="g8-flag-${h}" onclick="g8Bet(${h})" title="Bet on lane ${h}">🏆</div>
+      <div class="g9-bet-cell house-cell">
+        <div class="g8-flag g9-house-flag${isHouse?' selected':''}" id="g8-house-flag-${h}">${houseFlag}</div>
+      </div>
+      <div class="g9-bet-cell player-cell">
+        <div class="g8-flag player-flag" data-lane="${h}" id="g8-flag-${h}" onclick="g8Bet(${h})" title="Bet on lane ${h}">🏆</div>
+      </div>
       <span class="g8-label">${h}</span>
       <div class="g8-bar-zone">
         <div class="g8-bar" style="width:${widthPct}%">
@@ -2164,8 +2271,8 @@ function g8SpinRoller(rollerId, value, sides){
   const qmText=roller.querySelector('.qm-text');if(qmText)qmText.style.display='none';
   const reel=roller.querySelector('.qm-reel');if(reel)reel.style.display='flex';
   const strip=roller.querySelector('.reel-strip');if(!strip)return;
-  const itemH=2.625; // rem; matches .g8-roller height
-  const fontSize=1.125; // rem
+  const itemH=1.5; // rem; matches .g8-roller height
+  const fontSize=0.875; // rem; matches --sz-2
   const cycles=4;
   const nums=[];for(let c=0;c<cycles;c++)for(let n=1;n<=sides;n++)nums.push(n);
   strip.innerHTML=nums.map(n=>`<div class="reel-num" style="height:${itemH}rem;font-size:${fontSize}rem">${n}</div>`).join('');
@@ -2179,20 +2286,31 @@ function g8SpinRoller(rollerId, value, sides){
 }
 
 function g8Bet(h){
-  if(S.g8.bet!=null||S.g8.animating)return;
+  if(!S.g8 || S.g8.locked) return;
   S.g8.bet=h;
-  updateHcapToggle();
-  document.querySelectorAll('.g8-flag').forEach(f=>{
-    f.classList.toggle('selected',+f.id.replace('g8-flag-','')===h);
-    f.style.pointerEvents='none';
+  // Highlight the selected PLAYER trophy only; leave the House trophy alone.
+  document.querySelectorAll('.g8-flag.player-flag').forEach(f=>{
+    f.classList.toggle('selected', +f.dataset.lane===h);
   });
-  // Enable Skip button (it's already in the layout, just greyed until now).
-  const skipBtn=document.getElementById('g8-skip-btn');
-  if(skipBtn) skipBtn.disabled=false;
-  // Update persistent text + animal slots in place — no innerHTML replacement,
-  // so the layout doesn't jump.
   const msg=document.getElementById('g8-msg');
-  if(msg) msg.textContent=`Your bet: Lane ${h} — racing…`;
+  if(msg) msg.textContent=`Your bet: Lane ${h}`;
+  const g9Btn=document.getElementById('g9-start-btn');
+  if(g9Btn) g9Btn.disabled=false;
+}
+
+function g8Start(){
+  if(!S.g8 || S.g8.locked || S.g8.bet==null) return;
+  S.g8.locked=true;
+  updateHcapToggle();
+  // Lock player flags — no more re-selecting.
+  document.querySelectorAll('.g8-flag.player-flag').forEach(f=>{ f.style.pointerEvents='none'; });
+  // Race Start hides; Skip shows.
+  const g9Btn=document.getElementById('g9-start-btn');
+  if(g9Btn) g9Btn.style.display='none';
+  const skipBtn=document.getElementById('g8-skip-btn');
+  if(skipBtn){ skipBtn.style.display=''; skipBtn.disabled=false; }
+  const msg=document.getElementById('g8-msg');
+  if(msg) msg.textContent='Racing…';
   S.g8.animating=true;
   g8RollStep();
 }
@@ -2201,6 +2319,8 @@ function g8RollOnce(){
   let dice;
   if(S.g8.scriptedRolls && S.g8.scriptIdx<S.g8.scriptedRolls.length){
     dice=S.g8.scriptedRolls[S.g8.scriptIdx++];
+  } else if(S.g8.bias){
+    dice=S.g8.diceSides.map(s=>g9BiasedRoll(s, biasForPreset(S.g8.bias, s)));
   } else {
     dice=S.g8.diceSides.map(s=>roll(s));
   }
@@ -2221,6 +2341,7 @@ function g8UpdateTokenPos(h){
 }
 
 function g8RollStep(){
+  if(S.currentGame!==8 && S.currentGame!==9) return;
   if(!S.g8||S.g8.winner!=null)return;
   const {dice,sum}=g8RollOnce();
   S.g8.rolls.push(dice);
@@ -2250,32 +2371,30 @@ function g8Skip(){
 }
 
 function g8Finish(){
+  if((S.currentGame!==8 && S.currentGame!==9)||!S.g8) return;
   S.g8.animating=false;
   S.phase='reveal';
   const rd=S.rounds[S.currentRound];
-  rd.bet=S.g8.bet;rd.winner=S.g8.winner;rd.rollsUsed=S.g8.rolls.length;
-  const diff=Math.abs(S.g8.bet-S.g8.winner);
-  const points=diff===0?3:diff===1?2:diff===2?1:0;
-  rd.points=points;
-  rd.correct=points>0;
-  S.scores[7]+=points;
+  const playerPayout=(S.g8.winner===S.g8.bet)?1:0;
+  const housePayout =(S.g8.winner===rd.houseLane)?1:0;
+  S.scores[7]      += playerPayout;
+  S.houseScores[7] += housePayout;
+  rd.bet         = S.g8.bet;
+  rd.winner      = S.g8.winner;
+  rd.rollsUsed   = S.g8.rolls.length;
+  rd.payout      = playerPayout;
+  rd.housePayout = housePayout;
+  rd.correct     = playerPayout >= housePayout && (playerPayout > 0 || housePayout === 0);
+  rd.resultMsg   = `Lane ${S.g8.winner} wins — You +${playerPayout} / House +${housePayout}`;
   // Highlight winner lane
   const winLane=document.querySelector(`.g8-lane[data-horse="${S.g8.winner}"]`);
   if(winLane) winLane.style.background='rgba(255,215,0,0.15)';
-  // Plain text everywhere — no bold, no colour overrides
-  const head=points===3?`Lane ${S.g8.winner} wins — exact!`
-    :points>0?`Lane ${S.g8.winner} wins. You bet on lane ${S.g8.bet} — close!`
-    :`Lane ${S.g8.winner} wins. You bet on lane ${S.g8.bet}.`;
-  const tail=points>0?` +${points}`:'';
-  rd.resultMsg=`${head}${tail}`;
-  // Update persistent status slot in place — no layout shift at race end.
   const msg=document.getElementById('g8-msg');
-  if(msg) msg.textContent=`Lane ${S.g8.winner} wins`;
+  if(msg) msg.textContent=rd.resultMsg;
   Z.buttons.innerHTML='';
-  // Disable Skip button (it stays in the layout, just greyed).
   const skipBtn=document.getElementById('g8-skip-btn');
   if(skipBtn) skipBtn.disabled=true;
-  renderStatsTable(Z.table,8);
+  renderStatsTable(Z.table,S.currentGame);
   enableNextBtn();
 }
 
@@ -2331,12 +2450,12 @@ function renderGame9(){
     </div>
     <div class="g8-track" id="g8-track">${g9TrackHTML(rd.lanesLen, rd.trackLen, animals, rd.houseLane)}</div>
     <div class="hcap-toggle visible" id="hcap-toggle" style="justify-content:flex-start;margin:var(--sz-1) 0 0 0"><div class="hcap-switch" id="hcap-switch" onclick="toggleHandicap()"></div><span>Handicap</span></div>
-    ${gameDescHTML(9)}
+    ${gameDescHTML(10)}
   </div>`;
   // Persistent status slot only — animal/cup row removed.
-  Z.text.innerHTML=`<div id="g9-msg" style="text-align:center;width:100%">Pick 1, 2, 3, 4, 6 or 12 lanes</div>`;
+  Z.text.innerHTML=`<div id="g9-msg" style="text-align:center;width:100%;font-size:var(--sz-2)">Pick 1, 2, 3, 4, 6 or 12 lanes</div>`;
   Z.buttons.innerHTML='';
-  renderStatsTable(Z.table,9);
+  renderStatsTable(Z.table,S.currentGame);
   // Render initial token positions (matters when handicap is on).
   for(let h=1;h<=rd.maxSum;h++) g9UpdateTokenPos(h);
   // In handicap mode, park impossible-PMF animals in the observer slot.
@@ -2494,8 +2613,8 @@ function g9TrackHTML(lanesLen, maxLen, animals, houseLane){
 
 // Routes the shared Skip button to the right game's skip handler.
 function raceSkip(){
-  if(S.currentGame===8) g8Skip();
-  else if(S.currentGame===9) g9Skip();
+  if(S.currentGame===8 || S.currentGame===9) g8Skip();
+  else if(S.currentGame===10) g9Skip();
 }
 
 function g9Start(){
@@ -2592,6 +2711,7 @@ function g9UpdateTokenPos(h){
 }
 
 function g9RollStep(){
+  if(S.currentGame!==10) return;
   if(!S.g9||S.g9.winner!=null)return;
   const {dice,sum}=g9RollOnce();
   S.g9.rolls.push(dice);
@@ -2620,6 +2740,7 @@ function g9Skip(){
 }
 
 function g9Finish(){
+  if(S.currentGame!==10||!S.g9) return;
   S.g9.animating=false;
   S.phase='reveal';
   const rd=S.rounds[S.currentRound];
@@ -2639,8 +2760,8 @@ function g9Finish(){
   rd.housePayout=housePayout;
   // "correct" means player beat or matched the house this round (used for ✓/✗ display elsewhere).
   rd.correct=payout>=housePayout && (payout>0||housePayout===0);
-  S.scores[8]+=payout;
-  S.houseScores[8]+=housePayout;
+  S.scores[S.currentGame-1]+=payout;
+  S.houseScores[S.currentGame-1]+=housePayout;
   const winLane=document.querySelector(`.g8-lane[data-horse="${S.g9.winner}"]`);
   if(winLane) winLane.style.background='rgba(255,215,0,0.15)';
   const head = `Lane ${S.g9.winner} wins — You +${payout} / House +${housePayout}`;
@@ -2651,7 +2772,7 @@ function g9Finish(){
   // Disable Skip button.
   const skipBtn=document.getElementById('g8-skip-btn');
   if(skipBtn) skipBtn.disabled=true;
-  renderStatsTable(Z.table,9);
+  renderStatsTable(Z.table,S.currentGame);
   // Refresh the round-counter so the dual-score readout updates after this round.
   const rc=document.getElementById('round-counter');
   if(rc) rc.textContent=g9RoundCounterText();
@@ -2738,6 +2859,12 @@ function g10GaussianRace(diceSides, biasName, trackLen){
   };
 }
 
+// d3.schemeCategory10 — 10 visually distinct categorical colours, one per attempt.
+const G10_DOT_COLORS = [
+  '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+  '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+];
+
 // 12-lane race track; positions length may be < 12 (lanes beyond → 0 → token at start).
 function g10TrackHTML(positions, animals, trackLen, winnerLane, isPlayer){
   const lanes = Array.from({length:G10_MAX_LANES},(_,i)=>{
@@ -2751,21 +2878,24 @@ function g10TrackHTML(positions, animals, trackLen, winnerLane, isPlayer){
       <div class="g8-bar-zone">
         <div class="g8-bar" style="width:100%">
           <div class="g8-steps">${Array(trackLen).fill(0).map(()=>`<span class="g8-step"></span>`).join('')}</div>
-          <div class="g8-token" style="left:calc(${pct}% - var(--sz-4) * 0.5)">${animal}</div>
+          <div class="g10-target-dot" style="left:calc(${pct}% - 0.4375rem)"></div>
+          <div class="g8-token" style="left:calc(0% - var(--sz-4) * 0.5)">${animal}</div>
         </div>
       </div>
     </div>`;
   }).join('');
-  return `<div class="g10-track${isPlayer?' player':''}">${lanes}</div>`;
+  // Black target dots are always visible at the hidden race's positions.
+  // Animals start at left:0 and slide to the player's predicted positions on Race!.
+  // SVG overlay holds the per-attempt smoothed curves (one path per submitted attempt).
+  return `<div class="g10-track${isPlayer?' player':''}" style="position:relative">${lanes}<svg class="g10-curves-svg" viewBox="0 0 100 12" preserveAspectRatio="none"></svg></div>`;
 }
 
 function renderGame10(){
   const rd = S.rounds[S.currentRound];
-  // Initial guess: a random combo from the 28 valid options.
-  const initIdx=Math.floor(Math.random()*G10_VALID_COMBOS.length);
+  // Initial guess: the first combo in the list.
   S.g10 = {
-    selectedDice: G10_VALID_COMBOS[initIdx].slice(),
-    bias: null,
+    selectedDice: null,
+    bias: (S.currentGame === 12) ? rd.bias : null,
     submitted: false,
   };
   S.phase = 'guess';
@@ -2775,7 +2905,7 @@ function renderGame10(){
   Z.table.style.flexBasis = '11rem';
 
   const newRaceBtn = S.mode!=='tutorial'
-    ? `<span role="button" onclick="startGame(10)" title="Generate a new hidden race" style="position:absolute;right:var(--sz-1);top:50%;transform:translateY(-50%);font-size:var(--sz-2);font-weight:var(--fw-bold);padding:0.0625rem 0.375rem;border-radius:var(--r-sm);background:var(--c-border);color:var(--c-text);cursor:pointer;user-select:none;line-height:1.2">New race</span>`
+    ? `<span role="button" onclick="startGame(${S.currentGame})" title="Generate a new hidden race" style="position:absolute;right:var(--sz-1);top:50%;transform:translateY(-50%);font-size:var(--sz-2);font-weight:var(--fw-bold);padding:0.0625rem 0.375rem;border-radius:var(--r-sm);background:var(--c-border);color:var(--c-text);cursor:pointer;user-select:none;line-height:1.2">New race</span>`
     : '';
 
   Z.top.innerHTML = `<div class="g8-wrap" style="width:100%;margin:0 auto">
@@ -2784,7 +2914,7 @@ function renderGame10(){
       ${newRaceBtn}
     </div>
     ${g10TrackHTML(rd.actualPositions, rd.animals, rd.trackLen, null, false)}
-    ${gameDescHTML(10)}
+    ${gameDescHTML(11)}
     <div id="g10-dice-row" style="display:flex;justify-content:center;align-items:center;gap:var(--sz-1);margin:var(--sz-1) auto"></div>
     <div id="g10-bias-buttons"></div>
     <div id="g10-bias-bars"></div>
@@ -2795,11 +2925,11 @@ function renderGame10(){
   if(g9Btn){
     g9Btn.style.display='';
     g9Btn.disabled=true;
-    g9Btn.textContent='Race!';
+    g9Btn.textContent = g10HasWon() ? 'You won!' : 'Race!';
     g9Btn.onclick=g10Submit;
   }
-  renderStatsTable(Z.table, 10);
-  g10RenderDiceRow();
+  renderStatsTable(Z.table, S.currentGame);
+  g10RenderComboGrid();
   g10RenderBias();
   // Replay all earlier attempts' dots so the player keeps a visual history of
   // their guesses against the same hidden race. (Rendering the round rebuilds
@@ -2822,30 +2952,45 @@ const G10_VALID_COMBOS = [
 // Single-bar fruit-machine spinner: shows the current combo, ◀ ▶ to scroll
 // through the 28 options, 🎰 to randomise.
 function g10ComboKeyOf(combo){return combo.slice().sort((a,b)=>a-b).join(',');}
-function g10RenderDiceRow(){
+function g10RenderComboGrid(){
   const row=document.getElementById('g10-dice-row');
   if(!row) return;
-  const combo=S.g10.selectedDice||[];
-  const dieIcons=combo.map(s=>`<div class="box-die d${s}" style="width:1.5rem;height:1.5rem;font-size:0.875rem">${s}</div>`).join('');
-  row.innerHTML=`<span class="g8-hand">🤚</span>
-    <button class="g10-arrow" onclick="g10AdvanceCombo(-1)" title="Previous combo">◀</button>
-    <div class="g10-combo-bar">${dieIcons}</div>
-    <button class="g10-arrow" onclick="g10AdvanceCombo(1)" title="Next combo">▶</button>`;
+  row.style.display='block';
+  const selectedKey = S.g10.selectedDice ? g10ComboKeyOf(S.g10.selectedDice) : null;
+  const disabled = S.g10.submitted ? ' disabled' : '';
+  const cell = (combo, i)=>{
+    const isSel = (g10ComboKeyOf(combo) === selectedKey);
+    const dieIcons = combo.map(s=>`<div class="box-die d${s}">${s}</div>`).join('');
+    return `<button class="g10-combo-cell${isSel?' selected':''}" onclick="g10SelectCombo(${i})"${disabled}>
+      <span class="combo-num">${i+1}</span>
+      <span class="combo-dice">${dieIcons}</span>
+    </button>`;
+  };
+  // G10_VALID_COMBOS is pre-sorted: 4 singles, 10 doubles, 10 triples, 4 quads.
+  const rows = [
+    {cls:'row-singles', from:0,  to:4},
+    {cls:'row-doubles', from:4,  to:14},
+    {cls:'row-triples', from:14, to:24},
+    {cls:'row-quads',   from:24, to:28},
+  ];
+  row.innerHTML = `<div class="g10-combo-grid">${rows.map(r=>
+    `<div class="g10-combo-row ${r.cls}">${
+      G10_VALID_COMBOS.slice(r.from, r.to).map((combo,j)=>cell(combo, r.from+j)).join('')
+    }</div>`
+  ).join('')}</div>`;
 }
-function g10AdvanceCombo(dir){
+function g10SelectCombo(idx){
   if(!S.g10 || S.g10.submitted) return;
-  const curKey=g10ComboKeyOf(S.g10.selectedDice||[]);
-  let idx=G10_VALID_COMBOS.findIndex(c=>g10ComboKeyOf(c)===curKey);
-  if(idx<0) idx=0;
-  idx=(idx+dir+G10_VALID_COMBOS.length)%G10_VALID_COMBOS.length;
-  S.g10.selectedDice=G10_VALID_COMBOS[idx].slice();
-  g10RenderDiceRow();
+  if(idx<0 || idx>=G10_VALID_COMBOS.length) return;
+  S.g10.selectedDice = G10_VALID_COMBOS[idx].slice();
+  g10RenderComboGrid();
   g10RenderBias();
   g10UpdateSubmit();
 }
 // Game-9 style bias picker (reuses .bias-preset.selected = gold). Always enabled.
 function g10SetBias(preset){
   if(!S.g10 || S.g10.submitted) return;
+  if(S.currentGame === 12) return;
   S.g10.bias = preset;
   g10RenderBias();
   g10UpdateSubmit();
@@ -2860,14 +3005,20 @@ function g10RenderBias(){
   const buttonsArea = document.getElementById('g10-bias-buttons');
   const barsArea = document.getElementById('g10-bias-bars');
   if(!buttonsArea || !barsArea) return;
-  const disabled = S.g10.submitted;
+  const disabled = S.g10.submitted || (S.currentGame === 12);
   // DICE xxx BIAS button row, mirroring Game 9.
   buttonsArea.innerHTML = `<div style="display:flex;gap:var(--sz-0);justify-content:center;max-width:26rem;margin:0 auto var(--sz-0)">
     ${BIAS_PRESETS.map(([k,lbl])=>`<button class="bias-preset${S.g10.bias===k?' selected':''}" data-preset="${k}" onclick="g10SetBias('${k}')"${disabled?' disabled':''}><span class="bias-word">Dice</span>${lbl}<span class="bias-word">Bias</span></button>`).join('')}
   </div>`;
 
   // Bias bars — shared with Game 9 (sub-bars per die, color-coded by die type).
-  barsArea.innerHTML = renderBiasBars(S.g10.selectedDice, S.g10.bias);
+  // In Game 12 the bias is given, so before a combo is picked we show all four
+  // die sizes as a reference distribution; once a combo is picked the bars
+  // narrow to the selected dice (same as Game 11).
+  const diceForBars = (S.currentGame === 12 && (!S.g10.selectedDice || !S.g10.selectedDice.length))
+    ? [4,6,8,10]
+    : S.g10.selectedDice;
+  barsArea.innerHTML = renderBiasBars(diceForBars, S.g10.bias);
 }
 
 // Build a stable string key for a (dice, bias) combination so duplicates can be detected.
@@ -2876,12 +3027,30 @@ function g10ComboKey(diceArr, bias){
 }
 // True if any prior submitted round in this Game-10 session used the same (sorted-dice, bias).
 function g10ComboAlreadyTried(diceArr, bias){
+  if(!diceArr || !bias) return false;
   const key = g10ComboKey(diceArr, bias);
   return S.rounds.some(r => r && r.guessDice && r.guessBias && g10ComboKey(r.guessDice, r.guessBias)===key);
+}
+// True once any submitted round has rd.points === 0 (perfect match).
+function g10HasWon(){
+  return S.rounds.some(r => r && r.points === 0);
+}
+// Index (1-based) of the first round where the player achieved loss=0, or null.
+function g10WinRound(){
+  for(let i=0;i<S.rounds.length;i++){
+    if(S.rounds[i] && S.rounds[i].points === 0) return i+1;
+  }
+  return null;
 }
 function g10UpdateSubmit(){
   const sb = document.getElementById('g9-start-btn');
   if(!sb) return;
+  if(g10HasWon()){
+    sb.disabled = true;
+    sb.textContent = 'You won!';
+    sb.title = '';
+    return;
+  }
   const dice = S.g10 && S.g10.selectedDice;
   const haveDice = dice && dice.length>=1 && dice.every(d=>d);
   const ok = haveDice && S.g10.bias && !S.g10.submitted;
@@ -2892,63 +3061,83 @@ function g10UpdateSubmit(){
 
 function g10Submit(){
   if(S.phase!=='guess') return;
-  if(!S.g10 || S.g10.selectedDice.length!==3 || !S.g10.bias) return;
+  if(!S.g10 || !S.g10.selectedDice || S.g10.selectedDice.length<1 || !S.g10.bias) return;
   S.phase = 'reveal';
   S.g10.submitted = true;
   const rd = S.rounds[S.currentRound];
   const guessDice = S.g10.selectedDice.slice();
   const guessBias = S.g10.bias;
   const sim = g10GaussianRace(guessDice, guessBias, rd.trackLen);
-  // Loss = sqrt( Σ (actual − player)² ) over all 12 lanes (Euclidean distance). Lower = better.
-  let sumSq = 0;
+  // Loss = Σ |actual − player| over all 12 lanes (L1 / Manhattan distance — linear per lane). Lower = better.
+  let diff = 0;
   for(let i=0;i<G10_MAX_LANES;i++){
     const a = rd.actualPositions[i] || 0;
     const p = sim.positions[i] || 0;
-    const d = a - p;
-    sumSq += d*d;
+    diff += Math.abs(a - p);
   }
-  const diff = Math.round(Math.sqrt(sumSq));
   rd.guessDice = guessDice;
   rd.guessBias = guessBias;
   rd.playerPositions = sim.positions.slice();
   rd.playerWinner = sim.winner;
   rd.points = diff;
   rd.correct = diff===0;
-  S.scores[9] += diff;
-  // Per-attempt colour (rotates so successive attempts are distinguishable on the track)
-  const G10_DOT_COLORS = ['var(--c-blue)','var(--c-amber)','var(--c-purple)'];
+  S.scores[S.currentGame-1] += diff;
+  // Per-attempt colour from the 10-colour palette — each of the 10 rounds is uniquely coloured.
   rd.dotColor = G10_DOT_COLORS[rd.attemptIdx % G10_DOT_COLORS.length];
+  // Slide the animals from the start line to the player's predicted positions.
+  // Blue target dots stay where the hidden race ended.
+  document.querySelectorAll('.g10-track .g8-lane').forEach(lane=>{
+    const h = +lane.dataset.horse;
+    const p = sim.positions[h-1] || 0;
+    const pct = rd.trackLen>0 ? Math.min(100,(p/rd.trackLen)*100) : 0;
+    const tok = lane.querySelector('.g8-token');
+    if(tok) tok.style.left = `calc(${pct}% - var(--sz-4) * 0.5)`;
+  });
   g10ShowDots(S.currentRound);
   // Loss is shown in the table only (per user request); Z.text stays clear.
   Z.text.innerHTML = '';
   // Disable controls
-  g10RenderDiceRow();
+  g10RenderComboGrid();
   document.querySelectorAll('.bias-preset').forEach(b=>b.disabled=true);
-  const sb=document.getElementById('g9-start-btn'); if(sb) sb.disabled=true;
-  renderStatsTable(Z.table, 10);
+  const sb=document.getElementById('g9-start-btn');
+  if(sb){
+    sb.disabled=true;
+    if(diff === 0) sb.textContent = 'You won!';
+  }
+  renderStatsTable(Z.table, S.currentGame);
   enableNextBtn();
 }
 
-// Render this round's player dots on the actual track (idempotent — skips if already shown).
+// Render this round's player dots + smoothed curve on the actual track (idempotent).
 function g10ShowDots(roundIdx){
   const rd = S.rounds[roundIdx];
   if(!rd || !rd.playerPositions) return;
   if(document.querySelector(`.g10-track [data-dot-round="${roundIdx}"]`)) return;
-  const color = rd.dotColor || 'var(--c-blue)';
-  document.querySelectorAll('.g10-track .g8-lane').forEach(lane=>{
+  const color = rd.dotColor || G10_DOT_COLORS[0];
+  // 12 small coloured dots, one per lane.
+  const pts = [];
+  document.querySelectorAll('.g10-track .g8-lane').forEach((lane, laneIdx)=>{
     const h = +lane.dataset.horse;
     const pos = rd.playerPositions[h-1] || 0;
     const pct = rd.trackLen>0 ? Math.min(100,(pos/rd.trackLen)*100) : 0;
+    pts.push({x:pct, y:laneIdx+0.5});
     const bar = lane.querySelector('.g8-bar');
     if(!bar) return;
-    const isWin = h===rd.playerWinner;
-    const size = isWin ? '0.75rem' : '0.5rem';
-    const off  = isWin ? '0.375rem' : '0.25rem';
     const dot = document.createElement('div');
     dot.dataset.dotRound = roundIdx;
-    dot.style.cssText = `position:absolute;width:${size};height:${size};border-radius:50%;background:${color};top:50%;left:calc(${pct}% - ${off});transform:translateY(-50%);z-index:2;box-shadow:0 0 0 0.0625rem var(--c-surface)`;
+    dot.style.cssText = `position:absolute;width:0.5rem;height:0.5rem;border-radius:50%;background:${color};top:50%;left:calc(${pct}% - 0.25rem);transform:translateY(-50%);z-index:4;box-shadow:0 0 0 0.0625rem var(--c-surface)`;
     bar.appendChild(dot);
   });
+  // Straight-line polyline through the 12 points, appended to the overlay SVG.
+  const svg = document.querySelector('.g10-track .g10-curves-svg');
+  if(svg && pts.length>=2){
+    const poly = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    poly.setAttribute('class','g10-curve-path');
+    poly.setAttribute('points', pts.map(p=>`${p.x.toFixed(3)},${p.y.toFixed(3)}`).join(' '));
+    poly.setAttribute('stroke', color);
+    poly.dataset.dotRound = roundIdx;
+    svg.appendChild(poly);
+  }
 }
 function g10HideDots(roundIdx){
   document.querySelectorAll(`.g10-track [data-dot-round="${roundIdx}"]`).forEach(d=>d.remove());
@@ -3037,36 +3226,34 @@ function renderStatsTable(bot, gameId){
       {label:'Box',   cells:col(gA,rd=>ab(rd.box))},
       resRow,
     ];
-  } else if(gameId===8){
+  } else if(gameId===8 || gameId===9){
     rowDefs=[
-      {label:'Bet',    cells:col(rd=>rd.bet!=null,rd=>rd.bet)},
-      {label:'Winner', cells:col(rd=>rd.winner!=null,rd=>rd.winner)},
-      {label:'Pts',    cells:col(rd=>rd.points!=null,rd=>rd.points)},
+      {label:'Bet',    cells:col(rd=>rd.bet!=null,        rd=>rd.bet)},
+      {label:'House',  cells:col(rd=>rd.houseLane!=null,  rd=>rd.houseLane)},
+      {label:'Winner', cells:col(rd=>rd.winner!=null,     rd=>rd.winner)},
+      {label:'You',    cells:col(rd=>rd.payout!=null,     rd=>rd.payout)},
+      {label:'House',  cells:col(rd=>rd.housePayout!=null,rd=>rd.housePayout)},
     ];
-  } else if(gameId===9){
+  } else if(gameId===10){
     rowDefs=[
       {label:'Lanes',   cells:col(rd=>rd.lanesUsed!=null,rd=>rd.lanesUsed)},
       {label:'Winner',  cells:col(rd=>rd.winner!=null,rd=>rd.winner)},
       {label:'You',     cells:col(rd=>rd.payout!=null,rd=>rd.payout)},
       {label:'House',   cells:col(rd=>rd.housePayout!=null,rd=>rd.housePayout)},
     ];
-  } else if(gameId===10){
+  } else if(gameId===11||gameId===12){
     const dotMarker = (i)=>{
       const r = S.rounds[i];
       if(!r || i>=played || !r.playerPositions) return '';
       const c = r.dotColor || 'var(--c-blue)';
       return `<span onclick="g10ToggleDots(${i})" title="Toggle attempt ${i+1} dots" style="display:inline-block;width:0.75rem;height:0.75rem;border-radius:50%;background:${c};cursor:pointer;box-shadow:0 0 0 0.0625rem var(--c-border-strong)"></span>`;
     };
-    // Dice are sorted ascending so each die slot reads consistently across attempts.
-    const sortedDie = (rd, k) => {
-      if(!rd.guessDice) return '';
-      const sorted = rd.guessDice.slice().sort((a,b)=>a-b);
-      return sorted[k];
-    };
     rowDefs=[
-      {label:'Dice 1', cells:col(rd=>rd.guessDice!=null,rd=>sortedDie(rd,0))},
-      {label:'Dice 2', cells:col(rd=>rd.guessDice!=null,rd=>sortedDie(rd,1))},
-      {label:'Dice 3', cells:col(rd=>rd.guessDice!=null,rd=>sortedDie(rd,2))},
+      {label:'Combo', cells:col(rd=>rd.guessDice!=null, rd=>{
+        const key = g10ComboKeyOf(rd.guessDice);
+        const idx = G10_VALID_COMBOS.findIndex(c => g10ComboKeyOf(c) === key);
+        return idx >= 0 ? (idx+1) : '';
+      })},
       {label:'Bias',   cells:col(rd=>rd.guessBias!=null,rd=>G10_PRESET_LETTERS[rd.guessBias]||rd.guessBias)},
       {label:'Loss',   cells:col(rd=>rd.points!=null,rd=>rd.points)},
       {label:'●',      cells:Array.from({length:n},(_,i)=>dotMarker(i))},
@@ -3095,12 +3282,18 @@ function renderStatsTable(bot, gameId){
       <span>Low ${tally('low')}</span>
       <span>Med-High ${tally('medium-high')}</span>
       <span>Certain ${tally('certain')}</span></div>`;
-  } else if(gameId===10){
-    // Lower-is-better cumulative loss; no playedCount denominator.
-    scoreLine=`<div class="score-line" style="justify-content:center"><span>${score}</span></div>`;
-  } else if(gameId===9){
+  } else if(gameId===11||gameId===12){
+    // The aim is to reach Loss=0 within 10 attempts (no running tally — not relevant).
+    // Show a winners cup once the player has achieved it.
+    const wonRound = (typeof g10WinRound === 'function') ? g10WinRound() : null;
+    if(wonRound){
+      scoreLine=`<div class="score-line" style="justify-content:center;font-size:var(--sz-3);gap:var(--sz-1)"><span style="font-size:var(--sz-5)">🏆</span><span>You won in ${wonRound} attempt${wonRound===1?'':'s'}!</span></div>`;
+    } else {
+      scoreLine='';
+    }
+  } else if(gameId===8 || gameId===9 || gameId===10){
     // Head-to-head: you vs the House. Show a winner verdict once the session ends.
-    const houseScore = S.houseScores[8];
+    const houseScore = S.houseScores[gameId-1];
     const playedCount = S.rounds.slice(0,played).filter(r=>r.payout!=null).length;
     let verdict = '';
     if(playedCount >= 10){
@@ -3113,15 +3306,10 @@ function renderStatsTable(bot, gameId){
     const playedCount=S.rounds.slice(0,played).filter(r=>r.correct!=null).length;
     scoreLine=`<div class="score-line" style="justify-content:center"><span>${score} / ${playedCount}</span></div>`;
   }
-  const resultRd=S.rounds[S.currentRound];
-  const resultMsgHtml=(gameId===9)
-    ? `<div class="result-line">${(resultRd&&resultRd.resultMsg)||''}</div>`
-    : '';
   bot.innerHTML=`<div class="next-btn-row" id="next-btn-slot"></div>
   <div class="stats-table-wrap"><table class="stats-table">
     <tr><th>#</th>${hdrCells}</tr>${dataRows}
   </table></div>
-  ${resultMsgHtml}
   ${scoreLine}`;
 }
 
