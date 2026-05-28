@@ -10,6 +10,7 @@ const COLS = ['ts','room','player','event','game','round','correct','score','is_
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
+    if (data.action === 'clear') return clearRows_(data);
     const sheet = getSheet_();
     sheet.appendRow([
       new Date(data.ts || Date.now()),
@@ -48,6 +49,24 @@ function doGet(e) {
     }
   }
   return json_({rows: out});
+}
+
+function clearRows_(data) {
+  const room = String(data.room || '');
+  const gameId = (data.game !== undefined && data.game !== null && data.game !== '') ? Number(data.game) : null;
+  if (!room) return json_({ok:false, error:'room required'});
+  const sheet = getSheet_();
+  const last = sheet.getLastRow();
+  if (last < 2) return json_({ok:true, deleted:0});
+  const values = sheet.getRange(2, 1, last - 1, COLS.length).getValues();
+  const toDelete = [];
+  for (let i = 0; i < values.length; i++) {
+    if (String(values[i][1]) !== room) continue;
+    if (gameId !== null && Number(values[i][4]) !== gameId) continue;
+    toDelete.push(i + 2);
+  }
+  for (let j = toDelete.length - 1; j >= 0; j--) sheet.deleteRow(toDelete[j]);
+  return json_({ok:true, deleted: toDelete.length});
 }
 
 function getSheet_() {

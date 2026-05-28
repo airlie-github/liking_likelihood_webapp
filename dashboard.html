@@ -55,6 +55,9 @@ tbody tr:nth-child(3) td.rank::after{content:" 🥉"}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.2}}
 button.small{font-size:var(--fs-1);padding:0.25rem 0.75rem;background:transparent;color:var(--muted);border:1px solid var(--muted);border-radius:0.4rem;cursor:pointer;margin-left:0.5rem}
 button.small:hover{color:var(--ink);border-color:var(--ink)}
+button.danger{font-size:var(--fs-1);padding:0.4rem 1rem;background:transparent;color:var(--bad);border:1px solid var(--bad);border-radius:0.4rem;cursor:pointer;margin-left:0.5rem}
+button.danger:hover{background:var(--bad);color:white}
+.danger-row{margin-top:2rem;text-align:center}
 
 .pie-panel{background:var(--panel);border-radius:0.75rem;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:2rem}
 .pie-panel h2{margin:0 0 0.25rem 0;font-size:var(--fs-3)}
@@ -99,6 +102,9 @@ button.small:hover{color:var(--ink);border-color:var(--ink)}
   <div class="section-title">Pick a game to view</div>
   <div id="error-box-picker"></div>
   <div id="game-grid" class="game-grid"></div>
+  <div class="danger-row">
+    <button class="danger" onclick="clearAllResults()">Clear ALL results for this room</button>
+  </div>
 </div>
 
 <!-- Live per-game view -->
@@ -108,7 +114,8 @@ button.small:hover{color:var(--ink);border-color:var(--ink)}
       <h1 id="game-title">—</h1>
       <div class="meta">Room <span class="room-badge" id="live-room-label"></span>
         <button class="small" onclick="backToPicker()">← back to games</button>
-        <button class="small" onclick="changeRoom()">change room</button></div>
+        <button class="small" onclick="changeRoom()">change room</button>
+        <button class="danger" onclick="clearGameResults()">Clear this game's results</button></div>
     </div>
     <div class="meta" style="text-align:right">
       <div><span class="pulse"></span>Completed: <b id="completed-count">0</b></div>
@@ -641,6 +648,31 @@ function renderLeaderboard(summary){
 
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function clearAllResults(){
+  if(!confirm(`Clear ALL results for room "${currentRoom}"?\n\nThis cannot be undone.`)) return;
+  await sendClear({room: currentRoom});
+  await new Promise(r => setTimeout(r, 1200));
+  fetchAndRender();
+}
+
+async function clearGameResults(){
+  const g = GAMES.find(x => x.id === currentGameId);
+  if(!g) return;
+  if(!confirm(`Clear results for "${g.title}" in room "${currentRoom}"?\n\nThis cannot be undone.`)) return;
+  await sendClear({room: currentRoom, game: currentGameId});
+  await new Promise(r => setTimeout(r, 1200));
+  fetchAndRender();
+}
+
+function sendClear(payload){
+  return fetch(LOG_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+    body: JSON.stringify(Object.assign({action: 'clear'}, payload))
+  });
 }
 
 document.getElementById('room-input').addEventListener('keydown', e => {
