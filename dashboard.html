@@ -39,7 +39,9 @@ h1{margin:0;font-size:var(--fs-4);font-weight:700}
 table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:0.75rem;overflow:hidden;font-size:var(--fs-2)}
 thead th{background:#0a1426;padding:0.75rem 0.75rem;font-weight:600;text-align:center;color:var(--muted);font-size:var(--fs-1);letter-spacing:0.05em;text-transform:uppercase}
 thead th.player{text-align:left;padding-left:1.25rem}
-thead th.rank{width:5.5rem;white-space:nowrap}
+thead th.medal{width:3.5rem;white-space:nowrap;text-align:center}
+tbody td.medal{width:3.5rem;font-size:var(--fs-3);text-align:center;white-space:nowrap;padding:0.5rem 0.5rem;line-height:1}
+thead th.rank{width:3.5rem;white-space:nowrap}
 tbody td.rank{white-space:nowrap}
 tbody td{padding:0.75rem 0.75rem;text-align:center;border-top:1px solid #1f3354}
 tbody td.player{text-align:left;padding-left:1.25rem;font-weight:600}
@@ -47,9 +49,6 @@ tbody td.rank{color:var(--muted);font-weight:700}
 tbody td.correct{color:var(--good);font-weight:700;font-size:var(--fs-2)}
 tbody td.wrong{color:var(--bad)}
 tbody td.total{font-weight:700}
-tbody tr:nth-child(1) td.rank::after{content:" 🥇"}
-tbody tr:nth-child(2) td.rank::after{content:" 🥈"}
-tbody tr:nth-child(3) td.rank::after{content:" 🥉"}
 .empty-state{text-align:center;color:var(--muted);padding:3rem;font-size:var(--fs-2)}
 .error{background:var(--bad);color:white;padding:0.75rem 1rem;border-radius:0.5rem;margin-bottom:1rem}
 .pulse{display:inline-block;width:0.5rem;height:0.5rem;background:var(--good);border-radius:50%;margin-right:0.4rem;vertical-align:middle;animation:pulse 1.6s infinite}
@@ -412,6 +411,7 @@ function renderTokensAheadLeaderboard(summary){
     const aheadStr = p.tokensAhead > 0 ? `+${p.tokensAhead}` : `${p.tokensAhead}`;
     const aheadColor = p.tokensAhead > 0 ? 'var(--good)' : p.tokensAhead < 0 ? 'var(--bad)' : 'var(--muted)';
     return `<tr>
+      <td class="medal">${medalFor(i)}</td>
       <td class="rank">${i + 1}</td>
       <td class="player">${escapeHtml(p.player)}</td>
       <td class="correct">${p.wins}</td>
@@ -421,6 +421,7 @@ function renderTokensAheadLeaderboard(summary){
   }).join('');
   container.innerHTML = `<table>
     <thead><tr>
+      <th class="medal"></th>
       <th class="rank">#</th>
       <th class="player">Player</th>
       <th>Wins</th>
@@ -603,6 +604,7 @@ function renderSolveLossLeaderboard(summary){
       ? `<td class="correct">${p.attemptsToSolve}</td>`
       : `<td class="wrong">—</td>`;
     return `<tr>
+      <td class="medal">${medalFor(i)}</td>
       <td class="rank">${i + 1}</td>
       <td class="player">${escapeHtml(p.player)}</td>
       ${attemptsCell}
@@ -612,6 +614,7 @@ function renderSolveLossLeaderboard(summary){
   }).join('');
   container.innerHTML = `<table>
     <thead><tr>
+      <th class="medal"></th>
       <th class="rank">#</th>
       <th class="player">Player</th>
       <th>Attempts to solve</th>
@@ -629,6 +632,7 @@ function renderLeaderboard(summary){
     return;
   }
   const rowsHtml = summary.map((p, i) => `<tr>
+    <td class="medal">${medalFor(i)}</td>
     <td class="rank">${i + 1}</td>
     <td class="player">${escapeHtml(p.player)}</td>
     <td class="correct">${p.correct}</td>
@@ -637,6 +641,7 @@ function renderLeaderboard(summary){
   </tr>`).join('');
   container.innerHTML = `<table>
     <thead><tr>
+      <th class="medal"></th>
       <th class="rank">#</th>
       <th class="player">Player</th>
       <th>Correct</th>
@@ -645,6 +650,10 @@ function renderLeaderboard(summary){
     </tr></thead>
     <tbody>${rowsHtml}</tbody>
   </table>`;
+}
+
+function medalFor(i){
+  return i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
 }
 
 function escapeHtml(s){
