@@ -2062,7 +2062,7 @@ function g5Guess(pick){
                : houseCorrect && !playerCorrect ? `House wins`
                : (playerCorrect && houseCorrect) ? `Split`
                : `Even (both wrong)`;
-    msg.innerHTML = `<div>Hidden: ${G5_BIAS_LABEL[st.hidden]} — ${tail}</div>${g5PayoutCoinsHTML(playerPot, housePot)}`;
+    msg.innerHTML = `<div>Hidden: ${G5_BIAS_LABEL[st.hidden]} — ${tail}</div>`;
   }
   document.querySelectorAll('.guess-btn[data-pick]').forEach(b=>{
     b.disabled=true;
@@ -3203,12 +3203,6 @@ function renderStatsTable(bot, gameId){
       resRow,
     ];
   } else if(gameId===5){
-    // Die fills in as soon as the round starts (it's set in generateRounds), so use a
-    // bespoke cell builder that includes the current round, unlike the standard col().
-    const dieCells = Array.from({length:n}, (_,i)=>{
-      const r = S.rounds[i];
-      return (r && i <= S.currentRound && r.dieSides!=null) ? 'd'+r.dieSides : '';
-    });
     const wonInitial=(rd)=>{
       if(rd.playerPot && rd.housePot) return 'S';
       if(rd.playerPot) return 'P';
@@ -3216,7 +3210,6 @@ function renderStatsTable(bot, gameId){
       return '—';
     };
     rowDefs=[
-      {label:'Die',          cells:dieCells},
       {label:'House coins',  cells:col(rd=>rd.housePot!=null,  rd=>rd.housePot)},
       {label:'Player coins', cells:col(rd=>rd.playerPot!=null, rd=>rd.playerPot)},
       {label:'Won',          cells:col(rd=>rd.result!=null,    wonInitial)},
