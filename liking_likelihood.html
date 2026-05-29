@@ -250,6 +250,9 @@ button:active{transform:scale(.95)}
 .bias-preset{padding:var(--sz-0) var(--sz-1);font-size:var(--sz-2);font-weight:var(--fw-bold);border-radius:var(--r-sm);background:var(--c-border);color:var(--c-text);min-height:0;min-width:0;flex:1;max-width:3rem;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
 .bias-preset.selected{background:var(--c-gold);color:var(--c-surface)}
 .bias-preset .bias-word{font-weight:normal;font-size:0.625rem;opacity:.85}
+/* Game-5 running-guess pair: locked = house has underflowed, freeze styling */
+.g5-running-guess.locked{opacity:.6;filter:grayscale(.4);position:relative}
+.g5-running-guess.locked::after{content:'🔒';position:absolute;top:-0.375rem;right:-0.25rem;font-size:0.625rem}
 
 /* ===== REVERSE THE RACE (game 10) — compact 12-lane track; controls reuse .guess-btn / .bias-preset ===== */
 .g10-track{display:flex;flex-direction:column;gap:0;width:100%;max-width:30rem;margin:0 auto}
@@ -339,7 +342,7 @@ if('serviceWorker' in navigator){
   <div class="dice-icons-title">&#9860; &#9858; &#9856;</div>
   <h1>Liking Likelihood</h1>
   <h2>Erice School 2026</h2>
-  <input class="room-input" id="room-code" placeholder="Room code (optional)" maxlength="20" style="margin-top:var(--sz-2)">
+  <input class="room-input" id="room-code" placeholder="Room code (optional)" maxlength="20" value="ERICE" style="margin-top:var(--sz-2)">
   <div id="nickname-display" style="margin-top:var(--sz-1);color:rgba(255,255,255,.85);font-size:var(--sz-2);text-align:center">You are: <b id="nickname-text">…</b></div>
   <div class="palette-picker" id="palette-picker">
     <h3>Palettes</h3>
@@ -1092,7 +1095,7 @@ const GAME_DESCRIPTIONS = {
   2: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>one roll</b> from the chosen dice. Some dice are more likely to give that roll than others — use the <b>likelihood</b> to guess which dice was chosen.`,
   3: `Two possible dice, <b>one roll</b>. Pick the dice the data supports <i>and</i> rate how strongly: when the less-likely dice makes the roll <b>impossible</b>, you're <b>certain</b>; when both dice make it almost equally likely, you have <b>low confidence</b>. You should guess correctly more often when the <b>likelihood ratio</b> is <b>high</b>.`,
   4: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>three independent rolls</b> from the chosen dice. Independent rolls <b>multiply</b> their likelihoods — combine all three to guess which dice was chosen.`,
-  5: `Is the dice <b>Fair</b> or <b>biased</b>? The <b>House</b> tracks the <b>likelihood ratio</b> <b>L(A) / L(B)</b>; you track the <b>likelihood gain</b> <b>log L(A) − log L(B)</b>. They give the same information — the gain is just the log of the ratio — but the gain grows by <b>addition</b> instead of <b>multiplication</b>, so it stays on an easier range of numbers much longer.<br><br>Each roll costs <b>1 token per tracked value</b>, plus <b>+1</b> every time that value crosses a new order of magnitude. Both sides track <b>2</b> values, so the minimum is <b>2 tokens</b> per roll. You each start with <b>14 tokens</b>; logs grow slowly, so the player can keep going for many more rolls. <b>Make your guess whenever you're ready</b> — every unused coin (yours <i>and</i> the house's) goes straight into the prize pot.`,
+  5: `Is the dice <b>Fair</b> or <b>biased</b>? The <b>House</b> tracks the raw <b>likelihood ratio</b> <b>L(A) / L(B)</b>; you track the <b>likelihood gain</b> <b>log L(A) − log L(B)</b>. Both contain the <b>same information</b> — but multiplying many small probabilities crashes raw likelihoods through the <b>precision floor</b> of any computer.<br><br>Real doubles underflow around <b>10⁻³²⁴</b>; this game uses a much tighter floor (<b>≥ 0.0001</b>, shown next to the 💻) so you can <b>see it happen in a few rolls</b>. Each roll multiplies the house's L values by a probability &lt; 1, dragging them toward 0 fast. Once both round to <b>0.0000</b>, the house has <b>underflowed</b> and its guess freezes.<br><br>You start with <b>6 tokens</b> and pay <b>1 per roll</b>. You track logs in <b>4-decimal-place</b> precision too — but logs grow by <b>addition</b>, not multiplication, so they never underflow at this scale. Click <b>Fair</b> or <b>Bias</b> on your row whenever you're ready. Any unused tokens go into your prize pot.`,
   6: `The box holds <b>eight dice</b>: some of one type, some of another. A dice is selected from the box, chosen at random. You see <b>one roll</b> from the chosen dice. Combine the <b>prior</b> (how many of each type are in the box) with the <b>likelihood</b> (which type fits the roll) to guess which dice was chosen — that's <b>Bayes' theorem</b>.`,
   7: `Two boxes, <b>Amber</b> and <b>Blue</b>, each hold <b>two dice</b>. A box is chosen at random, then a dice is selected from that box, chosen at random. You see <b>one roll</b> from the chosen dice. <b>Marginalize / sum over the unknowns / integrate out the nuisance variable</b> — the two possible dice in each box — to get the <b>marginal probability / P(roll | box)</b>, then pick the more likely box.`,
   8: `A few <b>fair</b> dice are rolled and summed; the animal in the lane equal to that sum advances one step. The first lane to reach the finish line wins. Before the race <b>you</b> pick a lane and the <b>House</b> picks one for itself, at random across the lanes that can win. If the winning lane is yours, <b>you</b> score <b>1</b>; if it's the House's, the <b>House</b> scores <b>1</b>; if you both bet the same lane, you both score when it wins. Read the sum's <b>probability mass function / PMF / distribution</b> — peaked near its <b>mean / average / expected value / μ</b> and made wider by its <b>variance / spread / σ²</b> — and pick the lane closest to the peak. Over <b>10 rounds</b>, a smart player should beat the random House.`,
@@ -1492,11 +1495,15 @@ function guessGame4(g){ guessDieGame(4, g); }
 // likelihoods shrink exponentially (so house hits precision walls first).
 // Rolls keep coming until the player can no longer pay; then both guess A or B.
 
-const G5_DICE = [4,6,8,10];
-const G5_MAX_ROLLS = 10;
-// Tokens both sides start each round with. Shared between renderGame5's state
-// init and the pre-match simulator so they can't drift apart.
-const G5_START_TOKENS = 14;
+const G5_DICE = [10];
+// Per-round token budget. Flat 1 token / roll. When tokens hit 0 mid-round the
+// round auto-commits with the player's current running guess.
+const G5_START_TOKENS = 6;
+// Hard cap on rolls per round = same as tokens (1 token / roll). Sets the
+// number of reveal slots in the dice row and the rollStream length.
+const G5_MAX_ROLLS = G5_START_TOKENS;
+const G5_PRECISION_DP = 4;        // decimals shown for L(A), L(B), logL(A), logL(B)
+const G5_UNDERFLOW_FLOOR = 0.00005; // values below this round to 0.0000 -> "underflow"
 // Round candidate pair is always Fair vs one chosen bias. 'fair' is included in
 // the list so it renders in the bias-chip strip and the bar chart.
 const G5_BIAS_LIST = ['fair','ramp','arch','boat','odds','step','edges'];
@@ -1567,47 +1574,38 @@ function g5BiasedRoll(probs){
 }
 
 // Pure simulator: replays one round's pre-rolled face stream through the
-// same cost/precision rules used in g5PurchaseNextRoll and returns who would
-// guess correctly under the auto-guess rule (house picks the larger raw L;
-// player picks the larger logL). No DOM, no Math.random — same input always
-// yields the same output, which is what makes the rejection-sample
-// reproducible and what guarantees the interactive replay matches the
-// simulator's prediction when the player commits at the natural end.
+// new mechanics (flat 1tok/roll, precision-floor underflow). Same input always
+// yields the same output, so g5GenerateMatch's rejection sampling stays
+// reproducible and the interactive replay matches the simulator's prediction.
+// Optimal player burns all G5_START_TOKENS rolls before committing.
 function g5SimulateRound(rd){
   const pA = g5Probs(rd.A, rd.dieSides);
   const pB = g5Probs(rd.B, rd.dieSides);
-  let houseLA=1, houseLB=1, houseLvlA=0, houseLvlB=0;
-  let houseTokens=G5_START_TOKENS, houseRolls=0, houseStuck=false;
-  let pLogA=0, pLogB=0, pLvlA=0, pLvlB=0;
-  let playerTokens=G5_START_TOKENS, playerRolls=0;
-  for(let r=0;r<rd.rollStream.length;r++){
+  let hLA=1, hLB=1, lastLA=1, lastLB=1, hCommitted=false, houseRolls=0;
+  let pLA=0, pLB=0, playerRolls=0;
+  const T = Math.min(G5_START_TOKENS, rd.rollStream.length);
+  const floor = 1/Math.pow(10, G5_PRECISION_DP);
+  for(let r=0;r<T;r++){
     const idx = rd.rollStream[r]-1;
-    // House update — skip when frozen, mirroring the interactive guard.
-    if(!houseStuck && houseTokens>=2){
-      const nLA=houseLA*pA[idx], nLB=houseLB*pB[idx];
-      const nLvlA=g5LikelihoodLevel(nLA, rd.dieSides);
-      const nLvlB=g5LikelihoodLevel(nLB, rd.dieSides);
-      const cost=1+Math.max(0,nLvlA-houseLvlA)+1+Math.max(0,nLvlB-houseLvlB);
-      if(houseTokens>=cost){
-        houseTokens-=cost; houseLA=nLA; houseLB=nLB;
-        houseLvlA=nLvlA; houseLvlB=nLvlB; houseRolls++;
-      } else { houseStuck=true; }
+    if(!hCommitted){
+      const nLA=g5Round(hLA*pA[idx]);
+      const nLB=g5Round(hLB*pB[idx]);
+      const bothZero=(nLA===0 && nLB===0);
+      const bothPinned=(nLA===floor && nLB===floor);
+      if(bothZero || bothPinned){
+        hCommitted=true; // commit using lastLA/lastLB from prior step
+      } else {
+        hLA=nLA; hLB=nLB; lastLA=nLA; lastLB=nLB; houseRolls++;
+      }
     }
-    // Player update.
-    const nLogA=pLogA+Math.log(pA[idx]);
-    const nLogB=pLogB+Math.log(pB[idx]);
-    const nPLvlA=g5LLGLevel(nLogA, rd.dieSides);
-    const nPLvlB=g5LLGLevel(nLogB, rd.dieSides);
-    const pcost=1+Math.max(0,nPLvlA-pLvlA)+1+Math.max(0,nPLvlB-pLvlB);
-    if(playerTokens>=pcost){
-      playerTokens-=pcost; pLogA=nLogA; pLogB=nLogB;
-      pLvlA=nPLvlA; pLvlB=nPLvlB; playerRolls++;
-    } else { break; }
-    if(playerTokens<2) break;
+    pLA=g5Round(pLA+Math.log(pA[idx]));
+    pLB=g5Round(pLB+Math.log(pB[idx]));
+    playerRolls++;
   }
-  const houseGuess  = houseRolls===0 ? rd.houseFallback
-                                     : (houseLA>=houseLB ? rd.A : rd.B);
-  const playerGuess = pLogA>=pLogB ? rd.A : rd.B;
+  // House compares last-good snapshot; ties → fallback.
+  const houseGuess = houseRolls===0 ? rd.houseFallback
+                                    : (lastLA > lastLB ? rd.A : lastLB > lastLA ? rd.B : rd.houseFallback);
+  const playerGuess = pLA > pLB ? rd.A : pLB > pLA ? rd.B : rd.houseFallback;
   return {
     playerCorrect: playerGuess===rd.hidden,
     houseCorrect:  houseGuess===rd.hidden,
@@ -1653,16 +1651,14 @@ function g5GenerateMatch(){
   return best;  // Best-ranked fallback after 5000 attempts (extremely rare).
 }
 
-// Precision level functions match the algorithm spec — base is the die size,
-// so a uniform roll on a d-sides die advances house level by exactly 1 on
-// average, regardless of d. (For d10 these are identical to log10.)
-function g5LikelihoodLevel(L, sides){
-  if(!isFinite(L) || L<=0) return Infinity;
-  return Math.max(0, Math.ceil(-Math.log(L) / Math.log(sides)));
-}
-function g5LLGLevel(x, sides){
-  if(!isFinite(x) || Math.abs(x)<1) return 0;
-  return Math.floor(Math.log(Math.abs(x)) / Math.log(sides)) + 1;
+// Round to G5_PRECISION_DP decimal places. Anything below 0.5 * 10^-dp rounds
+// to 0 — that's the simulated underflow floor. Both house (L) and player
+// (logL) snap their tracked values through this after every roll.
+function g5Round(x, dp){
+  if(dp === undefined) dp = G5_PRECISION_DP;
+  if(!isFinite(x)) return x;
+  const m = Math.pow(10, dp);
+  return Math.round(x * m) / m;
 }
 
 function renderGame5(){
@@ -1673,14 +1669,17 @@ function renderGame5(){
     pA:g5Probs(rd.A, rd.dieSides),
     pB:g5Probs(rd.B, rd.dieSides),
     pH:g5Probs(rd.hidden, rd.dieSides),
-    houseTokens:G5_START_TOKENS, playerTokens:G5_START_TOKENS,
-    houseLA:1.0, houseLB:1.0, houseLevelA:0, houseLevelB:0,
-    // Player tracks log L(A) and log L(B) as two INDEPENDENT values, each with
-    // its own precision level. The final comparison is logLA - logLB.
-    playerLogLA:0.0, playerLogLB:0.0,
-    playerLevelA:0, playerLevelB:0,
-    rolls:[], houseRolls:0, playerRolls:0,
-    houseGuess:null, playerGuess:null, locked:false, ended:false,
+    // House — raw likelihoods rounded to G5_PRECISION_DP each roll. Stops the
+    // moment both round to 0; `houseLast*` snapshots the last good values for
+    // the commit guess.
+    houseLA:1, houseLB:1, houseLastLA:1, houseLastLB:1,
+    houseCommitted:false, houseRolls:0,
+    // Player — log-likelihoods rounded to G5_PRECISION_DP. No underflow at this
+    // scale; player just spends flat 1 token / roll until ready or out of tokens.
+    playerLogLA:0, playerLogLB:0, playerRolls:0,
+    playerTokens:G5_START_TOKENS,
+    rolls:[], houseGuess:null, playerGuess:null,
+    locked:false, ended:false, finalised:false,
   };
   // Match Game 9's slim top padding so the board has more vertical room.
   Z.top.style.padding='var(--sz-3) var(--sz-0) var(--sz-1) var(--sz-0)';
@@ -1714,6 +1713,7 @@ function g5DiceRowHTML(n){
 function g5TopHTML(){
   const st=S.g5;
   return `<div class="g8-wrap" style="width:100%;margin:0 auto">
+    ${g5TokenBarHTML(st.playerTokens)}
     <div class="g8-dice-row" id="g8-dice">${g5DiceRowHTML(st.n)}</div>
     <div id="g5-bias-bars">${g5BiasBarsHTML(st.n, st.A, st.B)}</div>
     <div id="g5-board">${g5BoardHTML()}</div>
@@ -1721,19 +1721,18 @@ function g5TopHTML(){
   </div>`;
 }
 
-// Highlight the two candidate biases out of the six possible presets.
-// A is coloured gold/amber, B is coloured blue, matching the bias-bar chart below
-// and the guess buttons that appear at the end of the roll loop.
-function g5BiasButtonsHTML(A, B){
-  return `<div style="display:flex;gap:var(--sz-0);justify-content:center;max-width:26rem;margin:0 auto var(--sz-0)">
-    ${G5_BIAS_LIST.map(k=>{
-      let style='pointer-events:none;';
-      let cls='bias-preset';
-      if(k===A){ cls+=' selected'; style+='background:var(--c-gold);color:var(--c-surface);'; }
-      else if(k===B){ cls+=' selected'; style+='background:var(--c-blue);color:var(--c-surface);'; }
-      else { style+='opacity:.25;'; }
-      return `<div class="${cls}" style="${style}"><span class="bias-word">Dice</span>${G5_BIAS_LABEL[k]}<span class="bias-word">Bias</span></div>`;
-    }).join('')}
+// Top bar: player's remaining coins on the left, computer-precision-floor chip
+// on the right. The 💻 + "limit: >= 0.0001" makes the underflow constraint
+// always visible — students see the floor at the same time they see L shrink
+// toward it.
+function g5TokenBarHTML(tokens){
+  return `<div style="display:flex;align-items:center;justify-content:space-between;gap:var(--sz-1);padding:var(--sz-0) var(--sz-1);margin-bottom:var(--sz-1)">
+    <div class="g9-tokens-row" id="g5-tokens" style="margin:0">${g5TokenSpans(tokens)}</div>
+    <div style="display:flex;align-items:center;gap:0.25rem;padding:var(--sz-0) var(--sz-1);background:var(--c-border);border-radius:var(--r-sm);font-size:var(--sz-2);font-weight:var(--fw-bold)" title="Smallest likelihood the house can represent before underflow">
+      <span style="font-size:var(--sz-3)">💻</span>
+      <span style="opacity:.7">limit =</span>
+      <span>0.0001</span>
+    </div>
   </div>`;
 }
 
@@ -1741,17 +1740,21 @@ function g5BiasButtonsHTML(A, B){
 // self-explanatory so we only render the biased side (blue) here.
 function g5BiasBarsHTML(n, A, B){
   const biased = (A==='fair') ? B : A;
+  const fairColor   = (A==='fair') ? 'var(--c-gold)' : 'var(--c-blue)';
+  const biasedColor = (A==='fair') ? 'var(--c-blue)' : 'var(--c-gold)';
   const w=g5Probs(biased, n), t=Math.max(...w)||1;
   const BAR_H = '3rem';
   const slots=Array.from({length:n},(_,i)=>{
     const h=(w[i]/t)*100;
     return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0">
-      <div style="height:${BAR_H};width:100%;display:flex;align-items:flex-end"><div style="width:100%;height:${h}%;background:var(--c-blue);border-radius:0.1875rem 0.1875rem 0 0;transition:height .2s"></div></div>
+      <div style="height:${BAR_H};width:100%;display:flex;align-items:flex-end"><div style="width:100%;height:${h}%;background:${biasedColor};border-radius:0.1875rem 0.1875rem 0 0;transition:height .2s"></div></div>
       <div style="font-size:0.625rem;font-weight:var(--fw-bold);color:var(--c-text)">${i+1}</div>
     </div>`;
   }).join('');
-  const label = `<div class="bias-preset selected" style="background:var(--c-blue);color:var(--c-surface);flex:0 0 auto;max-width:none;height:${BAR_H};min-height:0;padding:var(--sz-0) var(--sz-1)"><span class="bias-word">Dice</span>${G5_BIAS_LABEL[biased]}<span class="bias-word">Bias</span></div>`;
-  return `<div style="max-width:30rem;margin:0 auto;display:flex;gap:var(--sz-1);align-items:flex-start">${label}<div style="flex:1;display:flex;gap:var(--sz-0);align-items:flex-end">${slots}</div></div>`;
+  const labelStyle = `flex:0 0 auto;max-width:none;height:${BAR_H};min-height:0;padding:var(--sz-0) var(--sz-1)`;
+  const fairLabel   = `<div class="bias-preset selected" style="background:${fairColor};color:var(--c-surface);${labelStyle}"><span class="bias-word">Dice</span>${G5_BIAS_LABEL['fair']}</div>`;
+  const biasedLabel = `<div class="bias-preset selected" style="background:${biasedColor};color:var(--c-surface);${labelStyle}"><span class="bias-word">Dice</span>${G5_BIAS_LABEL[biased]}<span class="bias-word">Bias</span></div>`;
+  return `<div style="max-width:30rem;margin:0 auto;display:flex;gap:var(--sz-0);align-items:flex-start">${fairLabel}${biasedLabel}<div style="flex:1;display:flex;gap:var(--sz-0);align-items:flex-end;min-width:0">${slots}</div></div>`;
 }
 
 function g5TokenSpans(n){
@@ -1759,147 +1762,123 @@ function g5TokenSpans(n){
   return Array(n).fill('🪙').join('');
 }
 
-// Format a small/medium number with sensible precision for the in-row arithmetic.
-function g5FmtNum(x){
-  if(!isFinite(x)) return '?';
-  if(x===0) return '0.00';
-  const a=Math.abs(x);
-  if(a>=1000 || a<0.001) return x.toExponential(2);
-  if(a>=100) return x.toFixed(1);
-  if(a>=10)  return x.toFixed(2);
-  if(a>=1)   return x.toFixed(2);
-  return x.toFixed(3);
+// House's `LA / LB = ratio` line. Individual operands shown to G5_PRECISION_DP
+// decimals; the derived ratio is shown to 3 dp for visual contrast against the
+// 4-dp operands. A value at exactly 0 = underflowed and gets a red badge.
+function g5HouseSumStr(st){
+  const floor = 1 / Math.pow(10, G5_PRECISION_DP); // 0.0001 at 4dp
+  const isPinned = (x) => x === floor && st.houseCommitted && st.houseLA === st.houseLB;
+  const fmt = (x) => {
+    if(x === 0) return `<span style="color:var(--c-danger);font-weight:var(--fw-bold)">0.0000 &#x26A0;</span>`;
+    if(isPinned(x)) return `<span style="color:var(--c-danger);font-weight:var(--fw-bold)">${x.toFixed(G5_PRECISION_DP)} &#x26A0;</span>`;
+    return x.toFixed(G5_PRECISION_DP);
+  };
+  const A = `<span style="color:var(--c-gold)">${fmt(st.houseLA)}</span>`;
+  const B = `<span style="color:var(--c-blue)">${fmt(st.houseLB)}</span>`;
+  let ratio;
+  if(st.houseLA === 0 && st.houseLB === 0) ratio = `<span style="color:var(--c-danger);font-weight:var(--fw-bold)">underflow</span>`;
+  else if(st.houseLB === 0) ratio = '∞';
+  else if(st.houseLA === 0) ratio = '0';
+  else if(st.houseCommitted && st.houseLA === st.houseLB && st.houseLA === floor) ratio = `<span style="color:var(--c-danger);font-weight:var(--fw-bold)">lost</span>`;
+  else ratio = (st.houseLA / st.houseLB).toFixed(3);
+  return `${A} / ${B} = ${ratio}`;
 }
 
-// Wraps negatives in parentheses so "a − b = c" reads cleanly when b is negative.
-function g5FmtSigned(x){
-  const s=g5FmtNum(x);
-  return x<0 ? `(${s})` : s;
+// Player's `log LA − log LB = gain` line. Operands shown to G5_PRECISION_DP dp,
+// derived gain to 3 dp. Negatives wrapped in parens so "a − b = c" reads cleanly.
+function g5PlayerSumStr(st){
+  const fmt = (x) => {
+    const s = x.toFixed(G5_PRECISION_DP);
+    return s.charAt(0) === '-' ? `(${s})` : s;
+  };
+  const A = `<span style="color:var(--c-gold)">${fmt(st.playerLogLA)}</span>`;
+  const B = `<span style="color:var(--c-blue)">${fmt(st.playerLogLB)}</span>`;
+  const gain = (st.playerLogLA - st.playerLogLB).toFixed(3);
+  return `${A} − ${B} = ${gain}`;
 }
 
-// Format a number to exactly `level` decimal places — the precision the
-// player has "bought" through rolls. At level 0 we show an integer.
-function g5FmtAtLevel(x, level){
-  if(!isFinite(x)) return '?';
-  if(level <= 0) return String(Math.round(x));
-  return x.toFixed(level);
+// Running-guess logic — both sides compare their tracked values to surface "if
+// you had to commit right now, which would you pick?" The house uses its last
+// good (pre-underflow) snapshot; the player uses live rounded logs.
+function g5HouseCurrentGuess(st){
+  if(st.houseLastLA > st.houseLastLB) return st.A;
+  if(st.houseLastLB > st.houseLastLA) return st.B;
+  return st.A;
 }
-function g5FmtSignedAtLevel(x, level){
-  const s = g5FmtAtLevel(x, level);
-  return s.charAt(0) === '-' ? `(${s})` : s;
-}
-
-// House's `LA / LB = ratio` line. Operand decimals = per-side precision level;
-// result decimals = max of the two so it can carry both sides' precision.
-function g5HouseSumStr(LA, LB, lvlA, lvlB){
-  const resultLvl = Math.max(lvlA, lvlB);
-  let ratioStr;
-  if(!isFinite(LA) || !isFinite(LB)) ratioStr = '?';
-  else if(LB === 0) ratioStr = LA === 0 ? '—' : '∞';
-  else ratioStr = g5FmtAtLevel(LA / LB, resultLvl);
-  return `<span style="color:var(--c-gold)">${g5FmtAtLevel(LA, lvlA)}</span> / <span style="color:var(--c-blue)">${g5FmtAtLevel(LB, lvlB)}</span> = ${ratioStr}`;
+function g5PlayerCurrentGuess(st){
+  if(st.playerLogLA > st.playerLogLB) return st.A;
+  if(st.playerLogLB > st.playerLogLA) return st.B;
+  return st.A;
 }
 
-// Player's `log LA − log LB = gain` line (log operands are usually negative).
-function g5PlayerSumStr(logLA, logLB, lvlA, lvlB){
-  const gain = logLA - logLB;
-  const resultLvl = Math.max(lvlA, lvlB);
-  return `<span style="color:var(--c-gold)">${g5FmtSignedAtLevel(logLA, lvlA)}</span> − <span style="color:var(--c-blue)">${g5FmtSignedAtLevel(logLB, lvlB)}</span> = ${g5FmtAtLevel(gain, resultLvl)}`;
+// Shared renderer for the [Fair][Bias] running-guess pair. `clickable=true`
+// emits <button> tags wired to g5Guess (player row); false emits <div>s
+// (house row, read-only).
+function g5BiasPairHTML(currentGuess, clickable, extraCls){
+  const st = S.g5;
+  const mk = (key, color) => {
+    const sel = key === currentGuess;
+    const onclick = clickable ? `onclick="g5Guess('${key}')"` : '';
+    const tag = clickable ? 'button' : 'div';
+    const bg = sel ? color : 'var(--c-border)';
+    const fg = sel ? 'var(--c-surface)' : 'var(--c-text)';
+    const op = sel ? '' : 'opacity:.5;';
+    const label = key === 'fair'
+      ? `<span class="bias-word">Dice</span>${G5_BIAS_LABEL[key]}`
+      : `<span class="bias-word">Dice</span>${G5_BIAS_LABEL[key]}<span class="bias-word">Bias</span>`;
+    return `<${tag} class="bias-preset ${sel?'selected':''} ${extraCls||''}" style="background:${bg};color:${fg};${op}padding:var(--sz-0) var(--sz-1);min-height:0;border:none;font-family:inherit;cursor:${clickable?'pointer':'default'}" ${onclick}>${label}</${tag}>`;
+  };
+  return `<div style="display:flex;gap:var(--sz-0);flex:0 0 auto;width:6.5rem">${mk(st.A, 'var(--c-gold)')}${mk(st.B, 'var(--c-blue)')}</div>`;
 }
 
-// Top row = house (likelihood ratio), bottom row = player (likelihood gain).
-// Sign convention: ratio > 1 ⇔ gain > 0 ⇔ Bias A favoured.
+function g5HouseGuessHTML(currentGuess, committed){
+  return g5BiasPairHTML(currentGuess, /*clickable=*/false, committed ? 'g5-running-guess locked' : 'g5-running-guess');
+}
+function g5PlayerGuessHTML(currentGuess){
+  return g5BiasPairHTML(currentGuess, /*clickable=*/true, 'g5-running-guess');
+}
+
+// Two rows: House (raw likelihood ratio), Player (log-likelihood gain).
+// Each row: [label][equation][running-guess pair]. The pair lives at the end
+// of the line — house's read-only and freezes at underflow, player's clickable
+// for commit.
 function g5BoardHTML(){
   const st=S.g5;
-  const rowStyle='display:flex;flex-direction:column;align-items:stretch;gap:0;padding:var(--sz-0) var(--sz-1);background:var(--c-surface);border:var(--border-1) solid var(--c-border);border-radius:var(--r-sm)';
-  // Equation forms (L(A)/L(B), log L(A)−log L(B)) live in the Instructions popup;
-  // the board rows keep just the plain-language name + value + meta.
-  const houseLvl=Math.max(st.houseLevelA, st.houseLevelB);
-  const playerLvl=Math.max(st.playerLevelA, st.playerLevelB);
+  const houseGuess  = g5HouseCurrentGuess(st);
+  const playerGuess = g5PlayerCurrentGuess(st);
+  const rowStyle='display:flex;align-items:center;gap:var(--sz-1);padding:var(--sz-0) var(--sz-1);background:var(--c-surface);border:var(--border-1) solid var(--c-border);border-radius:var(--r-sm)';
   return `
     <div style="${rowStyle};margin-bottom:var(--sz-0)" id="g5-house-row">
-      <div style="display:flex;align-items:center;gap:var(--sz-1)">
-        <div class="t-sm-b">House</div>
-        <div class="g9-tokens-row" id="g5-house-tokens" style="margin:0">${g5TokenSpans(st.houseTokens)}</div>
-        <div class="t-sm-b" id="g5-house-stuck" style="margin-left:auto;color:var(--c-danger);text-align:right">${g5HouseFrozen(st) ? g5StuckMsg(st.houseTokens) : ''}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:var(--sz-1)">
-        <div class="t-sm" style="opacity:.7">likelihood ratio</div>
-        <div class="t-sm-b" id="g5-ratio" style="margin-left:auto;margin-right:auto">${g5HouseSumStr(st.houseLA, st.houseLB, st.houseLevelA, st.houseLevelB)}</div>
-        <div class="t-sm" style="opacity:.55" id="g5-house-meta">order ${houseLvl} · ${st.houseRolls} roll${st.houseRolls===1?'':'s'}</div>
-      </div>
+      <div class="t-sm-b" style="flex:0 0 auto">House</div>
+      <div class="t-sm" id="g5-ratio" style="flex:1;text-align:center">${g5HouseSumStr(st)}</div>
+      <div id="g5-house-guess">${g5HouseGuessHTML(houseGuess, st.houseCommitted)}</div>
     </div>
     <div style="${rowStyle}" id="g5-player-row">
-      <div style="display:flex;align-items:center;gap:var(--sz-1)">
-        <div class="t-sm-b">Player</div>
-        <div class="g9-tokens-row" id="g5-player-tokens" style="margin:0">${g5TokenSpans(st.playerTokens)}</div>
-        <div class="t-sm-b" id="g5-player-stuck" style="margin-left:auto;color:var(--c-danger);text-align:right">${g5PlayerStuck(st) ? g5StuckMsg(st.playerTokens) : ''}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:var(--sz-1)">
-        <div class="t-sm" style="opacity:.7">likelihood gain</div>
-        <div class="t-sm-b" id="g5-LLG" style="margin-left:auto;margin-right:auto">${g5PlayerSumStr(st.playerLogLA, st.playerLogLB, st.playerLevelA, st.playerLevelB)}</div>
-        <div class="t-sm" style="opacity:.55" id="g5-player-meta">order ${playerLvl} · ${st.playerRolls} roll${st.playerRolls===1?'':'s'}</div>
-      </div>
+      <div class="t-sm-b" style="flex:0 0 auto">Player</div>
+      <div class="t-sm" id="g5-LLG" style="flex:1;text-align:center">${g5PlayerSumStr(st)}</div>
+      <div id="g5-player-guess">${g5PlayerGuessHTML(playerGuess)}</div>
     </div>
   `;
 }
 
-const g5StuckMsg = (tokens) => tokens<=0 ? 'no coins for next roll' : 'not enough coins for next roll';
-function g5PlayerStuck(st){
-  return !!st.playerStuck || st.playerTokens<2;
-}
-
-// Reveal-stage payout visualisation. Compact `🪙 × N` chip per side instead
-// of a literal coin stack (pot can reach 64 once the unused-token bonus is
-// included). Player chip is gold, house chip is blue.
-function g5PayoutCoinsHTML(playerPot, housePot){
-  if(!playerPot && !housePot) return '';
-  const chip=(label, n, color)=>`<span class="t-sm" style="display:inline-flex;align-items:center;gap:0.25rem;font-weight:normal"><span style="opacity:.7">${label}</span><span style="color:${color}">🪙</span><span>×${n}</span></span>`;
-  const parts=[];
-  if(playerPot) parts.push(chip('Player', playerPot, 'var(--c-gold)'));
-  if(housePot)  parts.push(chip('House',  housePot, 'var(--c-blue)'));
-  return `<div style="display:flex;justify-content:center;gap:var(--sz-3);flex-wrap:wrap;margin-top:var(--sz-0)">${parts.join('')}</div>`;
-}
-
-// Compact ratio formatter: small/large values fall back to exponential.
-function g5FmtRatio(LA, LB){
-  if(!isFinite(LA) || !isFinite(LB)) return '?';
-  if(LB===0){ return LA===0 ? '—' : '∞'; }
-  const r=LA/LB;
-  if(r===0) return '0';
-  if(r>=1000 || r<0.001) return r.toExponential(2);
-  if(r>=100) return r.toFixed(0);
-  if(r>=10)  return r.toFixed(1);
-  if(r>=1)   return r.toFixed(2);
-  return r.toFixed(3);
-}
-
-// House is stuck once it has failed a purchase, or has dropped below the
-// theoretical minimum cost of 2 tokens per roll. The skip-attempt guard
-// further up in g5PurchaseNextRoll keeps the message and the actual rolling
-// behaviour in sync.
-function g5HouseFrozen(st){
-  return !!st.houseStuck || st.houseTokens<2;
-}
-
 function g5UpdateBoard(){
   const st=S.g5; if(!st) return;
-  const ht=document.getElementById('g5-house-tokens');
-  const pt=document.getElementById('g5-player-tokens');
-  const hStuck=document.getElementById('g5-house-stuck');
-  const pStuck=document.getElementById('g5-player-stuck');
+  const tok=document.getElementById('g5-tokens');
+  if(tok) tok.innerHTML=g5TokenSpans(st.playerTokens);
   const ratio=document.getElementById('g5-ratio');
+  if(ratio) ratio.innerHTML=g5HouseSumStr(st);
   const llg=document.getElementById('g5-LLG');
-  const hmeta=document.getElementById('g5-house-meta');
-  const pmeta=document.getElementById('g5-player-meta');
-  if(ht) ht.innerHTML=g5TokenSpans(st.houseTokens);
-  if(pt) pt.innerHTML=g5TokenSpans(st.playerTokens);
-  if(hStuck) hStuck.textContent=g5HouseFrozen(st) ? g5StuckMsg(st.houseTokens) : '';
-  if(pStuck) pStuck.textContent=g5PlayerStuck(st) ? g5StuckMsg(st.playerTokens) : '';
-  if(ratio) ratio.innerHTML=g5HouseSumStr(st.houseLA, st.houseLB, st.houseLevelA, st.houseLevelB);
-  if(llg)   llg.innerHTML=g5PlayerSumStr(st.playerLogLA, st.playerLogLB, st.playerLevelA, st.playerLevelB);
-  if(hmeta) hmeta.textContent=`order ${Math.max(st.houseLevelA, st.houseLevelB)} · ${st.houseRolls} roll${st.houseRolls===1?'':'s'}`;
-  if(pmeta) pmeta.textContent=`order ${Math.max(st.playerLevelA, st.playerLevelB)} · ${st.playerRolls} roll${st.playerRolls===1?'':'s'}`;
+  if(llg) llg.innerHTML=g5PlayerSumStr(st);
+  const hGuess=document.getElementById('g5-house-guess');
+  if(hGuess) hGuess.innerHTML=g5HouseGuessHTML(g5HouseCurrentGuess(st), st.houseCommitted);
+  const pGuess=document.getElementById('g5-player-guess');
+  if(pGuess) pGuess.innerHTML=g5PlayerGuessHTML(g5PlayerCurrentGuess(st));
+  const buy=document.getElementById('g5-buy-btn');
+  if(buy){
+    const canRoll = !st.locked && !st.ended && st.playerTokens>0 && st.rolls.length<G5_MAX_ROLLS;
+    buy.disabled = !canRoll;
+    buy.style.opacity = canRoll ? 1 : 0.25;
+  }
 }
 
 // Fill the Nth reveal slot with the rolled value. If `houseBlind` is true the
@@ -1914,117 +1893,92 @@ function g5ShowRoll(idx, value, houseBlind){
   setTimeout(()=>r.classList.remove('just-filled'), 200);
 }
 
-// Render the action buttons. Called after each roll so the button re-enables.
-// Render Purchase (left) + Fair / Biased guess buttons (right) side-by-side so
-// the player can commit to a guess at any moment without having to wait for
-// the round to end. Purchase button disables when the player can't afford
-// another roll or has hit the 10-roll cap; guess buttons stay live until the
-// player has actually guessed (then g5Guess takes over the DOM directly).
+// Only the Buy button now — commit happens via the player-row running-guess
+// (g5PlayerGuessHTML), or automatically when the player runs out of tokens.
+// Button fades out when no rolls remain (tokens=0 or 6-roll cap).
 function g5RenderControls(){
   const st=S.g5; if(!st) return;
-  // Once the player has committed, g5Guess manipulates the buttons directly
-  // (disable + .selected on the picked one). A re-render here would wipe that
-  // out, so bail.
   if(S.phase==='reveal') return;
-  const capped=st.rolls.length>=G5_MAX_ROLLS;
-  const canRoll = !st.locked && st.playerTokens>=2 && !st.ended && !capped;
-  const guessLive = S.phase!=='reveal';
+  const canRoll = !st.locked && !st.ended && st.playerTokens>0 && st.rolls.length<G5_MAX_ROLLS;
   Z.buttons.innerHTML=`
-    <div style="display:flex;gap:var(--sz-2);align-items:center;justify-content:space-between;flex-wrap:wrap;width:100%">
-      <button class="next-btn btn-compact" id="g5-buy-btn" style="background:var(--c-success)" ${canRoll?'':'disabled'} onclick="g5PurchaseNextRoll()">Pay for next roll</button>
-      <div class="guess-grid" style="grid-template-columns:auto auto;max-width:13rem;gap:var(--sz-1)">
-        <button class="guess-btn" data-pick="${st.A}" ${guessLive?'':'disabled'} onclick="g5Guess('${st.A}')" style="background:var(--c-gold);color:var(--c-surface);clip-path:none;border-radius:var(--r-lg);width:auto;height:auto;padding:var(--sz-1) var(--sz-4);font-size:var(--sz-2)">${G5_BIAS_LABEL[st.A]}</button>
-        <button class="guess-btn" data-pick="${st.B}" ${guessLive?'':'disabled'} onclick="g5Guess('${st.B}')" style="background:var(--c-blue);color:var(--c-surface);clip-path:none;border-radius:var(--r-lg);width:auto;height:auto;padding:var(--sz-1) var(--sz-4);font-size:var(--sz-2)">${G5_BIAS_LABEL[st.B]}</button>
-      </div>
-    </div>
+    <button class="next-btn btn-compact" id="g5-buy-btn" style="background:var(--c-success);margin:0 auto;opacity:${canRoll?1:0.25};transition:opacity .3s ease" ${canRoll?'':'disabled'} onclick="g5PurchaseNextRoll()">Buy next roll</button>
   `;
 }
 
-// One roll per click. The roll is drawn from the hidden bias; both house and
-// player attempt to commit their update independently. Game ends after a roll
-// the player cannot afford.
+// One roll per click. Flat 1 token / roll. House and player both update with
+// the same roll value. House stops the moment its L(A) and L(B) would both
+// round to 0 — that's the simulated underflow event, and the house's running
+// guess freezes at the last good state.
 function g5PurchaseNextRoll(){
   const st=S.g5;
   if(!st || st.locked || st.ended) return;
-  if(st.playerTokens<2) return;
+  if(st.playerTokens<=0) return;
   if(st.rolls.length>=G5_MAX_ROLLS) return;
   st.locked=true;
+  st.playerTokens-=1;
   const reduce=prefersReducedMotion();
   const btn=document.getElementById('g5-buy-btn');
   if(btn) btn.disabled=true;
-  // The face for this slot was pre-rolled in g5GenerateMatch — replay it so
-  // the interactive outcome can match the simulator's prediction.
+  // Roll replay — the face for this slot was pre-rolled in g5GenerateMatch so
+  // the interactive outcome matches the rig's prediction.
   const rd=S.rounds[S.currentRound];
   const v=rd.rollStream[st.rolls.length];
   const idx=v-1;
   st.rolls.push(v);
-  const rollerIdx=st.rolls.length; // 1-based slot index
-  // House attempts update — but only if it isn't already frozen. Once the
-  // "insufficient coins" message has fired, house gives up rolling so the UI
-  // signal matches the actual termination (rather than house spending its
-  // remaining 1–3 coins on a cheap roll and then jumping to "no coins").
+  const rollerIdx=st.rolls.length;
+  // House update — multiply L(A) and L(B), round to 4dp. Two underflow modes:
+  //   1. BOTH round to 0 — total underflow.
+  //   2. BOTH pin to the smallest representable value (0.0001 at 4dp) — the
+  //      ratio collapses to 1.0, which looks like "no info" but is really a
+  //      precision artifact. Real doubles don't recover here either. Treat
+  //      as underflow and commit using the last good snapshot.
   let houseUpdated=false;
-  if(!g5HouseFrozen(st)){
-    const newLA=st.houseLA*st.pA[idx];
-    const newLB=st.houseLB*st.pB[idx];
-    const newLvlA=g5LikelihoodLevel(newLA, st.n);
-    const newLvlB=g5LikelihoodLevel(newLB, st.n);
-    const houseCost=1+Math.max(0,newLvlA-st.houseLevelA)+1+Math.max(0,newLvlB-st.houseLevelB);
-    if(st.houseTokens>=houseCost){
-      st.houseTokens-=houseCost;
-      st.houseLA=newLA; st.houseLB=newLB;
-      st.houseLevelA=newLvlA; st.houseLevelB=newLvlB;
+  if(!st.houseCommitted){
+    const nLA=g5Round(st.houseLA*st.pA[idx]);
+    const nLB=g5Round(st.houseLB*st.pB[idx]);
+    const floor=1/Math.pow(10, G5_PRECISION_DP); // 0.0001 at 4dp
+    const bothZero=(nLA===0 && nLB===0);
+    const bothPinned=(nLA===floor && nLB===floor);
+    if(bothZero || bothPinned){
+      st.houseCommitted=true;
+      st.houseLA=nLA; st.houseLB=nLB; // display pinned/zero values
+      // houseLastLA/LB stay at the last meaningful snapshot for the guess
+    } else {
+      st.houseLA=nLA; st.houseLB=nLB;
+      st.houseLastLA=nLA; st.houseLastLB=nLB;
       st.houseRolls++;
       houseUpdated=true;
-    } else {
-      st.houseStuck=true;
     }
   }
-  // Player attempts update — tracks log L(A) and log L(B) as two INDEPENDENT
-  // values, each costing 1 + max(0, new_level - old_level). Minimum total = 2.
-  const dLogA=Math.log(st.pA[idx]);
-  const dLogB=Math.log(st.pB[idx]);
-  const newLogLA=st.playerLogLA+dLogA;
-  const newLogLB=st.playerLogLB+dLogB;
-  const newLvlPA=g5LLGLevel(newLogLA, st.n);
-  const newLvlPB=g5LLGLevel(newLogLB, st.n);
-  const playerCost = 1 + Math.max(0, newLvlPA - st.playerLevelA)
-                   + 1 + Math.max(0, newLvlPB - st.playerLevelB);
-  let playerActive=false;
-  if(st.playerTokens>=playerCost){
-    st.playerTokens-=playerCost;
-    st.playerLogLA=newLogLA;
-    st.playerLogLB=newLogLB;
-    st.playerLevelA=newLvlPA;
-    st.playerLevelB=newLvlPB;
-    st.playerRolls++;
-    playerActive=true;
-  } else {
-    // Same persistence as the house: once player can't pay a roll, the round
-    // ends — flag so the coins line shows the "insufficient" message.
-    st.playerStuck=true;
-  }
-  // Slot dims if this roll wasn't tracked by the house (house out of tokens).
+  // Player update — logs grow by addition; no underflow at this scale.
+  st.playerLogLA=g5Round(st.playerLogLA+Math.log(st.pA[idx]));
+  st.playerLogLB=g5Round(st.playerLogLB+Math.log(st.pB[idx]));
+  st.playerRolls++;
+  // Dim the slot if the house couldn't track this roll (underflow already hit).
   g5ShowRoll(rollerIdx, v, !houseUpdated);
   g5UpdateBoard();
-  // End if: player couldn't pay this roll, no tokens left for the next roll
-  // (min cost is 2 — one per tracked value), or all 10 reveal slots are used.
-  if(!playerActive || st.playerTokens<2 || st.rolls.length>=G5_MAX_ROLLS){
+  // Out of tokens or hit the 10-roll cap → auto-commit with current running
+  // guess. The round still scores normally and the Next Round button activates.
+  if(st.playerTokens<=0 || st.rolls.length>=G5_MAX_ROLLS){
     st.ended=true;
-    setTimeout(g5EndRolling, reduce?30:700*diceSpeedFactor());
+    setTimeout(()=>{
+      if(!S.g5) return;
+      g5Guess(g5PlayerCurrentGuess(S.g5));
+    }, reduce?30:700*diceSpeedFactor());
     return;
   }
   setTimeout(()=>{
     if(!S.g5) return;
     S.g5.locked=false;
     g5RenderControls();
+    g5UpdateBoard();
   }, reduce?30:400*diceSpeedFactor());
 }
 
 // Persist the current rolling state to the round record and lock in the
 // house's guess. Idempotent: safe to call from both g5EndRolling (natural end)
-// and g5Guess (player commits early). Also captures the unused-token bonus
-// pot (sum of both sides' remaining coins) so payouts can use it.
+// and g5Guess (player commits early). Only the player's unused tokens feed
+// the pot — house has no tokens in the redesigned game.
 function g5FinaliseRolling(){
   const st=S.g5; if(!st || st.finalised) return;
   st.finalised=true;
@@ -2035,13 +1989,13 @@ function g5FinaliseRolling(){
   rd.rolls=st.rolls.slice();
   rd.houseRolls=st.houseRolls;
   rd.playerRolls=st.playerRolls;
-  rd.bonusUnused = st.playerTokens + st.houseTokens;
-  // House guesses by raw likelihood ratio. If it never processed a roll we
-  // use rd.houseFallback (pre-chosen at match-gen time) so the interactive
-  // outcome matches the simulator's prediction.
+  rd.bonusUnused = st.playerTokens;
+  // House guesses by its last-good (pre-underflow) snapshot. If it never
+  // processed a roll, fall back to rd.houseFallback so the interactive outcome
+  // matches the simulator's prediction.
   st.houseGuess = st.houseRolls===0
     ? rd.houseFallback
-    : (st.houseLA>=st.houseLB?st.A:st.B);
+    : g5HouseCurrentGuess(st);
   rd.houseGuess=st.houseGuess;
 }
 
@@ -2066,15 +2020,13 @@ function g5Guess(pick){
   rd.playerGuess=pick;
   const playerCorrect=(pick===st.hidden);
   const houseCorrect=(st.houseGuess===st.hidden);
-  // Pot = every coin still in either side's hand at the moment of guessing.
-  // Spending nothing = max pot (32); spending it all = 0. Clean win → winner
-  // takes the whole pot; split or both-wrong → halve it.
-  const pot = rd.bonusUnused || 0;
-  // Decisive winner takes the "cup" (1 token) PLUS any remaining pot tokens.
+  // Round scoring: W (player wins) / L (house wins) / D (draw — both right or
+  // both wrong). One point per decisive outcome; playerPot/housePot kept as
+  // 0/1 flags so the dashboard's tokens-ahead leaderboard still works.
   let playerPot=0, housePot=0, result='';
-  if(playerCorrect && !houseCorrect){      playerPot=1+pot; result='Player wins'; }
-  else if(houseCorrect && !playerCorrect){ housePot=1+pot;  result='House wins'; }
-  else { result = playerCorrect ? 'Split' : 'Even (both wrong)'; }
+  if(playerCorrect && !houseCorrect){      playerPot=1; result='Player wins'; }
+  else if(houseCorrect && !playerCorrect){ housePot=1;  result='House wins'; }
+  else { result='Draw'; }
   rd.playerPot=playerPot;
   rd.housePot=housePot;
   rd.result=result;
@@ -2083,17 +2035,17 @@ function g5Guess(pick){
   S.houseScores[4]+=housePot;
   const msg=document.getElementById('g5-msg');
   if(msg){
-    // Concise reveal — full guess vs house vs hidden detail lives in the stats table.
-    const tail = playerCorrect && !houseCorrect ? `Player wins`
-               : houseCorrect && !playerCorrect ? `House wins`
-               : (playerCorrect && houseCorrect) ? `Split`
-               : `Even (both wrong)`;
-    msg.innerHTML = `<div>Hidden: ${G5_BIAS_LABEL[st.hidden]} — ${tail}</div>`;
+    msg.innerHTML = `<div>Hidden: ${G5_BIAS_LABEL[st.hidden]} — ${result}</div>`;
   }
-  document.querySelectorAll('.guess-btn[data-pick]').forEach(b=>{
-    b.disabled=true;
-    if(b.dataset.pick===pick) b.classList.add('selected');
-  });
+  // Disable both player-row commit buttons after commit; the running-guess
+  // pair re-renders here via g5UpdateBoard so the picked side stays highlighted.
+  g5UpdateBoard();
+  const pGuess = document.getElementById('g5-player-guess');
+  if(pGuess){
+    pGuess.querySelectorAll('button').forEach(b=>{ b.disabled=true; });
+  }
+  const buy=document.getElementById('g5-buy-btn');
+  if(buy) buy.disabled=true;
   renderStatsTable(Z.table, 5);
   enableNextBtn();
 }
@@ -3221,16 +3173,14 @@ function renderStatsTable(bot, gameId){
       resRow,
     ];
   } else if(gameId===5){
-    const wonInitial=(rd)=>{
-      if(rd.playerPot && rd.housePot) return 'S';
-      if(rd.playerPot) return 'P';
-      if(rd.housePot)  return 'H';
-      return '—';
+    // W (player wins) / L (house wins) / D (draw — both right or both wrong).
+    const resultLetter=(rd)=>{
+      if(rd.result === 'Player wins') return 'W';
+      if(rd.result === 'House wins')  return 'L';
+      return 'D';
     };
     rowDefs=[
-      {label:'House',  cells:col(rd=>rd.housePot!=null,  rd=>rd.housePot)},
-      {label:'Player', cells:col(rd=>rd.playerPot!=null, rd=>rd.playerPot)},
-      {label:'Won',          cells:col(rd=>rd.result!=null,    wonInitial)},
+      {label:'Result', cells:col(rd=>rd.result!=null, resultLetter)},
     ];
   } else if(gameId===7){
     const ab=v=>v==='amber'?'A':'B';
@@ -3306,16 +3256,14 @@ function renderStatsTable(bot, gameId){
       scoreLine='';
     }
   } else if(gameId===5){
-    // Each decisive win pays 1 "cup" + the remaining pot in coins.
-    // Cumulative score field is (cups + coins); derive each from rd.playerPot/housePot.
-    const playerCups  = S.rounds.filter(r => r && r.playerPot > 0).length;
-    const houseCups   = S.rounds.filter(r => r && r.housePot  > 0).length;
-    const playerCoins = Math.max(0, S.scores[4]      - playerCups);
-    const houseCoins  = Math.max(0, S.houseScores[4] - houseCups);
-    const cup = '🏆', coin = '🪙';
-    scoreLine=`<div class="score-line" style="flex-direction:column;align-items:flex-start;gap:var(--sz-0);word-break:break-all">
-      <div><span style="color:var(--c-blue);display:inline-block;width:4.5rem">House</span>${cup.repeat(houseCups)}${coin.repeat(houseCoins)}</div>
-      <div><span style="color:var(--c-gold);display:inline-block;width:4.5rem">Player</span>${cup.repeat(playerCups)}${coin.repeat(playerCoins)}</div>
+    // W (player wins) / L (house wins) / D (draw). Counts across played rounds.
+    const wins   = S.rounds.filter(r => r && r.result === 'Player wins').length;
+    const losses = S.rounds.filter(r => r && r.result === 'House wins').length;
+    const draws  = S.rounds.filter(r => r && r.result === 'Draw').length;
+    scoreLine=`<div class="score-line" style="gap:var(--sz-3);justify-content:center;font-size:var(--sz-3)">
+      <span style="color:var(--c-gold)">W ${wins}</span>
+      <span style="color:var(--c-blue)">L ${losses}</span>
+      <span style="opacity:.7">D ${draws}</span>
     </div>`;
   } else if(gameId===8 || gameId===9 || gameId===10){
     // Head-to-head: you vs the House. Show a winner verdict once the session ends.
