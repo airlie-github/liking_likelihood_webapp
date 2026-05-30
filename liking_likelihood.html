@@ -243,6 +243,22 @@ button:active{transform:scale(.95)}
 .hand-shape{font-size:var(--sz-5);text-align:center;line-height:1;filter:drop-shadow(0 var(--sz-0) var(--sz-0) rgba(0,0,0,.2));transform:rotate(180deg)}
 .hand-held{position:absolute;top:0;left:50%;transform:translateX(-50%) translateY(3.75rem);font-size:var(--sz-5);font-weight:var(--fw-bold);opacity:0;transition:all .4s;z-index:5}
 .hand-held.shown{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Game-7 three-box two-step: ?s travel from amber/blue into a brown "mix"
+   box in the middle; the hand then reaches into brown and selects one. */
+.g7-trav{position:absolute;top:0;font-size:var(--sz-5);font-weight:var(--fw-bold);opacity:0;transition:opacity .4s, transform .55s;z-index:5;display:flex;justify-content:center;width:6.25rem;transform:translateY(3.75rem)}
+.g7-trav.emerged{opacity:1;transform:translateY(0)}
+.g7-trav-a{left:0.375rem}
+.g7-trav-b{right:0.375rem}
+.g7-trav-a.in-brown{transform:translateX(5.75rem) translateY(0);opacity:1}
+.g7-trav-b.in-brown{transform:translateX(-5.75rem) translateY(0);opacity:1}
+/* While the hand is reaching into brown, the chosen ? is silently repositioned
+   to brown-centre, invisibly low (mid-brown). When the hand pulls back, .lifted
+   animates it up to the hand position. Pure vertical slide-up + fade-in,
+   mirroring Game 1's .hand-held → .hand-held.shown transition. */
+.g7-trav-a.at-mix-centre{transform:translateX(7.5rem) translateY(3.75rem);opacity:0;transition:none}
+.g7-trav-b.at-mix-centre{transform:translateX(-7.5rem) translateY(3.75rem);opacity:0;transition:none}
+.g7-trav-a.at-mix-centre.lifted{transform:translateX(7.5rem) translateY(0);opacity:1;transition:opacity .4s, transform .4s}
+.g7-trav-b.at-mix-centre.lifted{transform:translateX(-7.5rem) translateY(0);opacity:1;transition:opacity .4s, transform .4s}
 @keyframes boxShake{0%,100%{transform:rotate(0)}15%{transform:rotate(-3deg)}30%{transform:rotate(3deg)}45%{transform:rotate(-2deg)}60%{transform:rotate(2deg)}75%{transform:rotate(-1deg)}90%{transform:rotate(1deg)}}
 .box-shaking{animation:boxShake .6s ease-in-out}
 .question-mark{width:3.25rem;height:3.25rem;border-radius:50%;background:var(--c-gold);color:var(--c-surface);display:flex;align-items:center;justify-content:center;font-size:var(--sz-4);font-weight:var(--fw-bold);box-shadow:0 var(--sz-0) var(--sz-2) rgba(212,160,23,.4);overflow:hidden;position:relative}
@@ -830,20 +846,31 @@ function generateRounds(gameId) {
       rounds.push({roll:r, die, diceA:dA, diceB:dB, countA:cA, countB:cB});
     }
   } else if (gameId===7) {
+    // Two-step process: draw one die from each box (each goes into a notional
+    // purple box), then draw one of those two at random. The "from-box" label
+    // is the original box of whichever die was finally picked. Math-wise this
+    // is identical to one-step (pick box, pick die) but explicit so the UI
+    // can show both intermediate ?s.
     for(let i=0;i<10;i++){
-      let amberDice,blueDice,box,die;
+      let amberDice,blueDice,dieA,dieB,box,die;
       if(S.mode==='tutorial'){
         amberDice=TUT.game7.amber?TUT.game7.amber[i]:[6,8];
         blueDice=TUT.game7.blue?TUT.game7.blue[i]:[4,10];
-        box=TUT.game7.chosenBox[i];die=TUT.game7.answerDie[i];
+        box=TUT.game7.chosenBox[i];
+        die=TUT.game7.answerDie[i];
+        // Tutorial only fixes the chosen-box die; the other-box draw is free.
+        if(box==='amber'){ dieA=die; dieB=pick(blueDice); }
+        else             { dieB=die; dieA=pick(amberDice); }
       } else {
         const shuffled=[4,6,8,10].sort(()=>Math.random()-.5);
         amberDice=[shuffled[0],shuffled[1]].sort((a,b)=>a-b);
         blueDice=[shuffled[2],shuffled[3]].sort((a,b)=>a-b);
-        box=pick(['amber','blue']);
-        die=box==='amber'?pick(amberDice):pick(blueDice);
+        dieA=pick(amberDice);          // step 1a: draw from amber
+        dieB=pick(blueDice);           // step 1b: draw from blue
+        box=Math.random()<0.5?'amber':'blue';  // step 2: draw from purple (50/50)
+        die=box==='amber'?dieA:dieB;
       }
-      rounds.push({roll:S.mode==='tutorial'?TUT.game7.roll[i]:roll(die), box, die, amberDice, blueDice});
+      rounds.push({roll:S.mode==='tutorial'?TUT.game7.roll[i]:roll(die), box, die, dieA, dieB, amberDice, blueDice});
     }
   } else if (gameId===5) {
     // Pre-generated 10-round match: pre-rolled streams + rejection-sample so
@@ -1103,7 +1130,7 @@ const GAME_DESCRIPTIONS = {
   4: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>three independent rolls</b> from the chosen dice. Independent rolls <b>multiply</b> their likelihoods — combine all three to guess which dice was chosen.`,
   5: `Is the dice <b>Fair</b> or <b>biased</b>? The <b>House</b> tracks the raw <b>likelihood ratio</b> <b>L(A) / L(B)</b>; you track the <b>likelihood gain</b> <b>log L(A) − log L(B)</b>. Both contain the <b>same information</b> — but multiplying many small probabilities crashes raw likelihoods through the <b>precision floor</b> of any computer.<br><br>Real doubles underflow around <b>10⁻³²⁴</b>; this game uses a much tighter floor (<b>≥ 0.0001</b>, shown next to the 💻) so you can <b>see it happen in a few rolls</b>. Each roll multiplies the house's L values by a probability &lt; 1, dragging them toward 0 fast. Once both round to <b>0.0000</b>, the house has <b>underflowed</b> and its guess freezes.<br><br>You start with <b>6 tokens</b> and pay <b>1 per roll</b>. You track logs in <b>4-decimal-place</b> precision too — but logs grow by <b>addition</b>, not multiplication, so they never underflow at this scale. Click <b>Fair</b> or <b>Bias</b> on your row whenever you're ready. Any unused tokens go into your prize pot.`,
   6: `The box holds <b>eight dice</b>: some of one type, some of another. A dice is selected from the box, chosen at random. You see <b>one roll</b> from the chosen dice. Combine the <b>prior</b> (how many of each type are in the box) with the <b>likelihood</b> (which type fits the roll) to guess which dice was chosen — that's <b>Bayes' theorem</b>.`,
-  7: `Two boxes, <b>Amber</b> and <b>Blue</b>, each hold <b>two dice</b>. A box is chosen at random, then a dice is selected from that box, chosen at random. You see <b>one roll</b> from the chosen dice. <b>Marginalize / sum over the unknowns / integrate out the nuisance variable</b> — the two possible dice in each box — to get the <b>marginal probability / P(roll | box)</b>, then pick the more likely box.`,
+  7: `Three boxes: <b>Amber</b> and <b>Blue</b> each hold <b>two dice</b>; the middle <b>Mix</b> box starts empty. Selection in <b>two steps</b>: first, <b>one dice is drawn at random from amber</b> and <b>one from blue</b>, both into the Mix box; second, a <b>hand picks one of those two at random</b> from Mix, rolls it, and shows the value. You only see the final roll.<br><br>To find the <i>original</i> box, <b>marginalize / integrate out the nuisance variables</b> — both "which die came out of amber" and "which die came out of blue." The <b>marginal P(roll | box)</b> is the same as the one-step pick — the math is identical. Pick the more likely box.`,
   8: `A few <b>fair</b> dice are rolled and summed; the animal in the lane equal to that sum advances one step. The first lane to reach the finish line wins. Before the race <b>you</b> pick a lane and the <b>House</b> picks one for itself, at random across the lanes that can win. If the winning lane is yours, <b>you</b> score <b>1</b>; if it's the House's, the <b>House</b> scores <b>1</b>; if you both bet the same lane, you both score when it wins. Read the sum's <b>probability mass function / PMF / distribution</b> — peaked near its <b>mean / average / expected value / μ</b> and made wider by its <b>variance / spread / σ²</b> — and pick the lane closest to the peak. Over <b>10 rounds</b>, a smart player should beat the random House.`,
   9: `Same race against the House as <b>Dice Sums</b>, but every dice shares the <b>same bias</b> — picked from <b>Fair</b>, <b>Line</b>, <b>Twin</b>, <b>Boat</b>, <b>Arch</b>, <b>Step</b> or <b>Edge</b>. Bias <b>shifts the mean / μ</b> and <b>changes the variance / σ²</b> of the dice sum, so the winning lane is no longer where you'd expect. The <b>House</b> picks a lane <b>uniformly at random across all 12</b> — including unreachable ones — so it's an even worse player than in Dice Sums. <b>Read the bias bars</b>, pick the lane closest to the peak of the biased PMF, and you should beat the House over <b>10 rounds</b>. One token to win per round (you +1 / House +1 / both 0).`,
   10: `Same biased race as <b>Biased Dice Sums</b>, but now the betting is different. The <b>House</b> always places all <b>12 tokens</b> on the <b>modal lane</b> (the most-probable sum given the bias) — winning <b>12</b> if that lane wins, <b>0</b> otherwise. You have <b>12 tokens</b> to <b>spread your bet</b> across <b>1, 2, 3, 4, 6 or 12 lanes</b> — <b>12/n tokens per lane</b>. If a covered lane wins, you score the <b>12/n tokens</b> on it; otherwise <b>0</b>. <b>Narrow bets pay more, rarely</b>; <b>wide bets pay less, often</b>. The trade-off isn't equal on both sides: on a <b>low-variance</b> bias (most of the chance on one lane) the mode bet has the highest expected score; on a <b>high-variance</b> bias (chance spread across many lanes) every spread has nearly the same expected score, so a wider bet can <b>win more sessions</b> over the 10-round game by avoiding the runs of zero scores the narrow bet suffers. Match the spread to the variance you expect.`,
@@ -1150,19 +1177,30 @@ function getBoxHTML(gameId){
     const dice=(arr,id)=>`<div class="box-dice" data-box="${id}">${arr.map(d=>`<div class="box-die d${d}">${d}</div>`).join('')}</div>`;
     const tintA='var(--c-amber)',darkA='#e67e22';
     const tintB='var(--c-blue)',darkB='#2980b9';
-    // Scene height matches Game 1 (10.625rem). Width widened to 17.5rem to
-    // accommodate two equal-sized boxes (7.25rem each, same as Game 1's
-    // single 8.75rem box scaled slightly). Boxes use standard box-body/box-lid
-    // geometry so their vertical position matches other games.
-    return `<div class="box-scene" style="width:17.5rem;height:10.625rem;flex-shrink:0">
-      <div class="t-smb ta-c" style="color:${tintA};position:absolute;top:0;left:0;width:7.5rem">Amber</div>
-      <div class="box-lid g7-lid-l" id="box-lid-a" style="top:2.4rem;bottom:auto;left:0.25rem;width:7.5rem;height:var(--sz-3);background:linear-gradient(145deg,${tintA},${darkA});border-color:${darkA}"></div>
-      <div class="box-body box-shaking" style="top:3.4rem;bottom:auto;left:0.375rem;width:7.25rem;height:5.625rem;background:linear-gradient(145deg,${tintA},${darkA});border-color:${darkA}">${dice(ad,'amber')}</div>
-      <div class="t-smb ta-c" style="color:${tintB};position:absolute;top:0;right:0;width:7.5rem">Blue</div>
-      <div class="box-lid g7-lid-r" id="box-lid-b" style="top:2.4rem;bottom:auto;left:auto;right:0.25rem;width:7.5rem;height:var(--sz-3);background:linear-gradient(145deg,${tintB},${darkB});border-color:${darkB}"></div>
-      <div class="box-body box-shaking" style="top:3.4rem;bottom:auto;left:auto;right:0.375rem;width:7.25rem;height:5.625rem;background:linear-gradient(145deg,${tintB},${darkB});border-color:${darkB}">${dice(bd,'blue')}</div>
-      <div class="hand-arm" id="box-hand"><div class="hand-shape">🤚</div></div>
-      <div class="hand-held" id="box-held"><div class="question-mark" id="qm-circle"><span class="qm-text">?</span><div class="qm-reel" style="display:none"><div class="reel-strip" id="reel0"></div></div></div></div>
+    // Brown "mix" box uses the same palette as every other game's box-body:
+    // gradient #d4a574 → #c4956a, border #a0764a. This way the middle box reads
+    // as "a box like the others" rather than a special-purpose container.
+    const tintM='#d4a574',darkM='#c4956a',edgeM='#a0764a';
+    // Scene widened to 22rem to fit three 6.25rem boxes. Amber+blue have lids
+    // (open during the draw); brown is always open — the ?s drop in and become
+    // invisible inside it before the hand reaches in to pull out the chosen die.
+    // Brown is centred at 50% of the 22rem scene so .hand-arm sits over it.
+    return `<div class="box-scene" style="width:22rem;height:10.625rem;flex-shrink:0">
+      <div class="t-smb ta-c" style="color:${tintA};position:absolute;top:0;left:0;width:6.5rem">Amber</div>
+      <div class="box-lid g7-lid-l" id="box-lid-a" style="top:2.4rem;bottom:auto;left:0.25rem;width:6.5rem;height:var(--sz-3);background:linear-gradient(145deg,${tintA},${darkA});border-color:${darkA}"></div>
+      <div class="box-body box-shaking" style="top:3.4rem;bottom:auto;left:0.375rem;width:6.25rem;height:5.625rem;background:linear-gradient(145deg,${tintA},${darkA});border-color:${darkA}">${dice(ad,'amber')}</div>
+
+      <div class="t-smb ta-c" style="color:${edgeM};position:absolute;top:0;left:7.75rem;width:6.5rem">Mix</div>
+      <div class="box-body" style="top:3.4rem;bottom:auto;left:7.875rem;width:6.25rem;height:5.625rem;background:linear-gradient(145deg,${tintM},${darkM});border-color:${edgeM}" id="g7-brown-body"></div>
+
+      <div class="t-smb ta-c" style="color:${tintB};position:absolute;top:0;right:0;width:6.5rem">Blue</div>
+      <div class="box-lid g7-lid-r" id="box-lid-b" style="top:2.4rem;bottom:auto;left:auto;right:0.25rem;width:6.5rem;height:var(--sz-3);background:linear-gradient(145deg,${tintB},${darkB});border-color:${darkB}"></div>
+      <div class="box-body box-shaking" style="top:3.4rem;bottom:auto;left:auto;right:0.375rem;width:6.25rem;height:5.625rem;background:linear-gradient(145deg,${tintB},${darkB});border-color:${darkB}">${dice(bd,'blue')}</div>
+
+      <div class="g7-trav g7-trav-a" id="g7-trav-a"><div class="question-mark" id="g7-qm-amber"><span class="qm-text">?</span><div class="qm-reel" style="display:none"><div class="reel-strip" id="g7-reel-amber"></div></div></div></div>
+      <div class="g7-trav g7-trav-b" id="g7-trav-b"><div class="question-mark" id="g7-qm-blue"><span class="qm-text">?</span><div class="qm-reel" style="display:none"><div class="reel-strip" id="g7-reel-blue"></div></div></div></div>
+
+      <div class="hand-arm" id="g7-brown-hand"><div class="hand-shape">🤚</div></div>
     </div>`;
   }
 
@@ -1189,10 +1227,13 @@ const DIE_CLIPS = {
   10:'polygon(50% 0%,79% 10%,100% 38%,97% 69%,79% 95%,50% 100%,21% 95%,3% 69%,0% 38%,21% 10%)'
 };
 
-function revealDieInHand(dieValue, boxHint){
-  const hand=document.getElementById('box-hand');
-  const qm=document.getElementById('qm-circle');
-  if(!hand)return;
+function revealDieInHand(dieValue, boxHint, qmId){
+  // Default to the single centred ? (box games other than Game 7); Game 7
+  // passes 'g7-qm-amber' or 'g7-qm-blue' to target the surviving (chosen) ?.
+  const qm=document.getElementById(qmId || 'qm-circle');
+  // box-hand is absent in Game 7 (two-step layout has no central hand) — only
+  // bail if BOTH the hand and the qm are missing.
+  if(!qm && !document.getElementById('box-hand'))return;
 
   // Remove the revealed die from the box-dice strip (so the hand "took" it).
   const sides=[4,6,8,10].includes(dieValue)?dieValue:10;
@@ -1209,8 +1250,10 @@ function revealDieInHand(dieValue, boxHint){
     }
   }
 
-  // Open palm (don't move — stay in same position as pulling)
-  const shape=hand.querySelector('.hand-shape');
+  // Open palm (don't move — stay in same position as pulling). Game 7 has no
+  // central hand, so this is a no-op there.
+  const hand=document.getElementById('box-hand');
+  const shape=hand && hand.querySelector('.hand-shape');
   if(shape) shape.textContent='🤚';
 
   // Change circle colour and content — keep same size
@@ -1234,23 +1277,35 @@ function revealDieInHand(dieValue, boxHint){
 }
 
 function startBoxAnimation(){
+  const f=diceSpeedFactor();
+  const lidDur=(0.4*f)+'s';
+  // Game-7-only lids (amber + blue) — present alongside the single lid for
+  // other box games. Open them in parallel.
+  const lidA=document.getElementById('box-lid-a');
+  const lidB=document.getElementById('box-lid-b');
+  if(lidA) lidA.style.transitionDuration=lidDur;
+  if(lidB) lidB.style.transitionDuration=lidDur;
+  if(lidA) setTimeout(()=>{lidA.classList.add('open')},600*f);
+  if(lidB) setTimeout(()=>{lidB.classList.add('open')},700*f);
+  // Game 7: three-box two-step draw — a ? emerges from each of amber/blue,
+  // travels into the central brown ("mix") box. The hand-pick + reveal are
+  // sequenced separately in renderGame7 (it knows which side is chosen).
+  const travA=document.getElementById('g7-trav-a');
+  const travB=document.getElementById('g7-trav-b');
+  if(travA && travB){
+    setTimeout(()=>{travA.classList.add('emerged')}, 900*f);   // pop up out of amber
+    setTimeout(()=>{travB.classList.add('emerged')}, 1100*f);  // pop up out of blue
+    setTimeout(()=>{travA.classList.add('in-brown')}, 1500*f); // slide to brown left
+    setTimeout(()=>{travB.classList.add('in-brown')}, 1700*f); // slide to brown right
+    return;
+  }
+  // All other box games: single centred hand reaches, grabs, pulls a die out.
   const lid=document.getElementById('box-lid');
   const hand=document.getElementById('box-hand');
   const held=document.getElementById('box-held');
   if(!hand)return;
-  // Sequence delays + lid rotation duration are scaled by diceSpeedFactor()
-  // so "Fast" halves both the lid swing and the whole box sequence.
-  const f=diceSpeedFactor();
-  const lidDur=(0.4*f)+'s';
-  // Game 7 lids
-  const lidA=document.getElementById('box-lid-a');
-  const lidB=document.getElementById('box-lid-b');
-  if(lid)  lid.style.transitionDuration=lidDur;
-  if(lidA) lidA.style.transitionDuration=lidDur;
-  if(lidB) lidB.style.transitionDuration=lidDur;
-  if(lid)  setTimeout(()=>{lid.classList.add('open')},600*f);
-  if(lidA) setTimeout(()=>{lidA.classList.add('open')},600*f);
-  if(lidB) setTimeout(()=>{lidB.classList.add('open')},700*f);
+  if(lid) lid.style.transitionDuration=lidDur;
+  if(lid) setTimeout(()=>{lid.classList.add('open')},600*f);
   setTimeout(()=>{hand.classList.add('reaching')},800*f);
   setTimeout(()=>{
     hand.classList.remove('reaching');hand.classList.add('pulling');
@@ -2076,11 +2131,71 @@ function renderGame7(rd){
   Z.buttons.style.display='none';
   renderStatsTable(Z.table,7);
   startBoxAnimation();
-  spinReel('reel0',rd.roll,()=>{
-    rd.rollShown=true;
-    renderStatsTable(Z.table,7);
-    const ga=document.getElementById('guess-area');if(ga){ga.style.opacity='1';ga.style.pointerEvents='auto';}
-  },1800);
+  // Three-box two-step reveal sequence. The brown-box hand+held timing below
+  // mirrors Game 1's pattern exactly (500ms reach→pull, 200ms pull→held):
+  //   stage 1 (startBoxAnimation): amber/blue lids open, ?s emerge, ?s slide
+  //                                into brown.
+  //   stage 2 (here): ?s fade to invisible inside brown → chosen ? silently
+  //                   repositioned to brown-centre → hand reaches in →
+  //                   hand pulls back → chosen ? slides up into the hand
+  //                   (pure vertical slide-up + fade-in, like Game 1) →
+  //                   palm opens, reel spins to reveal the rolled value.
+  const f = diceSpeedFactor();
+  const travA = ()=>document.getElementById('g7-trav-a');
+  const travB = ()=>document.getElementById('g7-trav-b');
+  const hand  = ()=>document.getElementById('g7-brown-hand');
+  // ~1700ms: both ?s arrived in brown. 1900ms: fade them to invisible.
+  setTimeout(()=>{
+    const a=travA(), b=travB();
+    if(a) a.style.opacity='0';
+    if(b) b.style.opacity='0';
+  }, 1900 * f);
+  // 2100ms: chosen ? silently jumps to brown-centre (invisible, mid-brown).
+  // .at-mix-centre has transition:none so no animation — instant teleport.
+  setTimeout(()=>{
+    const chosen = rd.box==='amber' ? travA() : travB();
+    if(chosen){
+      chosen.classList.remove('in-brown');
+      chosen.classList.add('at-mix-centre');
+    }
+  }, 2100 * f);
+  // 2200ms: hand reaches into brown (same as Game 1's reach beat = 800ms after
+  // its lid opens, scaled to the same gap here).
+  setTimeout(()=>{
+    const h=hand(); if(h) h.classList.add('reaching');
+  }, 2200 * f);
+  // 2700ms: hand grips and starts pulling back (500ms after reach — Game 1).
+  setTimeout(()=>{
+    const h=hand();
+    if(h){
+      h.classList.remove('reaching');
+      h.classList.add('pulling');
+      const shape=h.querySelector('.hand-shape');
+      if(shape) shape.textContent='✊';
+    }
+  }, 2700 * f);
+  // 2900ms: chosen ? .lifted — clear inline opacity, add class. Animates
+  // translateY(3.75rem)→translateY(0) and opacity 0→1, same as Game 1's
+  // hand-held .shown. 200ms after pull — matches Game 1's pull→held gap.
+  setTimeout(()=>{
+    const chosen = rd.box==='amber' ? travA() : travB();
+    if(chosen){
+      chosen.style.opacity='';
+      chosen.classList.add('lifted');
+    }
+  }, 2900 * f);
+  // 3300ms: palm opens (reveals the held die), reel spins. The 400ms gap from
+  // .lifted lets the slide-up finish before the digit appears.
+  setTimeout(()=>{
+    const h=hand();
+    const shape=h && h.querySelector('.hand-shape');
+    if(shape) shape.textContent='🤚';
+    spinReel('g7-reel-' + rd.box, rd.roll, ()=>{
+      rd.rollShown=true;
+      renderStatsTable(Z.table,7);
+      const ga=document.getElementById('guess-area');if(ga){ga.style.opacity='1';ga.style.pointerEvents='auto';}
+    }, 0);
+  }, 3300 * f);
 }
 
 function guessGame7(guess){
@@ -2091,7 +2206,8 @@ function guessGame7(guess){
   if(correct)S.scores[6]++;
   rd.guess=guess;rd.correct=correct;
 
-  revealDieInHand(rd.die, rd.box);
+  // Reveal targets the surviving (chosen) ? — its qm circle id is built from rd.box.
+  revealDieInHand(rd.die, rd.box, 'g7-qm-' + rd.box);
   Z.text.innerHTML='';
   Z.text.style.display='none';
   renderStatsTable(Z.table,7);
