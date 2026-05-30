@@ -181,6 +181,8 @@ const GAMES = [
 ];
 
 const POLL_MS = 4000;
+// Mirror of ROUNDS_PER_GAME in liking_likelihood.html — keep in sync.
+const ROUNDS_PER_GAME = 8;
 let pollTimer = null;
 let currentRoom = '';
 let currentGameId = null;     // null = on picker/overview; 1–12 = on live view
@@ -292,9 +294,10 @@ async function fetchAndRender(){
 function isTrue(v){ return v === true  || v === 'true'  || v === 'TRUE'; }
 function isFalse(v){ return v === false || v === 'false' || v === 'FALSE'; }
 
-// For each player, return their latest *completed* attempt at the given game.
-// An attempt is the run starting from the latest round=1 event for that
-// (player, game), as long as it contains an is_last:true row.
+// For each player, return their latest attempt at the given game (the run
+// starting from the latest round=1 event). Attempts in progress are included
+// — pies + leaderboards update live after every round, not just on completion.
+// `isComplete` is exposed on the summary so renderers can flag finished runs.
 function summarizeForGame(rows, gameId){
   const byPlayer = {};
   rows.forEach(r => {
@@ -325,7 +328,8 @@ function summarizeForGame(rows, gameId){
     const attempt = evs.slice(startIdx);
     const isWinByLossGame = (gameId === 11 || gameId === 12);
     const wonByLoss = isWinByLossGame && attempt.some(e => e.loss === 0);
-    if(!attempt.some(e => e.isLast) && !wonByLoss) return;
+    // Include in-progress attempts too — dashboard refreshes per round, not per game.
+    const isComplete = attempt.some(e => e.isLast) || wonByLoss;
     let correct = 0, wrong = 0, wins = 0, losses = 0, playerPotSum = 0, housePotSum = 0;
     let bestLoss = null, totalLoss = 0, attemptsToSolve = null;
     attempt.forEach(e => {
@@ -346,6 +350,8 @@ function summarizeForGame(rows, gameId){
       tokensAhead: playerPotSum - housePotSum,
       solved: attemptsToSolve != null,
       attemptsToSolve, bestLoss, totalLoss,
+      roundsPlayed: attempt.length,
+      isComplete,
       rounds: attempt
     });
   });
@@ -532,7 +538,7 @@ function renderTokensAheadLeaderboard(summary){
     container.innerHTML = `<div class="empty-state">No players have finished this game yet.<br>Results appear once a player completes all rounds.</div>`;
     return;
   }
-  const sorted = summary.slice().sort((a,b) => b.tokensAhead - a.tokensAhead || b.wins - a.wins || a.player.localeCompare(b.player));
+  const sorted = summary.slice().sort((a,b) => b.wins - a.wins || b.tokensAhead - a.tokensAhead || a.player.localeCompare(b.player));
   const rowsHtml = sorted.map((p, i) => {
     const aheadStr = p.tokensAhead > 0 ? `+${p.tokensAhead}` : `${p.tokensAhead}`;
     const aheadColor = p.tokensAhead > 0 ? 'var(--good)' : p.tokensAhead < 0 ? 'var(--bad)' : 'var(--muted)';
@@ -704,7 +710,7 @@ function renderSolvedPie(summary){
       `<svg viewBox="0 0 200 200" width="200" height="200" aria-label="solved vs not solved">${arcs}</svg>` +
       `<div>` +
         `<h2>Solved vs Not Solved — ${total} player${total===1?'':'s'}</h2>` +
-        `<div class="pie-meta">"Solved" = reached Loss = 0 within 10 attempts.</div>` +
+        `<div class="pie-meta">"Solved" = reached Loss = 0 within ${ROUNDS_PER_GAME} attempts.</div>` +
         `<div class="pie-legend" style="margin-top:0.75rem">` +
           `<div><span class="swatch" style="background:var(--good)"></span>Solved: <b>${solved}</b> (${pct}%)</div>` +
           `<div><span class="swatch" style="background:var(--bad)"></span>Not solved: <b>${unsolved}</b> (${100 - pct}%)</div>` +
@@ -716,7 +722,7 @@ function renderSolvedPie(summary){
 function renderSolveLossLeaderboard(summary){
   const container = document.getElementById('leaderboard-container');
   if(summary.length === 0){
-    container.innerHTML = `<div class="empty-state">No players have finished this game yet.<br>Results appear once a player solves it or completes 10 attempts.</div>`;
+    container.innerHTML = `<div class="empty-state">No players have finished this game yet.<br>Results appear once a player solves it or completes ${ROUNDS_PER_GAME} attempts.</div>`;
     return;
   }
   const sorted = summary.slice().sort((a,b) => {

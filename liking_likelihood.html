@@ -85,7 +85,7 @@ button:active{transform:scale(.95)}
 .game-zone-next .next-btn{width:auto}
 .game-zone-next .next-btn:disabled{opacity:.35;pointer-events:none}
 .game-zone-table{flex:0 0 10rem;background:var(--c-surface);border-top:var(--border-1) solid var(--c-border);padding:var(--sz-1) var(--sz-2) var(--sz-1);overflow-y:auto}
-.stats-table{width:100%;border-collapse:collapse;font-size:var(--sz-2)}
+.stats-table{width:auto;max-width:100%;margin:0 auto;border-collapse:collapse;font-size:var(--sz-2)}
 .stats-table th{padding:var(--sz-0) var(--sz-0);color:var(--c-text);font-weight:var(--fw-bold);text-align:center;white-space:nowrap;position:sticky;left:0;background:var(--c-surface);z-index:1;text-align:right;min-width:2.75rem}
 .stats-table td{padding:var(--sz-0) var(--sz-1);text-align:center;border-left:var(--border-1) solid var(--c-border);min-width:var(--sz-5);width:var(--sz-5)}
 .stats-table .correct{color:var(--c-success);font-weight:var(--fw-bold)}
@@ -183,8 +183,8 @@ button:active{transform:scale(.95)}
 .g8-flag{font-size:var(--sz-4);line-height:1;cursor:pointer;flex-shrink:0;opacity:0.3;filter:grayscale(1);transition:opacity .15s,filter .15s,transform .15s;user-select:none}
 .g8-flag:hover{opacity:0.6}
 .g8-flag.selected{opacity:1;filter:none;transform:scale(1.2)}
-.g9-tokens-row{display:flex;justify-content:center;align-items:center;gap:0;margin:var(--sz-0) auto var(--sz-0);font-size:var(--sz-3);line-height:1}
-.g9-tokens-row span{margin-left:-0.125rem}
+.g9-tokens-row{display:flex;justify-content:center;align-items:center;gap:0.2rem;margin:var(--sz-0) auto var(--sz-0);font-size:var(--sz-3);line-height:1}
+.g9-tokens-row span{margin-left:0}
 .g9-tokens-row span:first-child{margin-left:0}
 /* CSS-rendered coin — gold gradient circle. Replaces the 🪙 emoji (Unicode 13.0)
    which lacks a colour glyph on older Android system fonts. Sized in em so it
@@ -439,6 +439,12 @@ if('serviceWorker' in navigator){
 </div>
 
 <script>
+// Rounds per game session — single source of truth. Used by generateRounds
+// loops, round-counter UI, Game 5's rejection sampler, totalRounds in
+// renderRound, and the matching count in GAME_DESCRIPTIONS text. Bump back
+// to 10 (or any value) and every consumer follows.
+const ROUNDS_PER_GAME = 8;
+
 // ===== TELEMETRY =====
 // Set this to your Apps Script web-app URL to enable score logging.
 // Leave as empty string to disable (game still plays normally).
@@ -590,7 +596,7 @@ const GAMES = [
 //     chosenBox    'amber' or 'blue' — which box was chosen (game 7)
 //     numDice      number of dice rolled together (race games)
 //     dieSides     face count of each die (4, 6, 8 or 10)
-//     bias         bias preset name ('fair','line','twin','boat','arch','step','edge')
+//     bias         bias preset name ('fair','arch','boat','line','odds','step')
 //     diceSides    array of dice rolled together (game 8 horse race)
 //     lanesLen     length of each of the 12 lanes (game 8 horse race)
 // ============================================================================
@@ -671,15 +677,15 @@ const TUT = {
     {numDice:1, dieSides:6,  bias:'fair'},   // 1:  1d6 fair
     {numDice:2, dieSides:6,  bias:'fair'},   // 2:  2d6 fair
     {numDice:1, dieSides:10, bias:'line'},   // 3:  1d10 line (rising)
-    {numDice:3, dieSides:4,  bias:'twin'},   // 4:  3d4 twin (extremes)
-    {numDice:2, dieSides:8,  bias:'edge'},   // 5:  2d8 edge (heavy high)
+    {numDice:3, dieSides:4,  bias:'odds'},   // 4:  3d4 odds (alternating)
+    {numDice:2, dieSides:8,  bias:'step'},   // 5:  2d8 step (heavy low half)
     {numDice:1, dieSides:8,  bias:'arch'},   // 6:  1d8 arch
     {numDice:3, dieSides:6,  bias:'fair'},   // 7:  3d6 fair
     {numDice:2, dieSides:4,  bias:'arch'},   // 8:  2d4 arch (peaked)
     {numDice:1, dieSides:4,  bias:'step'},   // 9:  1d4 step
     {numDice:2, dieSides:10, bias:'boat'},   // 10: 2d10 U-shape
     {numDice:4, dieSides:4,  bias:'fair'},   // 11: 4d4 fair
-    {numDice:4, dieSides:6,  bias:'edge'},   // 12: 4d6 edge
+    {numDice:4, dieSides:6,  bias:'odds'},   // 12: 4d6 odds
   ],
 
   // ---- GAMES 11 (Reverse the Race) & 12 (Biased Reverse the Race) ----
@@ -688,9 +694,9 @@ const TUT = {
   // figure out the dice combination from the lane distribution.
   // The race result is computed analytically as a Gaussian (sum of weighted dice).
   // diceSides = 1–4 dice, all the same type, drawn from {4, 6, 8, 10}.
-  // bias      = 'fair','line','twin','boat','arch','step','edge'.
+  // bias      = 'fair','arch','boat','line','odds','step'.
   game10: [
-    {diceSides:[4], bias:'edge'},   // tutorial race (1d4 edge — single die, asymmetric bias)
+    {diceSides:[4], bias:'step'},   // tutorial race (1d4 step — single die, asymmetric bias)
   ],
 
 };
@@ -763,12 +769,12 @@ const frac = (val,sides) => val<=sides ? `1/${sides}` : '0';
 function generateRounds(gameId) {
   const rounds = [];
   if (gameId===1) {
-    for(let i=0;i<10;i++){
+    for(let i=0;i<ROUNDS_PER_GAME;i++){
       const die = S.mode==='tutorial' ? TUT.game1.answerDie[i] : pick([4,6,8,10]);
       rounds.push({die});
     }
   } else if (gameId===2) {
-    for(let i=0;i<10;i++){
+    for(let i=0;i<ROUNDS_PER_GAME;i++){
       if(S.mode==='tutorial'){
         rounds.push({roll:TUT.game2.roll[i], die:TUT.game2.answerDie[i]});
       } else {
@@ -786,7 +792,7 @@ function generateRounds(gameId) {
       return reachable[Math.floor(Math.random()*reachable.length)];
     };
     if(S.mode==='tutorial'){
-      for(const t of TUT.game8.slice(0,10)){
+      for(const t of TUT.game8.slice(0,ROUNDS_PER_GAME)){
         const diceSides=t.diceSides.slice();
         rounds.push({
           trackLen: TRACK_LEN_8,
@@ -797,8 +803,10 @@ function generateRounds(gameId) {
         });
       }
     } else {
-      for(let i=0;i<10;i++){
-        const diceSides=G10_VALID_COMBOS[Math.floor(Math.random()*G10_VALID_COMBOS.length)].slice();
+      // Fixed sequence: 1 single, 2 doubles, 3 triples, 2 quads.
+      const seq=g8SequencedCombos();
+      for(let i=0;i<ROUNDS_PER_GAME;i++){
+        const diceSides=seq[i];
         rounds.push({
           trackLen: TRACK_LEN_8,
           lanesLen: Array(12).fill(TRACK_LEN_8),
@@ -808,7 +816,7 @@ function generateRounds(gameId) {
       }
     }
   } else if (gameId===3) {
-    for(let i=0;i<10;i++){
+    for(let i=0;i<ROUNDS_PER_GAME;i++){
       if(S.mode==='tutorial'){
         rounds.push({roll:TUT.game3.roll[i], pair:TUT.game3.dieOptions[i], die:TUT.game3.answerDie[i]});
       } else {
@@ -821,7 +829,7 @@ function generateRounds(gameId) {
       }
     }
   } else if (gameId===4) {
-    for(let i=0;i<10;i++){
+    for(let i=0;i<ROUNDS_PER_GAME;i++){
       if(S.mode==='tutorial'){
         rounds.push({rolls:TUT.game4.rolls[i], die:TUT.game4.answerDie[i]});
       } else {
@@ -832,7 +840,7 @@ function generateRounds(gameId) {
   } else if (gameId===6) {
     // Each round: pick 2 dice types, random counts summing to 8
     const pool=[4,6,8,10];
-    for(let i=0;i<10;i++){
+    for(let i=0;i<ROUNDS_PER_GAME;i++){
       let dA,dB,cA,cB;
       if(S.mode==='tutorial'){
         dA=TUT.game6.diceA[i];dB=TUT.game6.diceB[i];cA=TUT.game6.countA[i];cB=8-cA;
@@ -855,7 +863,7 @@ function generateRounds(gameId) {
     // is the original box of whichever die was finally picked. Math-wise this
     // is identical to one-step (pick box, pick die) but explicit so the UI
     // can show both intermediate ?s.
-    for(let i=0;i<10;i++){
+    for(let i=0;i<ROUNDS_PER_GAME;i++){
       let amberDice,blueDice,dieA,dieB,box,die;
       if(S.mode==='tutorial'){
         amberDice=TUT.game7.amber?TUT.game7.amber[i]:[6,8];
@@ -885,9 +893,11 @@ function generateRounds(gameId) {
     // Dice combos drawn from the same 12-combo set as Games 10 (CLT) and 11 (Reverse).
     // Player picks one lane; house picks one lane uniformly across ALL 12 (including impossible).
     const TRACK_LEN_9=24;
-    const BS_PRESETS=['fair','line','twin','boat','arch','step','edge'];
-    for(let i=0;i<10;i++){
-      const diceSides=G10_VALID_COMBOS[Math.floor(Math.random()*G10_VALID_COMBOS.length)].slice();
+    const BS_PRESETS=['fair','arch','boat','line','odds','step'];
+    // Fixed sequence: 1 single, 2 doubles, 3 triples, 2 quads.
+    const seq=g8SequencedCombos();
+    for(let i=0;i<ROUNDS_PER_GAME;i++){
+      const diceSides=seq[i];
       const bias=BS_PRESETS[Math.floor(Math.random()*BS_PRESETS.length)];
       // House is uniformly random across ALL 12 lanes (including unreachable ones).
       const houseLane=1+Math.floor(Math.random()*12);
@@ -905,7 +915,7 @@ function generateRounds(gameId) {
     if(S.mode==='tutorial'){
       // Lanes fixed at 12 (matches Game 8). Tutorial uses uniform-dice combos;
       // the diceSides array is just N copies of the chosen die.
-      for(const t of TUT.game9.slice(0,10)){
+      for(const t of TUT.game9.slice(0,ROUNDS_PER_GAME)){
         const diceSides = Array(t.numDice).fill(t.dieSides);
         rounds.push({
           diceSides,
@@ -917,11 +927,11 @@ function generateRounds(gameId) {
         });
       }
     } else {
-      const PRESETS=['fair','line','twin','boat','arch','step','edge'];
-      for(let i=0;i<10;i++){
-        // Random rounds now draw from the 12-combo set (1–4 single-type dice),
-        // matching Games 8 and 10.
-        const diceSides=G10_VALID_COMBOS[Math.floor(Math.random()*G10_VALID_COMBOS.length)].slice();
+      const PRESETS=['fair','arch','boat','line','odds','step'];
+      // Fixed sequence: 1 single, 2 doubles, 3 triples, 2 quads (same as G8/G9).
+      const seq=g8SequencedCombos();
+      for(let i=0;i<ROUNDS_PER_GAME;i++){
+        const diceSides=seq[i];
         const bias=PRESETS[Math.floor(Math.random()*PRESETS.length)];
         rounds.push({diceSides, maxSum:12, trackLen:TRACK_LEN, lanesLen:Array(12).fill(TRACK_LEN), bias, houseLane:g9ModeLane(diceSides, bias)});
       }
@@ -931,7 +941,7 @@ function generateRounds(gameId) {
     // The race result is a Gaussian (sum of bias-weighted dice — closed form, no simulation).
     // Player must figure out the dice combo + bias from the lane distribution shown.
     const TRACK_LEN = 24;
-    const PRESETS = ['fair','line','twin','boat','arch','step','edge'];
+    const PRESETS = ['fair','arch','boat','line','odds','step'];
     let actualDiceSides, actualBias;
     if (S.mode === 'tutorial') {
       const t = TUT.game10[0];
@@ -945,7 +955,7 @@ function generateRounds(gameId) {
     const actualRace = g10GaussianRace(actualDiceSides, actualBias, TRACK_LEN);
     const animals = g9SampleAnimals(12);
     // 10 rounds, all attempts at the same race.
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < ROUNDS_PER_GAME; i++) {
       rounds.push({
         attemptIdx: i,
         diceSides: actualRace.diceSides.slice(),
@@ -964,7 +974,7 @@ function generateRounds(gameId) {
   } else if (gameId===12) {
     // Constrained Reverse: same as Game 11 but the bias is given to the player.
     const TRACK_LEN = 24;
-    const PRESETS = ['fair','line','twin','boat','arch','step','edge'];
+    const PRESETS = ['fair','arch','boat','line','odds','step'];
     let actualDiceSides, actualBias;
     if (S.mode === 'tutorial') {
       const t = TUT.game10[0];
@@ -976,7 +986,7 @@ function generateRounds(gameId) {
     }
     const actualRace = g10GaussianRace(actualDiceSides, actualBias, TRACK_LEN);
     const animals = g9SampleAnimals(12);
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < ROUNDS_PER_GAME; i++) {
       rounds.push({
         attemptIdx: i,
         diceSides: actualRace.diceSides.slice(),
@@ -1127,31 +1137,62 @@ function boxDiceForGame(id){
 // One-paragraph premise + aim for each game with a blurb. Rendered into the
 // instructions popup via openInstructions(gameId); the under-box helper
 // gameDescHTML now emits only the trigger button.
+// GAME_DESCRIPTIONS = pure rules ("what to do"). GAME_INFORMATION = the
+// underlying maths / concept ("why"). Two separate modals so students can
+// read the rules without being hit by all the theory in the same blob.
 const GAME_DESCRIPTIONS = {
-  1: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>nothing</b>: no rolls, no clues. Every dice is equally likely, so the guess is right just <b>one time in four</b>.`,
-  2: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>one roll</b> from the chosen dice. Some dice are more likely to give that roll than others — use the <b>likelihood</b> to guess which dice was chosen.`,
-  3: `Two possible dice, <b>one roll</b>. Pick the dice the data supports <i>and</i> rate how strongly: when the less-likely dice makes the roll <b>impossible</b>, you're <b>certain</b>; when both dice make it almost equally likely, you have <b>low confidence</b>. You should guess correctly more often when the <b>likelihood ratio</b> is <b>high</b>.`,
-  4: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>three independent rolls</b> from the chosen dice. Independent rolls <b>multiply</b> their likelihoods — combine all three to guess which dice was chosen.`,
-  5: `Is the dice <b>Fair</b> or <b>biased</b>? The <b>House</b> tracks the raw <b>likelihood ratio</b> <b>L(A) / L(B)</b>; you track the <b>likelihood gain</b> <b>log L(A) − log L(B)</b>. Both contain the <b>same information</b> — but multiplying many small probabilities crashes raw likelihoods through the <b>precision floor</b> of any computer.<br><br>Real doubles underflow around <b>10⁻³²⁴</b>; this game uses a much tighter floor (<b>≥ 0.0001</b>, shown next to the 💻) so you can <b>see it happen in a few rolls</b>. Each roll multiplies the house's L values by a probability &lt; 1, dragging them toward 0 fast. Once both round to <b>0.0000</b>, the house has <b>underflowed</b> and its guess freezes.<br><br>You start with <b>6 tokens</b> and pay <b>1 per roll</b>. You track logs in <b>4-decimal-place</b> precision too — but logs grow by <b>addition</b>, not multiplication, so they never underflow at this scale. Click <b>Fair</b> or <b>Bias</b> on your row whenever you're ready. Any unused tokens go into your prize pot.`,
-  6: `The box holds <b>eight dice</b>: some of one type, some of another. A dice is selected from the box, chosen at random. You see <b>one roll</b> from the chosen dice. Combine the <b>prior</b> (how many of each type are in the box) with the <b>likelihood</b> (which type fits the roll) to guess which dice was chosen — that's <b>Bayes' theorem</b>.`,
-  7: `Three boxes: <b>Amber</b> and <b>Blue</b> each hold <b>two dice</b>; the middle <b>Mix</b> box starts empty. Selection in <b>two steps</b>: first, <b>one dice is drawn at random from amber</b> and <b>one from blue</b>, both into the Mix box; second, a <b>hand picks one of those two at random</b> from Mix, rolls it, and shows the value. You only see the final roll.<br><br>To find the <i>original</i> box, <b>marginalize / integrate out the nuisance variables</b> — both "which die came out of amber" and "which die came out of blue." The <b>marginal P(roll | box)</b> is the same as the one-step pick — the math is identical. Pick the more likely box.`,
-  8: `A few <b>fair</b> dice are rolled and summed; the animal in the lane equal to that sum advances one step. The first lane to reach the finish line wins. Before the race <b>you</b> pick a lane and the <b>House</b> picks one for itself, at random across the lanes that can win. If the winning lane is yours, <b>you</b> score <b>1</b>; if it's the House's, the <b>House</b> scores <b>1</b>; if you both bet the same lane, you both score when it wins. Read the sum's <b>probability mass function / PMF / distribution</b> — peaked near its <b>mean / average / expected value / μ</b> and made wider by its <b>variance / spread / σ²</b> — and pick the lane closest to the peak. Over <b>10 rounds</b>, a smart player should beat the random House.`,
-  9: `Same race against the House as <b>Dice Sums</b>, but every dice shares the <b>same bias</b> — picked from <b>Fair</b>, <b>Line</b>, <b>Twin</b>, <b>Boat</b>, <b>Arch</b>, <b>Step</b> or <b>Edge</b>. Bias <b>shifts the mean / μ</b> and <b>changes the variance / σ²</b> of the dice sum, so the winning lane is no longer where you'd expect. The <b>House</b> picks a lane <b>uniformly at random across all 12</b> — including unreachable ones — so it's an even worse player than in Dice Sums. <b>Read the bias bars</b>, pick the lane closest to the peak of the biased PMF, and you should beat the House over <b>10 rounds</b>. One token to win per round (you +1 / House +1 / both 0).`,
-  10: `Same biased race as <b>Biased Dice Sums</b>, but now the betting is different. The <b>House</b> always places all <b>12 tokens</b> on the <b>modal lane</b> (the most-probable sum given the bias) — winning <b>12</b> if that lane wins, <b>0</b> otherwise. You have <b>12 tokens</b> to <b>spread your bet</b> across <b>1, 2, 3, 4, 6 or 12 lanes</b> — <b>12/n tokens per lane</b>. If a covered lane wins, you score the <b>12/n tokens</b> on it; otherwise <b>0</b>. <b>Narrow bets pay more, rarely</b>; <b>wide bets pay less, often</b>. The trade-off isn't equal on both sides: on a <b>low-variance</b> bias (most of the chance on one lane) the mode bet has the highest expected score; on a <b>high-variance</b> bias (chance spread across many lanes) every spread has nearly the same expected score, so a wider bet can <b>win more sessions</b> over the 10-round game by avoiding the runs of zero scores the narrow bet suffers. Match the spread to the variance you expect.`,
-  11: `You see the <b>finished distribution</b> of a hidden race shown as <b>black target dots</b>. The bias is <b>given</b> — it's highlighted at the top of the page and stays locked for the whole game. You only need to figure out the <b>dice combination</b> (1–4 dice, all the same type, from {d4, d6, d8, d10}) that produces the observed lane heights. <b>Win the game by reaching a Loss of 0</b> within <b>10 attempts</b>. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane height adds 1 — shown per attempt in the stats table.`,
-  12: `Same hidden race as <b>Reverse the Race</b>, but the bias is <b>not</b> given. By the <b>Central Limit Theorem / CLT</b>, the sum's <b>PMF</b> is approximately <b>Gaussian / Normal / bell-curve</b>, so the shape is captured by its <b>mean / μ</b> and <b>variance / σ²</b>. <b>Reverse the race</b> — figure out which dice combination (1–4 dice, all the same type, from {d4, d6, d8, d10}) <b>and</b> which bias would produce that mean and variance. You have <b>10 attempts</b> at the <i>same</i> race; each prediction draws a coloured line + dots through your 12 lane heights. <b>Win the game by reaching a Loss of 0</b> (your prediction exactly matches the targets) within those 10 attempts. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane height adds 1 — shown per attempt in the stats table.`,
+  1: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>nothing</b> — no rolls, no clues. Just guess which dice it is.`,
+  2: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>one roll</b> from the chosen dice. Guess which dice was chosen.`,
+  3: `Two possible dice and <b>one roll</b>. Pick the dice the data supports <i>and</i> rate how strongly: <b>certain</b>, <b>medium-high</b>, or <b>low</b> confidence.`,
+  4: `The box holds <b>four dice</b>. A dice is selected from the box, chosen at random. You see <b>three independent rolls</b> from the chosen dice. Guess which dice was chosen.`,
+  5: `Is the dice <b>Fair</b> or <b>biased</b>? You start with <b>6 tokens</b> and pay <b>1 per roll</b>. Each roll, the House updates its <b>L(A) / L(B)</b> ratio and you update your <b>log L(A) − log L(B)</b> gain. Click <b>Fair</b> or <b>Bias</b> on your row whenever you're ready. Any unused tokens go into your prize pot.`,
+  6: `The box holds <b>eight dice</b>: some of one type, some of another. A dice is selected at random. You see <b>one roll</b>. Guess which type the dice is.`,
+  7: `Three boxes: <b>Amber</b> and <b>Blue</b> each hold <b>two dice</b>; the middle <b>Mix</b> box starts empty. Two steps: first, <b>one dice is drawn at random from amber</b> and <b>one from blue</b>, both into Mix; second, a <b>hand picks one of those two at random</b> from Mix, rolls it, and shows the value. Click <b>Amber</b> or <b>Blue</b> to guess which original box the rolled die came from.`,
+  8: `A few <b>fair</b> dice are rolled and summed; the animal in the lane equal to that sum advances one step. The first lane to reach the finish line wins. Before the race <b>you</b> pick a lane and the <b>House</b> picks one for itself, at random across the lanes that can win. If the winning lane is yours, <b>you</b> score <b>1</b>; if it's the House's, the <b>House</b> scores <b>1</b>; if you both bet the same lane, you both score. Compete over <b>${ROUNDS_PER_GAME} rounds</b>.`,
+  9: `Same race as <b>Dice Sums</b>, but every dice shares the <b>same bias</b> (Fair / Line / Twin / Boat / Arch / Step / Edge). The <b>House</b> picks a lane <b>uniformly at random across all 12</b> — including unreachable ones. Read the bias bars and pick the lane you think will win. One token per round (you +1 / House +1 / both 0). <b>${ROUNDS_PER_GAME} rounds</b>.`,
+  10: `Same biased race as <b>Biased Dice Sums</b>, but the betting is different. The <b>House</b> places all <b>12 tokens</b> on the <b>modal lane</b> — winning <b>12</b> if that lane wins, <b>0</b> otherwise. You have <b>12 tokens</b> to <b>spread your bet</b> across <b>1, 2, 3, 4, 6 or 12 lanes</b> — <b>12/n tokens per lane</b>. If a covered lane wins, you score the <b>12/n tokens</b> on it; otherwise <b>0</b>.`,
+  11: `You see the <b>finished distribution</b> of a hidden race as <b>black target dots</b>. The bias is <b>given</b> (locked for the whole game). Figure out the <b>dice combination</b> (1–4 dice, all the same type, from {d4, d6, d8, d10}) that produces the observed lane heights. <b>Win by reaching Loss = 0</b> within <b>${ROUNDS_PER_GAME} attempts</b>.`,
+  12: `Same hidden race as <b>Reverse the Race</b>, but the bias is <b>not</b> given. Figure out which dice combination (1–4 dice, all the same type, from {d4, d6, d8, d10}) <b>and</b> which bias would produce the observed heights. You have <b>${ROUNDS_PER_GAME} attempts</b>; each prediction draws a coloured line + dots through your 12 lane heights. <b>Win by reaching Loss = 0</b>.`,
 };
 
+// Underlying maths / concepts. Only games where there's something to explain
+// beyond the rules. Games 1 and 4 have no extra info (rules cover it).
+const GAME_INFORMATION = {
+  2: `Some dice are more likely to produce a given roll than others — use the <b>likelihood</b> P(roll | dice) to weigh which dice was probably picked.`,
+  3: `The <b>likelihood ratio</b> tells you how strongly the data favours one dice over the other. When the less-likely dice makes the roll <b>impossible</b>, the ratio is infinite — you should be <b>certain</b>. When both dice make the roll almost equally likely, the ratio is near 1 — <b>low confidence</b>. You should guess correctly more often when your stated confidence is <b>high</b>.`,
+  4: `Independent rolls <b>multiply</b> their likelihoods: P(rolls | dice) = ∏ P(roll<sub>i</sub> | dice). Combine all three rolls to find which dice is most likely.`,
+  5: `Both ratio and log-gain contain the <b>same information</b>, but multiplying many small probabilities crashes raw likelihoods through the <b>precision floor</b> of any computer. Real doubles underflow around <b>10⁻³²⁴</b>; this game uses a much tighter floor (<b>≥ 0.0001</b>, shown next to the 💻) so you can <b>see it happen in a few rolls</b>. Each roll multiplies the house's L values by a probability &lt; 1, dragging them toward 0 fast. Once both round to <b>0.0000</b>, the house has <b>underflowed</b>. Logs grow by <b>addition</b>, not multiplication, so they never underflow at this scale — which is why every probabilistic library on Earth computes in log space.`,
+  6: `Combine the <b>prior</b> (how many of each type are in the box) with the <b>likelihood</b> (which type fits the roll) using <b>Bayes' theorem</b>:<br>P(type | roll) ∝ P(roll | type) × P(type).<br>The "many of one type" pulls the answer toward that type even when both types could produce the roll.`,
+  7: `To find the original box, <b>marginalize / integrate out the nuisance variables</b> — both "which die was drawn from amber" and "which die was drawn from blue":<br>P(roll | box) = ½ P(roll | die<sub>1</sub> in box) + ½ P(roll | die<sub>2</sub> in box).<br>The two-step process is mathematically <b>identical</b> to the one-step pick (pick a box, pick a die from it). Pick the more likely box.`,
+  8: `Read the sum's <b>probability mass function / PMF / distribution</b> — peaked near its <b>mean / average / expected value / μ</b> and made wider by its <b>variance / spread / σ²</b>. The lane closest to the peak has the highest chance of winning. Over many rounds, a smart player should beat the random House.`,
+  9: `Bias <b>shifts the mean / μ</b> and <b>changes the variance / σ²</b> of the dice sum, so the winning lane is no longer where you'd expect. Read the bias bars to anticipate the new peak.`,
+  10: `<b>Narrow bets pay more, rarely</b>; <b>wide bets pay less, often</b>. The trade-off isn't equal on both sides: on a <b>low-variance</b> bias (most of the chance on one lane) the mode bet has the highest expected score; on a <b>high-variance</b> bias (chance spread across many lanes) every spread has nearly the same expected score, so a wider bet can <b>win more sessions</b> over the ${ROUNDS_PER_GAME}-round game by avoiding runs of zero scores. Match the spread to the variance you expect.`,
+  11: `Loss is the <b>L1 / Manhattan distance</b> between your predicted and actual lane heights — each off-by-one lane adds 1, shown per attempt in the stats table. Different combos produce noticeably different PMF shapes (peak position, spread), so you can rule out wrong picks by eye.`,
+  12: `By the <b>Central Limit Theorem / CLT</b>, the sum's <b>PMF</b> is approximately <b>Gaussian / Normal / bell-curve</b>, so its shape is captured by <b>mean / μ</b> and <b>variance / σ²</b>. Match both to the target dots. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane adds 1.`,
+};
+
+// Two-button row, left-aligned: Instructions (rules / what to do) on the left,
+// Information (game maths / concepts) on the right. The Information button
+// only renders when GAME_INFORMATION has an entry for the game.
 function gameDescHTML(gameId){
-  if(!GAME_DESCRIPTIONS[gameId]) return '';
-  return `<div class="ta-c" style="padding:var(--sz-1) 0 0"><button class="next-btn btn-compact" style="background:var(--c-overlay-dark);margin:0" onclick="openInstructions(${gameId})">Instructions</button></div>`;
+  const hasInstr = !!GAME_DESCRIPTIONS[gameId];
+  const hasInfo  = !!GAME_INFORMATION[gameId];
+  if(!hasInstr && !hasInfo) return '';
+  const btnStyle = 'background:var(--c-overlay-dark);margin:0';
+  const buttons = [];
+  if(hasInstr) buttons.push(`<button class="next-btn btn-compact" style="${btnStyle}" onclick="openInstructions(${gameId})">Instructions</button>`);
+  if(hasInfo)  buttons.push(`<button class="next-btn btn-compact" style="${btnStyle}" onclick="openInformation(${gameId})">Information</button>`);
+  return `<div style="display:flex;gap:var(--sz-1);justify-content:center;padding:var(--sz-1) 0 0">${buttons.join('')}</div>`;
 }
 
-function openInstructions(gameId){
+function openInstructions(gameId){ openInfoModal('Instructions', GAME_DESCRIPTIONS[gameId]); }
+function openInformation(gameId){  openInfoModal('Information',  GAME_INFORMATION[gameId]); }
+
+function openInfoModal(title, html){
   const modal=document.getElementById('instructions-modal');
-  const body=document.getElementById('instructions-modal-body');
+  const body =document.getElementById('instructions-modal-body');
   if(!modal||!body) return;
-  body.innerHTML=GAME_DESCRIPTIONS[gameId]||'';
+  body.innerHTML = (title ? `<h2 style="margin:0 0 0.75rem 0">${title}</h2>` : '') + (html || '');
   modal.style.display='flex';
 }
 function closeInstructions(evt){
@@ -1345,6 +1386,14 @@ function enableNextBtn(){
     // Games 8, 9 and 10 use graded scoring (head-to-head / points / distance),
     // not a binary right/wrong — suppress the ✓/✗ badge there to avoid mis-signalling.
     if(S.currentGame===8 || S.currentGame===9 || S.currentGame===10 || S.currentGame===11 || S.currentGame===12){ind.textContent='';}
+    else if(S.currentGame===5){
+      // Game 5 has three outcomes: Player wins / House wins / Draw. Only mark
+      // tick/X for clear player win or loss; draws (both right or both wrong)
+      // show no badge.
+      if(rd && rd.result==='Player wins'){ind.classList.add('correct');ind.textContent='✓';}
+      else if(rd && rd.result==='House wins'){ind.classList.add('wrong');ind.textContent='✗';}
+      else {ind.textContent='';}
+    }
     else if(rd && rd.correct===true){ind.classList.add('correct');ind.textContent='✓';}
     else if(rd && rd.correct===false){ind.classList.add('wrong');ind.textContent='✗';}
     else {ind.textContent='';}
@@ -1400,11 +1449,11 @@ function renderRound(){
   if(g9Btn){ g9Btn.style.display='none'; g9Btn.disabled=true; g9Btn.textContent='Race Start'; g9Btn.onclick=g9Start; }
   disableNextBtn();
 
-  if(id===5){if(rc)rc.textContent=`Round ${S.currentRound+1}/10`;renderGame5();return;}
+  if(id===5){if(rc)rc.textContent=`Round ${S.currentRound+1}/${ROUNDS_PER_GAME}`;renderGame5();return;}
   if(id===10){if(rc)rc.textContent=g9RoundCounterText();renderGame9();return;}
-  if(id===11||id===12){if(rc)rc.textContent=`Round ${S.currentRound+1}/10`;renderGame10();return;}
+  if(id===11||id===12){if(rc)rc.textContent=`Round ${S.currentRound+1}/${ROUNDS_PER_GAME}`;renderGame10();return;}
 
-  const totalRounds=10;
+  const totalRounds=ROUNDS_PER_GAME;
   if(rc)rc.textContent=`Round ${S.currentRound+1}/${totalRounds}`;
 
   S.phase='guess';
@@ -1682,11 +1731,11 @@ function g5SimulateRound(rd){
   };
 }
 
-// Build a 10-round match where, under optimal (auto-guess) play, the player
-// finishes ahead on decisive rounds by at least 2 (and wins at least 2).
+// Build an 8-round match where, under optimal (auto-guess) play, the player
+// finishes ahead on decisive rounds by at least 2 (and wins at least 3).
 // A decisive round is one where exactly one side guessed correctly; both-
 // correct and both-wrong rounds are neutral.
-// Synchronous: 5000 attempts × 10 rounds × ≤10 rolls runs in a few ms.
+// Synchronous: ~22 attempts (p95 ~100) at this floor — well under 100ms.
 function g5GenerateMatch(){
   const MAX_ATTEMPTS=5000;
   // Track the best non-passing attempt: lex-rank by (margin, pDecisive)
@@ -1694,7 +1743,7 @@ function g5GenerateMatch(){
   let best=null, bestRank=-Infinity;
   for(let attempt=0;attempt<MAX_ATTEMPTS;attempt++){
     const rounds=[];
-    for(let i=0;i<10;i++){
+    for(let i=0;i<ROUNDS_PER_GAME;i++){
       const dieSides=pick(G5_DICE);
       const [A,B]=g5ChoosePair();
       const hidden=Math.random()<0.5?A:B;
@@ -1713,7 +1762,7 @@ function g5GenerateMatch(){
       if(playerCorrect && !houseCorrect) pDecisive++;
       else if(houseCorrect && !playerCorrect) hDecisive++;
     }
-    if(pDecisive>=2 && pDecisive>=hDecisive+2) return rounds;
+    if(pDecisive>=3 && pDecisive>=hDecisive+2) return rounds;
     const rank = (pDecisive - hDecisive) * 100 + pDecisive;
     if(rank > bestRank){ bestRank = rank; best = rounds; }
   }
@@ -1821,9 +1870,13 @@ function g5BiasBarsHTML(n, A, B){
     </div>`;
   }).join('');
   const labelStyle = `flex:0 0 auto;max-width:none;height:${BAR_H};min-height:0;padding:var(--sz-0) var(--sz-1)`;
-  const fairLabel   = `<div class="bias-preset selected" style="background:${BAR_COLOR};color:var(--c-surface);${labelStyle}"><span class="bias-word">Dice</span>${G5_BIAS_LABEL['fair']}</div>`;
+  // Fair label = gold to match the gold Fair choice button on the player row.
+  // Biased label = steel blue (--c-bias-bar) to match the bar chart it labels.
+  const fairLabel   = `<div class="bias-preset selected" style="background:var(--c-gold);color:var(--c-surface);${labelStyle}"><span class="bias-word">Dice</span>${G5_BIAS_LABEL['fair']}</div>`;
   const biasedLabel = `<div class="bias-preset selected" style="background:${BAR_COLOR};color:var(--c-surface);${labelStyle}"><span class="bias-word">Dice</span>${G5_BIAS_LABEL[biased]}<span class="bias-word">Bias</span></div>`;
-  return `<div style="max-width:30rem;margin:0 auto;display:flex;gap:var(--sz-0);align-items:flex-start">${fairLabel}${biasedLabel}<div style="flex:1;display:flex;gap:var(--sz-0);align-items:flex-end;min-width:0">${slots}</div></div>`;
+  // "OR" separator between the two label boxes so the row reads "Fair OR Bias [bars]".
+  const orSep = `<div style="display:flex;align-items:center;justify-content:center;height:${BAR_H};padding:0 var(--sz-1);font-size:var(--sz-1);font-weight:var(--fw-bold);color:var(--c-text);opacity:.7;flex:0 0 auto">OR</div>`;
+  return `<div style="max-width:30rem;margin:0 auto;display:flex;gap:var(--sz-0);align-items:flex-start">${fairLabel}${orSep}${biasedLabel}<div style="flex:1;display:flex;gap:var(--sz-0);align-items:flex-end;min-width:0">${slots}</div></div>`;
 }
 
 function g5TokenSpans(n){
@@ -1904,7 +1957,7 @@ function g5HouseGuessHTML(currentGuess, committed){
   return g5BiasPairHTML(currentGuess, /*clickable=*/false, committed ? 'g5-running-guess locked' : 'g5-running-guess');
 }
 function g5PlayerGuessHTML(currentGuess){
-  return g5BiasPairHTML(currentGuess, /*clickable=*/true, 'g5-running-guess');
+  return g5BiasPairHTML(currentGuess, /*clickable=*/false, 'g5-running-guess');
 }
 
 // Two rows: House (raw likelihood ratio), Player (log-likelihood gain).
@@ -1948,6 +2001,12 @@ function g5UpdateBoard(){
     buy.disabled = !canRoll;
     buy.style.opacity = canRoll ? 1 : 0.25;
   }
+  const guess=document.getElementById('g5-guess-btn');
+  if(guess){
+    const canGuess = !st.locked && !st.ended && st.playerRolls>0;
+    guess.disabled = !canGuess;
+    guess.style.opacity = canGuess ? 1 : 0.25;
+  }
 }
 
 // Fill the Nth reveal slot with the rolled value. If `houseBlind` is true the
@@ -1962,16 +2021,28 @@ function g5ShowRoll(idx, value, houseBlind){
   setTimeout(()=>r.classList.remove('just-filled'), 200);
 }
 
-// Only the Buy button now — commit happens via the player-row running-guess
-// (g5PlayerGuessHTML), or automatically when the player runs out of tokens.
-// Button fades out when no rolls remain (tokens=0 or 6-roll cap).
+// Two buttons: "Buy next roll" advances one roll; "Guess now" commits the
+// current running guess. Auto-commit also fires when player runs out of tokens
+// or hits the roll cap.
 function g5RenderControls(){
   const st=S.g5; if(!st) return;
   if(S.phase==='reveal') return;
   const canRoll = !st.locked && !st.ended && st.playerTokens>0 && st.rolls.length<G5_MAX_ROLLS;
+  const canGuess = !st.locked && !st.ended && st.playerRolls>0;
   Z.buttons.innerHTML=`
-    <button class="next-btn btn-compact" id="g5-buy-btn" style="background:var(--c-success);margin:0 auto;opacity:${canRoll?1:0.25};transition:opacity .3s ease" ${canRoll?'':'disabled'} onclick="g5PurchaseNextRoll()">Buy next roll</button>
+    <div style="display:flex;gap:var(--sz-1);justify-content:center;align-items:center">
+      <button class="next-btn btn-compact" id="g5-buy-btn" style="background:var(--c-success);margin:0;opacity:${canRoll?1:0.25};transition:opacity .3s ease" ${canRoll?'':'disabled'} onclick="g5PurchaseNextRoll()">Buy next roll</button>
+      <button class="next-btn btn-compact" id="g5-guess-btn" style="background:var(--c-primary);margin:0;opacity:${canGuess?1:0.25};transition:opacity .3s ease" ${canGuess?'':'disabled'} onclick="g5CommitGuess()">Guess now</button>
+    </div>
   `;
+}
+
+// Commit the player's current running guess (whichever side is leading the
+// log-likelihood). Wired to the "Guess now" button.
+function g5CommitGuess(){
+  const st=S.g5; if(!st || st.locked || st.ended) return;
+  if(st.playerRolls<=0) return;
+  g5Guess(g5PlayerCurrentGuess(st));
 }
 
 // One roll per click. Flat 1 token / roll. House and player both update with
@@ -2089,12 +2160,14 @@ function g5Guess(pick){
   rd.playerGuess=pick;
   const playerCorrect=(pick===st.hidden);
   const houseCorrect=(st.houseGuess===st.hidden);
-  // Round scoring: W (player wins) / L (house wins) / D (draw — both right or
-  // both wrong). One point per decisive outcome; playerPot/housePot kept as
-  // 0/1 flags so the dashboard's tokens-ahead leaderboard still works.
+  // Round scoring: W / L / D outcome. The "prize pot" of leftover tokens is
+  // only awarded to the player — house never collects bonus tokens. House
+  // win = 1 token (just the round). Player win = 1 + leftover tokens. Draw
+  // → no transfer.
+  const pot = rd.bonusUnused || 0;
   let playerPot=0, housePot=0, result='';
-  if(playerCorrect && !houseCorrect){      playerPot=1; result='Player wins'; }
-  else if(houseCorrect && !playerCorrect){ housePot=1;  result='House wins'; }
+  if(playerCorrect && !houseCorrect){      playerPot=1+pot; result='Player wins'; }
+  else if(houseCorrect && !playerCorrect){ housePot=1;       result='House wins'; }
   else { result='Draw'; }
   rd.playerPot=playerPot;
   rd.housePot=housePot;
@@ -2907,7 +2980,7 @@ function g9Finish(){
 
 // Round counter text for Game 9: round number only — cumulative scores live in the stats table.
 function g9RoundCounterText(){
-  return `Round ${S.currentRound+1}/10`;
+  return `Round ${S.currentRound+1}/${ROUNDS_PER_GAME}`;
 }
 
 
@@ -2915,18 +2988,20 @@ function g9RoundCounterText(){
 // for the button row, and the weight pattern for biasForPreset(). Shared so
 // both g9BiasButtonsHTML and g10RenderBias render the same buttons.
 const BIAS_PRESETS = [
-  ['fair','Fair'], ['line','Line'], ['twin','Twin'],
-  ['boat','Boat'], ['arch','Arch'], ['step','Step'], ['edge','Edge'],
+  ['fair','Fair'], ['arch','Arch'], ['boat','Boat'],
+  ['line','Line'], ['odds','Odds'], ['step','Step'],
 ];
 
 // Bias weights for a preset name and die size
 function biasForPreset(preset, n){
   if(preset==='fair') return Array(n).fill(1);
   if(preset==='line') return Array.from({length:n},(_,i)=>(n-i)/n);
-  if(preset==='twin'){const b=Array(n).fill(0.5);b[0]=5;b[1]=5;return b;}
   if(preset==='boat') return Array.from({length:n},(_,i)=>{const m=(n-1)/2;const d=Math.abs(i-m)/m;return 1+2*d;});
   if(preset==='arch') return Array.from({length:n},(_,i)=>{const m=(n-1)/2;const d=Math.abs(i-m)/m;return 3-2*d;});
   if(preset==='step'){const h=Math.floor(n/2);return Array.from({length:n},(_,i)=>i<h?3:1);}
+  if(preset==='odds') return Array.from({length:n},(_,i)=>i%2===0?4:1);
+  // Legacy keys kept for in-flight tutorial / cached payloads compat.
+  if(preset==='twin'){const b=Array(n).fill(0.5);b[0]=5;b[1]=5;return b;}
   if(preset==='edge'){const b=Array(n).fill(0.5);b[0]=5;return b;}
   return Array(n).fill(1);
 }
@@ -2936,7 +3011,7 @@ function biasForPreset(preset, n){
 // combination (1–4 dice from {d4,d6,d8,d10}) and bias that produced it.
 // One hidden race per game, 10 attempts at it.
 
-const G10_PRESET_LETTERS = {fair:'F', line:'L', twin:'T', boat:'B', arch:'A', step:'S', edge:'E'};
+const G10_PRESET_LETTERS = {fair:'F', arch:'A', boat:'B', line:'L', odds:'O', step:'S'};
 const G10_MAX_LANES = 12;
 
 // Analytical Gaussian "race": no simulation — just compute the theoretical
@@ -2944,7 +3019,7 @@ const G10_MAX_LANES = 12;
 // as a Gaussian PDF scaled so the peak lane equals trackLen.
 //
 //   diceSides : array of die-sides (e.g. [6,6,6] or [4,6,10])
-//   biasName  : 'fair' | 'line' | 'twin' | 'boat' | 'arch' | 'step' | 'edge'
+//   biasName  : 'fair' | 'arch' | 'boat' | 'line' | 'odds' | 'step'
 //   trackLen  : peak height of the distribution (number of "positions" on the winner lane)
 function g10GaussianRace(diceSides, biasName, trackLen){
   let mu = 0, varSum = 0;
@@ -3088,6 +3163,24 @@ const G10_VALID_COMBOS = [
   // quads (4d4 mode 10; 4d6 mode 14 is just over the cap but included)
   [4,4,4,4],[6,6,6,6],
 ];
+
+// Games 8 & 9 fixed dice-count sequence: 1 single, 2 doubles, 3 triples, 2 quads
+// = 8 rounds total, in that order. Within each group, pick a combo uniformly
+// at random from the matching G10_VALID_COMBOS entries (with replacement
+// inside the group — triples only has 2 distinct combos for 3 slots).
+function g8SequencedCombos(){
+  const byLen = {1:[], 2:[], 3:[], 4:[]};
+  for(const c of G10_VALID_COMBOS) byLen[c.length].push(c);
+  const counts = [1, 2, 3, 2]; // singles, doubles, triples, quads
+  const out = [];
+  for(let len=1; len<=4; len++){
+    const pool = byLen[len];
+    for(let k=0; k<counts[len-1]; k++){
+      out.push(pool[Math.floor(Math.random()*pool.length)].slice());
+    }
+  }
+  return out;
+}
 
 // Single-bar fruit-machine spinner: shows the current combo, ◀ ▶ to scroll
 // through the 28 options, 🎰 to randomise.
@@ -3292,11 +3385,11 @@ function g10ToggleDots(roundIdx){
 
 // ===== SHARED: STATS TABLE =====
 function renderStatsTable(bot, gameId){
-  // Horizontal table: rows = data fields, columns = rounds 1..10.
-  // All 10 columns shown from the start (empty until played).
-  const n=10;
+  // Horizontal table: rows = data fields, columns = rounds 1..ROUNDS_PER_GAME.
+  // All columns shown from the start (empty until played).
+  const n=ROUNDS_PER_GAME;
   const played=S.currentRound+(S.phase==='reveal'?1:0);
-  // col(guard, pick): returns 12 cells; shows pick(rd) when i<played && guard(rd), else ''
+  // col(guard, pick): returns n cells; shows pick(rd) when i<played && guard(rd), else ''
   const col=(guard,pick)=>Array.from({length:n},(_,i)=>i<played&&guard(S.rounds[i])?pick(S.rounds[i]):'');
   // colRoll: shows pick(rd) for past rounds and current round once the spinner has revealed.
   const colRoll=(pick)=>Array.from({length:n},(_,i)=>{
@@ -3344,6 +3437,8 @@ function renderStatsTable(bot, gameId){
     ];
   } else if(gameId===5){
     // W (player wins) / L (house wins) / D (draw — both right or both wrong).
+    // Tokens row shows the prize pot the player banked that round (0 on a
+    // house win or draw — house never wins tokens).
     const resultLetter=(rd)=>{
       if(rd.result === 'Player wins') return 'W';
       if(rd.result === 'House wins')  return 'L';
@@ -3351,6 +3446,7 @@ function renderStatsTable(bot, gameId){
     };
     rowDefs=[
       {label:'Result', cells:col(rd=>rd.result!=null, resultLetter)},
+      {label:'Tokens', cells:col(rd=>rd.playerPot!=null, rd=>rd.playerPot)},
     ];
   } else if(gameId===7){
     const ab=v=>v==='amber'?'A':'B';
