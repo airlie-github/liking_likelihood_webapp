@@ -183,9 +183,14 @@ button:active{transform:scale(.95)}
 .g8-flag{font-size:var(--sz-4);line-height:1;cursor:pointer;flex-shrink:0;opacity:0.3;filter:grayscale(1);transition:opacity .15s,filter .15s,transform .15s;user-select:none}
 .g8-flag:hover{opacity:0.6}
 .g8-flag.selected{opacity:1;filter:none;transform:scale(1.2)}
-.g9-tokens-row{display:flex;justify-content:center;align-items:center;gap:0;margin:var(--sz-0) auto var(--sz-0);font-size:var(--sz-3);line-height:1}
+/* color:gold tints the 🪙 emoji on devices whose system font lacks a colour
+   glyph for it (Unicode 13.0; older Androids render a monochrome outline).
+   No-op on devices with a colour glyph (the colour glyph wins). */
+.g9-tokens-row{display:flex;justify-content:center;align-items:center;gap:0;margin:var(--sz-0) auto var(--sz-0);font-size:var(--sz-3);line-height:1;color:var(--c-gold)}
 .g9-tokens-row span{margin-left:-0.125rem}
 .g9-tokens-row span:first-child{margin-left:0}
+/* Same emoji-tint fix for the bet flags in Games 8/9 (🪙) and Game 10 (●). */
+.g8-flag{color:var(--c-gold)}
 .g9-lane-tokens{display:inline-flex;flex-shrink:0;align-items:center;justify-content:flex-end;height:var(--sz-4);min-width:1.5rem}
 .g9-lane-tokens svg{display:block;flex-shrink:0}
 .g9-bet-cell{display:flex;align-items:center;gap:var(--sz-0);flex-shrink:0;width:3.5rem;justify-content:flex-start;padding-left:var(--sz-1)}
