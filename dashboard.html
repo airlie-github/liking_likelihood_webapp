@@ -26,6 +26,17 @@ h1{margin:0;font-size:var(--fs-4);font-weight:700}
 .setup .hint{color:var(--muted);font-size:var(--fs-1);margin-top:1rem}
 
 .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(16rem,1fr));gap:1rem;margin-top:1rem}
+.overview-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin-top:1rem}
+@media (max-width:900px){.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.overview-tile{background:var(--panel);border-radius:0.75rem;padding:1rem;cursor:pointer;border:2px solid transparent;transition:border-color 120ms ease, transform 120ms ease;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0.5rem}
+.overview-tile:hover{border-color:var(--accent);transform:translateY(-2px)}
+.overview-tile .ov-num{font-size:var(--fs-1);color:var(--muted);letter-spacing:0.08em;text-transform:uppercase}
+.overview-tile .ov-title{font-size:var(--fs-2);font-weight:700;margin:0}
+.overview-tile .ov-pie{margin:0.25rem auto}
+.overview-tile .ov-label{font-size:var(--fs-1);font-weight:700;color:var(--good)}
+.overview-tile .ov-count{font-size:var(--fs-1);color:var(--muted)}
+.overview-tile.empty .ov-pie circle{fill:#23344f}
+.overview-tile.empty .ov-label{color:var(--muted)}
 .game-tile{background:var(--panel);border-radius:0.75rem;padding:1.25rem 1.25rem;cursor:pointer;border:2px solid transparent;transition:border-color 120ms ease, transform 120ms ease;text-align:left}
 .game-tile:hover{border-color:var(--accent);transform:translateY(-2px)}
 .game-tile .gnum{font-size:var(--fs-1);color:var(--muted);letter-spacing:0.08em;text-transform:uppercase}
@@ -99,12 +110,30 @@ button.danger:hover{background:var(--bad);color:white}
       <div>Last update: <span id="picker-last-update">—</span></div>
     </div>
   </header>
-  <div class="section-title">Pick a game to view</div>
+  <div class="section-title">Pick a game to view <button class="small" onclick="showOverview()">Overview ▦</button></div>
   <div id="error-box-picker"></div>
   <div id="game-grid" class="game-grid"></div>
   <div class="danger-row">
     <button class="danger" onclick="clearAllResults()">Clear ALL results for this room</button>
   </div>
+</div>
+
+<!-- Overview: 4×3 mini-pie grid of all 12 games -->
+<div id="overview" style="display:none">
+  <header>
+    <div>
+      <h1>Overview — all 12 games</h1>
+      <div class="meta">Room <span class="room-badge" id="overview-room-label"></span>
+        <button class="small" onclick="backToPicker()">← back to games</button>
+        <button class="small" onclick="changeRoom()">change room</button></div>
+    </div>
+    <div class="meta" style="text-align:right">
+      <div><span class="pulse"></span>Players: <b id="overview-player-count">0</b></div>
+      <div>Last update: <span id="overview-last-update">—</span></div>
+    </div>
+  </header>
+  <div id="error-box-overview"></div>
+  <div id="overview-grid" class="overview-grid"></div>
 </div>
 
 <!-- Live per-game view -->
@@ -154,7 +183,8 @@ const GAMES = [
 const POLL_MS = 4000;
 let pollTimer = null;
 let currentRoom = '';
-let currentGameId = null;     // null = on picker; 1–12 = on live view
+let currentGameId = null;     // null = on picker/overview; 1–12 = on live view
+let currentView = 'picker';   // 'picker' | 'overview' | 'live'
 let latestRows = [];          // cache from last fetch, used for picker counts
 
 // ===== Navigation =====
@@ -173,9 +203,11 @@ function changeRoom(){
   if(pollTimer) clearInterval(pollTimer);
   pollTimer = null;
   currentGameId = null;
+  currentView = 'picker';
   latestRows = [];
   document.getElementById('setup').style.display = '';
   document.getElementById('picker').style.display = 'none';
+  document.getElementById('overview').style.display = 'none';
   document.getElementById('live').style.display = 'none';
   document.getElementById('room-input').value = currentRoom;
   document.getElementById('room-input').focus();
@@ -183,19 +215,34 @@ function changeRoom(){
 
 function showPicker(){
   currentGameId = null;
+  currentView = 'picker';
   document.getElementById('setup').style.display = 'none';
   document.getElementById('live').style.display = 'none';
+  document.getElementById('overview').style.display = 'none';
   document.getElementById('picker').style.display = '';
   document.getElementById('picker-room-label').textContent = currentRoom;
   renderPicker(latestRows);
+}
+
+function showOverview(){
+  currentGameId = null;
+  currentView = 'overview';
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('live').style.display = 'none';
+  document.getElementById('overview').style.display = '';
+  document.getElementById('overview-room-label').textContent = currentRoom;
+  renderOverview(latestRows);
 }
 
 function pickGame(id){
   const g = GAMES.find(x => x.id === id);
   if(!g || !g.leaderboard){ return; }
   currentGameId = id;
+  currentView = 'live';
   document.getElementById('setup').style.display = 'none';
   document.getElementById('picker').style.display = 'none';
+  document.getElementById('overview').style.display = 'none';
   document.getElementById('live').style.display = '';
   document.getElementById('live-room-label').textContent = currentRoom;
   document.getElementById('game-title').textContent = `Game ${id}: ${g.title}`;
@@ -209,7 +256,10 @@ function backToPicker(){
 // ===== Fetch + render dispatch =====
 
 function showError(msg){
-  const el = document.getElementById(currentGameId === null ? 'error-box-picker' : 'error-box');
+  const id = currentView === 'overview' ? 'error-box-overview'
+           : currentView === 'live'     ? 'error-box'
+           :                              'error-box-picker';
+  const el = document.getElementById(id);
   el.innerHTML = msg ? `<div class="error">${msg}</div>` : '';
 }
 
@@ -222,7 +272,10 @@ async function fetchAndRender(){
     const data = await resp.json();
     latestRows = data.rows || [];
     showError('');
-    if(currentGameId === null){
+    if(currentView === 'overview'){
+      renderOverview(latestRows);
+      document.getElementById('overview-last-update').textContent = new Date().toLocaleTimeString();
+    } else if(currentGameId === null){
       renderPicker(latestRows);
       document.getElementById('picker-last-update').textContent = new Date().toLocaleTimeString();
     } else {
@@ -353,6 +406,79 @@ function renderGameView(rows, gameId){
   if(g && g.leaderboard === 'tokens_ahead')      renderTokensAheadLeaderboard(summary);
   else if(g && g.leaderboard === 'solve_loss')   renderSolveLossLeaderboard(summary);
   else                                           renderLeaderboard(summary);
+}
+
+// ===== Overview (4×3 mini-pie grid of all 12 games) =====
+function renderOverview(rows){
+  const grid = document.getElementById('overview-grid');
+  if(!grid) return;
+  // Count unique players that have any logged event in this room.
+  const players = new Set();
+  rows.forEach(r => { if(r.player) players.add(r.player); });
+  document.getElementById('overview-player-count').textContent = players.size;
+  grid.innerHTML = GAMES.map(g => renderOverviewTile(g, rows)).join('');
+}
+
+function renderOverviewTile(g, rows){
+  const summary = g.leaderboard ? summarizeForGame(rows, g.id) : [];
+  const total = summary.length;
+  let frac = null, label = '—';
+  if(total > 0){
+    if(g.pie === 'winners'){
+      const winners = summary.filter(p => p.tokensAhead > 0).length;
+      frac = winners / total;
+      label = `${winners}/${total} won`;
+    } else if(g.pie === 'solved'){
+      const solved = summary.filter(p => p.solved).length;
+      frac = solved / total;
+      label = `${solved}/${total} solved`;
+    } else if(g.pie === 'three'){
+      let c=0, w=0;
+      summary.forEach(p => p.rounds.forEach(r => {
+        if(r.correct) c++;
+        else if(r.wrong) w++;
+      }));
+      const denom = c + w;
+      frac = denom ? c / denom : 0;
+      label = `${c}/${denom} correct`;
+    } else if(g.pie){
+      const c = summary.reduce((s,p) => s + p.correct, 0);
+      const w = summary.reduce((s,p) => s + p.wrong, 0);
+      const denom = c + w;
+      frac = denom ? c / denom : 0;
+      label = `${c}/${denom} correct`;
+    }
+  }
+  const isEmpty = (frac === null || total === 0);
+  const pie = miniPieSVG(frac === null ? 0 : frac, isEmpty);
+  const clickAttr = g.leaderboard ? `onclick="pickGame(${g.id})"` : '';
+  const cls = `overview-tile${isEmpty ? ' empty' : ''}`;
+  return `<div class="${cls}" ${clickAttr}>
+    <div class="ov-num">Game ${g.id}</div>
+    <div class="ov-title">${escapeHtml(g.title)}</div>
+    <div class="ov-pie">${pie}</div>
+    <div class="ov-label">${isEmpty ? 'no data' : label}</div>
+    <div class="ov-count">${total} player${total===1?'':'s'}</div>
+  </div>`;
+}
+
+function miniPieSVG(frac, isEmpty){
+  const r = 38, cx = 50, cy = 50;
+  if(isEmpty){
+    return `<svg viewBox="0 0 100 100" width="90" height="90"><circle cx="${cx}" cy="${cy}" r="${r}" fill="#23344f"/></svg>`;
+  }
+  let arcs;
+  if(frac >= 1)      arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--good)"/>`;
+  else if(frac <= 0) arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bad)"/>`;
+  else {
+    const angle = frac * 2 * Math.PI;
+    const x = cx + r * Math.sin(angle);
+    const y = cy - r * Math.cos(angle);
+    const largeArc = angle > Math.PI ? 1 : 0;
+    arcs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--bad)"/>` +
+      `<path d="M${cx},${cy} L${cx},${cy - r} A${r},${r} 0 ${largeArc} 1 ${x.toFixed(2)},${y.toFixed(2)} Z" fill="var(--good)"/>`;
+  }
+  return `<svg viewBox="0 0 100 100" width="90" height="90">${arcs}</svg>`;
 }
 
 function renderWinnersPie(summary){
