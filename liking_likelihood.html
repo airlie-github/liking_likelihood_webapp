@@ -51,7 +51,7 @@ button:active{transform:scale(.95)}
 
 /* ===== TITLE PAGE ===== */
 #title-page{align-items:center;justify-content:center;text-align:center;gap:var(--sz-4);background:linear-gradient(135deg,var(--c-title-1) 0%,var(--c-title-2) 50%,var(--c-title-3) 100%);color:var(--c-surface)}
-#title-page h1{font-size:var(--sz-5);font-weight:var(--fw-bold);letter-spacing:calc(var(--sz-0) * -1)}
+#title-page h1{font-size:var(--sz-5);font-weight:var(--fw-bold);letter-spacing:0.1em}
 #title-page h2{font-size:var(--sz-3);font-weight:var(--fw-normal);opacity:.8}
 .room-input{width:100%;padding:var(--sz-2);border-radius:var(--r-lg);border:var(--border-1) solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:var(--c-surface);font-size:var(--sz-3);text-align:center;text-transform:uppercase;letter-spacing:var(--sz-0)}
 .room-input::placeholder{color:rgba(255,255,255,.4);text-transform:none;letter-spacing:0}
@@ -363,9 +363,9 @@ if('serviceWorker' in navigator){
 <div id="title-page" class="page active">
   <div class="dice-icons-title">&#9860; &#9858; &#9856;</div>
   <h1>Liking Likelihood</h1>
-  <h2>Erice School 2026</h2>
-  <input class="room-input" id="room-code" placeholder="Room code (optional)" maxlength="20" value="ERICE" style="margin-top:var(--sz-2)">
-  <div id="nickname-display" style="margin-top:var(--sz-1);color:rgba(255,255,255,.85);font-size:var(--sz-2);text-align:center">You are: <b id="nickname-text">…</b></div>
+  <div id="nickname-display" style="margin-top:var(--sz-0);color:rgba(255,255,255,.85);font-size:var(--sz-2);text-align:center">You are: <b id="nickname-text">…</b></div>
+  <div style="margin-top:var(--sz-2);color:rgba(255,255,255,.85);font-size:var(--sz-2);text-align:center">Dashboard Room Name</div>
+  <input class="room-input" id="room-code" placeholder="Room code (optional)" maxlength="20" value="ERICE" style="margin-top:var(--sz-0)">
   <div class="palette-picker" id="palette-picker">
     <h3>Palettes</h3>
     <button class="pal-card selected" data-pal="default" onclick="setPalette('default')" aria-pressed="true" aria-label="Default palette">
@@ -1428,6 +1428,10 @@ function renderDiceGuessGame(gameId, rd, options, reels){
   // Games with a reel reveal their guess buttons only after spin completes —
   // .hidden-guess keeps them invisible/unclickable until then.
   const hiddenCls=reels>0?' hidden-guess':'';
+  // Game 4 has 6 data rows (Roll 1/2/3 + Guess + Answer + ✓/✗); the default
+  // 10rem table flex-basis truncates the ✓/✗ row below the scroll area.
+  // Give it a bit more room so the result row is visible without scrolling.
+  Z.table.style.flexBasis = gameId===4 ? '12.5rem' : '';
   Z.top.innerHTML=getBoxHTML(gameId)+gameDescHTML(gameId)+`<div style="font-size:var(--sz-4);text-align:center;margin-top:var(--sz-1)">Which dice?</div>`;
   Z.text.innerHTML='';
   Z.text.style.display='none';
