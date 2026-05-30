@@ -183,14 +183,13 @@ button:active{transform:scale(.95)}
 .g8-flag{font-size:var(--sz-4);line-height:1;cursor:pointer;flex-shrink:0;opacity:0.3;filter:grayscale(1);transition:opacity .15s,filter .15s,transform .15s;user-select:none}
 .g8-flag:hover{opacity:0.6}
 .g8-flag.selected{opacity:1;filter:none;transform:scale(1.2)}
-/* color:gold tints the 🪙 emoji on devices whose system font lacks a colour
-   glyph for it (Unicode 13.0; older Androids render a monochrome outline).
-   No-op on devices with a colour glyph (the colour glyph wins). */
-.g9-tokens-row{display:flex;justify-content:center;align-items:center;gap:0;margin:var(--sz-0) auto var(--sz-0);font-size:var(--sz-3);line-height:1;color:var(--c-gold)}
+.g9-tokens-row{display:flex;justify-content:center;align-items:center;gap:0;margin:var(--sz-0) auto var(--sz-0);font-size:var(--sz-3);line-height:1}
 .g9-tokens-row span{margin-left:-0.125rem}
 .g9-tokens-row span:first-child{margin-left:0}
-/* Same emoji-tint fix for the bet flags in Games 8/9 (🪙) and Game 10 (●). */
-.g8-flag{color:var(--c-gold)}
+/* CSS-rendered coin — gold gradient circle. Replaces the 🪙 emoji (Unicode 13.0)
+   which lacks a colour glyph on older Android system fonts. Sized in em so it
+   scales with the parent font-size, matching emoji behaviour. */
+.coin-ico{display:inline-block;width:0.85em;height:0.85em;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f6d670,#d4a017 60%,#a87a0d);box-shadow:inset 0 -0.0625em 0.125em rgba(0,0,0,.25), 0 0 0 0.0625em rgba(168,122,13,.7);vertical-align:-0.1em}
 .g9-lane-tokens{display:inline-flex;flex-shrink:0;align-items:center;justify-content:flex-end;height:var(--sz-4);min-width:1.5rem}
 .g9-lane-tokens svg{display:block;flex-shrink:0}
 .g9-bet-cell{display:flex;align-items:center;gap:var(--sz-0);flex-shrink:0;width:3.5rem;justify-content:flex-start;padding-left:var(--sz-1)}
@@ -1829,7 +1828,7 @@ function g5BiasBarsHTML(n, A, B){
 
 function g5TokenSpans(n){
   if(n<=0) return '<span class="t-sm" style="opacity:.5">—</span>';
-  return Array(n).fill('🪙').join('');
+  return Array(n).fill('<span class="coin-ico"></span>').join('');
 }
 
 // House's `LA / LB = ratio` line. Individual operands shown to G5_PRECISION_DP
@@ -2361,13 +2360,13 @@ function g8TrackHTML(lanesLen, maxLen, animals, houseLane){
     const len=lanesLen[i];
     const widthPct=(len/maxLen)*100;
     const isHouse=(h===houseLane);
-    const houseFlag=isHouse?'🪙':'';
+    const houseFlag=isHouse?'<span class="coin-ico"></span>':'';
     return `<div class="g8-lane" data-horse="${h}">
       <div class="g9-bet-cell house-cell">
         <div class="g8-flag g9-house-flag${isHouse?' selected':''}" id="g8-house-flag-${h}">${houseFlag}</div>
       </div>
       <div class="g9-bet-cell player-cell">
-        <div class="g8-flag player-flag" data-lane="${h}" id="g8-flag-${h}" onclick="g8Bet(${h})" title="Bet on lane ${h}">🪙</div>
+        <div class="g8-flag player-flag" data-lane="${h}" id="g8-flag-${h}" onclick="g8Bet(${h})" title="Bet on lane ${h}"><span class="coin-ico"></span></div>
       </div>
       <span class="g8-label">${h}</span>
       <div class="g8-bar-zone">
@@ -2559,7 +2558,7 @@ function renderGame9(){
     </div>
     <div id="g9-bias-bars">${renderBiasBars(rd.diceSides, rd.bias)}</div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--sz-2);margin:var(--sz-0) auto">
-      <div class="g9-tokens-row" style="margin:0">${Array(12).fill(0).map(()=>'<span>🪙</span>').join('')}</div>
+      <div class="g9-tokens-row" style="margin:0">${Array(12).fill(0).map(()=>'<span><span class="coin-ico"></span></span>').join('')}</div>
       <div id="g9-msg" style="font-size:var(--sz-2);text-align:right">Pick 1, 2, 3, 4, 6 or 12 lanes</div>
     </div>
     <div class="g9-bet-headers">
@@ -2647,10 +2646,10 @@ function renderBiasBars(diceSides, biasName){
 
 // Bar-chart-style coin stack. Each coin is a fixed-height flat ellipse;
 // total stack height grows with count (1=shortest, 12=tallest). For n=1 we
-// just render the round 🪙 emoji so a single coin looks like an actual coin.
+// just render the CSS-coin span so a single coin looks like an actual coin.
 function g9CoinStackSVG(n){
   if(n<=0) return '';
-  if(n===1) return '<span style="font-size:var(--sz-3);line-height:1">🪙</span>';
+  if(n===1) return '<span style="font-size:var(--sz-3);line-height:1"><span class="coin-ico"></span></span>';
   const W=18, coinH=1.5, gap=0.4, pad=1;
   const H=n*coinH + (n-1)*gap + 2*pad;
   const ellipses=[];
