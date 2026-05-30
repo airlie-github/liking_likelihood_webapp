@@ -25,6 +25,9 @@
   --c-primary:#e94560; --c-primary-dark:#d63851;
   --c-blue:#3498db; --c-purple:#9b59b6;
   --c-gold:#d4a017; --c-amber:#f39c12; --c-orange:#e67e22; --c-teal:#1abc9c;
+  /* Steel blue that tones with --c-gold for bias bars / labels / picker buttons.
+     Single source of truth — change here to retint every bias visualisation. */
+  --c-bias-bar:#2c4e7a;
   --c-success:#27ae60; --c-success-bg:#d4edda; --c-success-fg:#155724;
   --c-danger:#e74c3c; --c-danger-bg:#f8d7da; --c-danger-fg:#721c24;
   --c-bg:#f5f5f5; --c-surface:#fff; --c-text:#222; --c-text-muted:#444;
@@ -185,12 +188,15 @@ button:active{transform:scale(.95)}
 .g9-tokens-row span:first-child{margin-left:0}
 .g9-lane-tokens{display:inline-flex;flex-shrink:0;align-items:center;justify-content:flex-end;height:var(--sz-4);min-width:1.5rem}
 .g9-lane-tokens svg{display:block;flex-shrink:0}
-.g9-bet-cell{display:flex;align-items:center;gap:var(--sz-0);flex-shrink:0;width:3.5rem;justify-content:flex-end;padding-right:var(--sz-1)}
-.g9-bet-cell .g8-flag{font-size:var(--sz-4)}
+.g9-bet-cell{display:flex;align-items:center;gap:var(--sz-0);flex-shrink:0;width:3.5rem;justify-content:flex-start;padding-left:var(--sz-1)}
+.g9-bet-cell .g8-flag{font-size:var(--sz-3)}
 .g9-bet-cell .g8-flag.selected{opacity:1;filter:none;transform:none}
 .g9-bet-headers{display:flex;align-items:center;gap:var(--sz-0);padding:0 var(--sz-0);font-size:var(--sz-2);font-weight:var(--fw-bold);color:var(--c-text);margin-top:var(--sz-0)}
 .g9-bet-header-cell{justify-content:center}
 .g9-house-flag{cursor:default;pointer-events:none;min-width:var(--sz-4)}
+/* Player-bet selector for Game 10 (CLT): solid dot instead of cup. Smaller
+   than the original cup emoji so it reads as a selection target, not a prize. */
+.g9-dot{font-size:var(--sz-3);line-height:1;color:var(--c-text)}
 .g10-combo-bar{display:inline-flex;align-items:center;justify-content:center;gap:var(--sz-0);min-width:8rem;height:2rem;background:var(--c-gold);border-radius:var(--r-md);padding:0 var(--sz-1);border:0.0625rem solid #a87a0d;flex-shrink:0;transition:background .15s}
 .g10-arrow{padding:0 var(--sz-1);font-size:var(--sz-4);background:none;border:none;cursor:pointer;color:var(--c-text);min-width:0;min-height:0;line-height:1}
 .g10-arrow:hover{color:var(--c-blue)}
@@ -541,8 +547,8 @@ const GAMES = [
   {id:8, title:'Dice Sums', topic:'Horse Race', desc:'Guess the winner', color:'var(--c-teal)'},
   {id:9, title:'Biased Dice Sums', topic:'Biased Race', desc:'Pick a lane — biased dice', color:'#00bcd4'},
   {id:10, title:'Central Limit Theorem', topic:'Section 12', desc:'Spread your bet', color:'#6c5ce7'},
-  {id:11, title:'Guided Reverse', topic:'Inference', desc:'Guess the dice given the bias', color:'var(--c-gold)'},
-  {id:12, title:'Reverse the Race', topic:'Inference', desc:'Guess the dice + bias!', color:'#ff6b6b'},
+  {id:11, title:'Reverse the Race', topic:'Inference', desc:'Guess the dice given the bias', color:'var(--c-gold)'},
+  {id:12, title:'Biased Reverse the Race', topic:'Inference', desc:'Guess the dice + bias!', color:'#ff6b6b'},
 ];
 
 // ============================================================================
@@ -656,7 +662,7 @@ const TUT = {
     {numDice:4, dieSides:6,  bias:'edge'},   // 12: 4d6 edge
   ],
 
-  // ---- GAMES 11 (Guided Reverse) & 12 (Reverse the Race) ----
+  // ---- GAMES 11 (Reverse the Race) & 12 (Biased Reverse the Race) ----
   // ONE hidden race per game, played over 10 attempts (= 10 rounds).
   // Game 11 reveals the bias; Game 12 hides it. Either way the player must
   // figure out the dice combination from the lane distribution.
@@ -664,7 +670,7 @@ const TUT = {
   // diceSides = 1–4 dice, all the same type, drawn from {4, 6, 8, 10}.
   // bias      = 'fair','line','twin','boat','arch','step','edge'.
   game10: [
-    {diceSides:[6,6,6], bias:'boat'},   // tutorial race (3d6 boat — single type)
+    {diceSides:[4], bias:'edge'},   // tutorial race (1d4 edge — single die, asymmetric bias)
   ],
 
 };
@@ -1102,7 +1108,7 @@ const GAME_DESCRIPTIONS = {
   9: `Same race against the House as <b>Dice Sums</b>, but every dice shares the <b>same bias</b> — picked from <b>Fair</b>, <b>Line</b>, <b>Twin</b>, <b>Boat</b>, <b>Arch</b>, <b>Step</b> or <b>Edge</b>. Bias <b>shifts the mean / μ</b> and <b>changes the variance / σ²</b> of the dice sum, so the winning lane is no longer where you'd expect. The <b>House</b> picks a lane <b>uniformly at random across all 12</b> — including unreachable ones — so it's an even worse player than in Dice Sums. <b>Read the bias bars</b>, pick the lane closest to the peak of the biased PMF, and you should beat the House over <b>10 rounds</b>. One token to win per round (you +1 / House +1 / both 0).`,
   10: `Same biased race as <b>Biased Dice Sums</b>, but now the betting is different. The <b>House</b> always places all <b>12 tokens</b> on the <b>modal lane</b> (the most-probable sum given the bias) — winning <b>12</b> if that lane wins, <b>0</b> otherwise. You have <b>12 tokens</b> to <b>spread your bet</b> across <b>1, 2, 3, 4, 6 or 12 lanes</b> — <b>12/n tokens per lane</b>. If a covered lane wins, you score the <b>12/n tokens</b> on it; otherwise <b>0</b>. <b>Narrow bets pay more, rarely</b>; <b>wide bets pay less, often</b>. The trade-off isn't equal on both sides: on a <b>low-variance</b> bias (most of the chance on one lane) the mode bet has the highest expected score; on a <b>high-variance</b> bias (chance spread across many lanes) every spread has nearly the same expected score, so a wider bet can <b>win more sessions</b> over the 10-round game by avoiding the runs of zero scores the narrow bet suffers. Match the spread to the variance you expect.`,
   11: `You see the <b>finished distribution</b> of a hidden race shown as <b>black target dots</b>. The bias is <b>given</b> — it's highlighted at the top of the page and stays locked for the whole game. You only need to figure out the <b>dice combination</b> (1–4 dice, all the same type, from {d4, d6, d8, d10}) that produces the observed lane heights. <b>Win the game by reaching a Loss of 0</b> within <b>10 attempts</b>. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane height adds 1 — shown per attempt in the stats table.`,
-  12: `Same hidden race as <b>Guided Reverse</b>, but the bias is <b>not</b> given. By the <b>Central Limit Theorem / CLT</b>, the sum's <b>PMF</b> is approximately <b>Gaussian / Normal / bell-curve</b>, so the shape is captured by its <b>mean / μ</b> and <b>variance / σ²</b>. <b>Reverse the race</b> — figure out which dice combination (1–4 dice, all the same type, from {d4, d6, d8, d10}) <b>and</b> which bias would produce that mean and variance. You have <b>10 attempts</b> at the <i>same</i> race; each prediction draws a coloured line + dots through your 12 lane heights. <b>Win the game by reaching a Loss of 0</b> (your prediction exactly matches the targets) within those 10 attempts. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane height adds 1 — shown per attempt in the stats table.`,
+  12: `Same hidden race as <b>Reverse the Race</b>, but the bias is <b>not</b> given. By the <b>Central Limit Theorem / CLT</b>, the sum's <b>PMF</b> is approximately <b>Gaussian / Normal / bell-curve</b>, so the shape is captured by its <b>mean / μ</b> and <b>variance / σ²</b>. <b>Reverse the race</b> — figure out which dice combination (1–4 dice, all the same type, from {d4, d6, d8, d10}) <b>and</b> which bias would produce that mean and variance. You have <b>10 attempts</b> at the <i>same</i> race; each prediction draws a coloured line + dots through your 12 lane heights. <b>Win the game by reaching a Loss of 0</b> (your prediction exactly matches the targets) within those 10 attempts. Loss is the <b>L1 / Manhattan distance</b> — each off-by-one lane height adds 1 — shown per attempt in the stats table.`,
 };
 
 function gameDescHTML(gameId){
@@ -1736,24 +1742,24 @@ function g5TokenBarHTML(tokens){
   </div>`;
 }
 
-// Bias bar chart — Game 5 always pairs Fair vs one bias; Fair is uniform and
-// self-explanatory so we only render the biased side (blue) here.
+// Bias bar chart — Game 5 always pairs Fair vs one bias. Uses --c-bias-bar
+// for both labels and bars so the bias visualisation looks consistent across
+// all games (Game 9, Game 12 use the same colour via renderBiasBars).
 function g5BiasBarsHTML(n, A, B){
   const biased = (A==='fair') ? B : A;
-  const fairColor   = (A==='fair') ? 'var(--c-gold)' : 'var(--c-blue)';
-  const biasedColor = (A==='fair') ? 'var(--c-blue)' : 'var(--c-gold)';
+  const BAR_COLOR = 'var(--c-bias-bar)';
   const w=g5Probs(biased, n), t=Math.max(...w)||1;
   const BAR_H = '3rem';
   const slots=Array.from({length:n},(_,i)=>{
     const h=(w[i]/t)*100;
     return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0">
-      <div style="height:${BAR_H};width:100%;display:flex;align-items:flex-end"><div style="width:100%;height:${h}%;background:${biasedColor};border-radius:0.1875rem 0.1875rem 0 0;transition:height .2s"></div></div>
+      <div style="height:${BAR_H};width:100%;display:flex;align-items:flex-end"><div style="width:100%;height:${h}%;background:${BAR_COLOR};border-radius:0.1875rem 0.1875rem 0 0;transition:height .2s"></div></div>
       <div style="font-size:0.625rem;font-weight:var(--fw-bold);color:var(--c-text)">${i+1}</div>
     </div>`;
   }).join('');
   const labelStyle = `flex:0 0 auto;max-width:none;height:${BAR_H};min-height:0;padding:var(--sz-0) var(--sz-1)`;
-  const fairLabel   = `<div class="bias-preset selected" style="background:${fairColor};color:var(--c-surface);${labelStyle}"><span class="bias-word">Dice</span>${G5_BIAS_LABEL['fair']}</div>`;
-  const biasedLabel = `<div class="bias-preset selected" style="background:${biasedColor};color:var(--c-surface);${labelStyle}"><span class="bias-word">Dice</span>${G5_BIAS_LABEL[biased]}<span class="bias-word">Bias</span></div>`;
+  const fairLabel   = `<div class="bias-preset selected" style="background:${BAR_COLOR};color:var(--c-surface);${labelStyle}"><span class="bias-word">Dice</span>${G5_BIAS_LABEL['fair']}</div>`;
+  const biasedLabel = `<div class="bias-preset selected" style="background:${BAR_COLOR};color:var(--c-surface);${labelStyle}"><span class="bias-word">Dice</span>${G5_BIAS_LABEL[biased]}<span class="bias-word">Bias</span></div>`;
   return `<div style="max-width:30rem;margin:0 auto;display:flex;gap:var(--sz-0);align-items:flex-start">${fairLabel}${biasedLabel}<div style="flex:1;display:flex;gap:var(--sz-0);align-items:flex-end;min-width:0">${slots}</div></div>`;
 }
 
@@ -2128,16 +2134,20 @@ function renderGame8(rd){
     ? `<div id="g8-bias-bars">${renderBiasBars(rd.diceSides, rd.bias)}</div>`
     : '';
   Z.top.innerHTML=`<div class="g8-wrap" style="width:100%;margin:0 auto">
-    <div class="g8-dice-row" id="g8-dice">${g8DiceRowHTML(rd.diceSides)}</div>
+    <div class="g8-dice-row" id="g8-dice" style="min-height:auto;justify-content:space-between;gap:var(--sz-2)">
+      ${g8DiceRowHTML(rd.diceSides)}
+      ${g8AdvancesHTML(rd.diceSides)}
+    </div>
     ${biasHtml}
     <div class="g9-bet-headers">
-      <div class="g9-bet-cell g9-bet-header-cell">House</div>
-      <div class="g9-bet-cell g9-bet-header-cell">Player</div>
+      <div class="g9-bet-cell g9-bet-header-cell">House Bet</div>
+      <div class="g9-bet-cell g9-bet-header-cell">Player Bet</div>
       <span class="g8-label" style="visibility:hidden">12</span>
-      <div style="flex:1"></div>
+      <div style="flex:1;display:flex;justify-content:flex-end">
+        <div class="hcap-toggle visible" id="hcap-toggle" style="margin:0"><div class="hcap-switch" id="hcap-switch" onclick="toggleHandicap()"></div><span>Handicap</span></div>
+      </div>
     </div>
     <div class="g8-track" id="g8-track">${g8TrackHTML(rd.lanesLen, rd.trackLen, animals, rd.houseLane)}</div>
-    <div class="hcap-toggle visible" id="hcap-toggle" style="justify-content:flex-start;margin:var(--sz-1) 0 0 0"><div class="hcap-switch" id="hcap-switch" onclick="toggleHandicap()"></div><span>Handicap</span></div>
     ${gameDescHTML(S.currentGame)}
   </div>`;
   // Persistent status slot (text content swapped in place — no layout shifts).
@@ -2167,17 +2177,25 @@ function renderGame8(rd){
   updateHcapToggle();
 }
 
+// LHS of top row: open hand + static die shapes. Companion to g8AdvancesHTML
+// on the RHS — together they fit on a single line above the bias bars / track.
 function g8DiceRowHTML(diceSides){
-  // LHS: open hand + static die shapes (sized like Game 1 selection buttons)
   const hand=`<span class="g8-hand">🤚</span>`;
   const dieShapes=diceSides.map(s=>`<div class="g8-die d${s}">${s}</div>`).join('');
-  // RHS: one golden roller per die joined by "+".
-  // Games 8 (Dice Sums) and 9 (CLT) bracket them with "Lane … advances" labels.
+  return `<div style="display:flex;align-items:center;gap:var(--sz-1);flex-shrink:0">${hand}${dieShapes}</div>`;
+}
+
+// RHS of top row: "Lane [r1] + [r2] + … advances" — the live dice-result
+// readout. Same text size as the "House Bet" header but non-bold so it reads
+// as commentary rather than a heading. Lane / + / advances all share the
+// same inline non-bold sz-2 styling.
+function g8AdvancesHTML(diceSides){
+  const eqStyle='font-size:var(--sz-2);font-weight:normal';
   const rollers=diceSides.map((_,i)=>
     `<div class="g8-roller" id="g8-r${i+1}"><span class="qm-text">?</span>`+
       `<div class="qm-reel" style="display:none"><div class="reel-strip"></div></div>`+
-    `</div>`).join('<span class="g8-eq">+</span>');
-  return `<div style="display:flex;align-items:center;justify-content:center;gap:var(--sz-1);width:100%;flex-wrap:wrap">${hand}${dieShapes}</div><div style="display:flex;align-items:center;justify-content:center;gap:var(--sz-1);width:100%;flex-wrap:wrap;margin-top:var(--sz-0)"><span class="g8-eq" style="font-size:var(--sz-3)">Lane</span>${rollers}<span class="g8-eq" style="font-size:var(--sz-3)">advances</span></div>`;
+    `</div>`).join(`<span class="g8-eq" style="${eqStyle}">+</span>`);
+  return `<div style="display:flex;align-items:center;gap:var(--sz-0);flex-shrink:0;${eqStyle}"><span class="g8-eq" style="${eqStyle}">Lane</span>${rollers}<span class="g8-eq" style="${eqStyle}">advances</span></div>`;
 }
 
 // Exact PMF of dice-sum via discrete convolution. pmf[k] = P(sum = k); pmf[0] is unused.
@@ -2218,13 +2236,13 @@ function g8TrackHTML(lanesLen, maxLen, animals, houseLane){
     const len=lanesLen[i];
     const widthPct=(len/maxLen)*100;
     const isHouse=(h===houseLane);
-    const houseFlag=isHouse?'🏆':'';
+    const houseFlag=isHouse?'🪙':'';
     return `<div class="g8-lane" data-horse="${h}">
       <div class="g9-bet-cell house-cell">
         <div class="g8-flag g9-house-flag${isHouse?' selected':''}" id="g8-house-flag-${h}">${houseFlag}</div>
       </div>
       <div class="g9-bet-cell player-cell">
-        <div class="g8-flag player-flag" data-lane="${h}" id="g8-flag-${h}" onclick="g8Bet(${h})" title="Bet on lane ${h}">🏆</div>
+        <div class="g8-flag player-flag" data-lane="${h}" id="g8-flag-${h}" onclick="g8Bet(${h})" title="Bet on lane ${h}">🪙</div>
       </div>
       <span class="g8-label">${h}</span>
       <div class="g8-bar-zone">
@@ -2410,21 +2428,30 @@ function renderGame9(){
   Z.buttons.style.display='none';
   Z.table.style.flexBasis='15.5rem';
   Z.top.innerHTML=`<div class="g8-wrap" style="width:100%;margin:0 auto">
-    <div class="g8-dice-row" id="g8-dice">${g8DiceRowHTML(rd.diceSides)}</div>
+    <div class="g8-dice-row" id="g8-dice" style="min-height:auto;justify-content:space-between;gap:var(--sz-2)">
+      ${g8DiceRowHTML(rd.diceSides)}
+      ${g8AdvancesHTML(rd.diceSides)}
+    </div>
     <div id="g9-bias-bars">${renderBiasBars(rd.diceSides, rd.bias)}</div>
-    <div class="g9-tokens-row">${Array(12).fill(0).map(()=>'<span>🪙</span>').join('')}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--sz-2);margin:var(--sz-0) auto">
+      <div class="g9-tokens-row" style="margin:0">${Array(12).fill(0).map(()=>'<span>🪙</span>').join('')}</div>
+      <div id="g9-msg" style="font-size:var(--sz-2);text-align:right">Pick 1, 2, 3, 4, 6 or 12 lanes</div>
+    </div>
     <div class="g9-bet-headers">
-      <div class="g9-bet-cell g9-bet-header-cell">House</div>
-      <div class="g9-bet-cell g9-bet-header-cell">Player</div>
+      <div class="g9-bet-cell g9-bet-header-cell">House Bet</div>
+      <div class="g9-bet-cell g9-bet-header-cell">Player Bet</div>
       <span class="g8-label" style="visibility:hidden">12</span>
-      <div style="flex:1"></div>
+      <div style="flex:1;display:flex;justify-content:flex-end">
+        <div class="hcap-toggle visible" id="hcap-toggle" style="margin:0"><div class="hcap-switch" id="hcap-switch" onclick="toggleHandicap()"></div><span>Handicap</span></div>
+      </div>
     </div>
     <div class="g8-track" id="g8-track">${g9TrackHTML(rd.lanesLen, rd.trackLen, animals, rd.houseLane)}</div>
-    <div class="hcap-toggle visible" id="hcap-toggle" style="justify-content:flex-start;margin:var(--sz-1) 0 0 0"><div class="hcap-switch" id="hcap-switch" onclick="toggleHandicap()"></div><span>Handicap</span></div>
     ${gameDescHTML(10)}
   </div>`;
-  // Persistent status slot only — animal/cup row removed.
-  Z.text.innerHTML=`<div id="g9-msg" style="text-align:center;width:100%;font-size:var(--sz-2)">Pick 1, 2, 3, 4, 6 or 12 lanes</div>`;
+  // g9-msg now lives inline next to the coins (see Z.top above) — Z.text stays
+  // empty so the status line and the coins read as a single "12 coins, pick N
+  // lanes" prompt.
+  Z.text.innerHTML='';
   Z.buttons.innerHTML='';
   renderStatsTable(Z.table,S.currentGame);
   // Render initial token positions (matters when handicap is on).
@@ -2463,7 +2490,9 @@ function g9BiasButtonsHTML(currentBias){
 function renderBiasBars(diceSides, biasName){
   const N_SLOTS=10;
   const BAR_H='3rem';
-  const dieColor=(n)=> n===4?'var(--c-die-1)' : n===6?'var(--c-die-2)' : n===8?'var(--c-die-3)' : n===10?'var(--c-die-4)' : 'var(--c-border)';
+  // Single colour for bars, label box, and the bias picker (Game 12) — tones
+  // with --c-gold. Change --c-bias-bar in :root to retint every bias visual.
+  const BAR_COLOR='var(--c-bias-bar)';
   const sortedDice=[...new Set((diceSides||[]).slice().sort((a,b)=>a-b))];
   const dieWeights=sortedDice.map(sides=>{
     if(!sides||!biasName) return null;
@@ -2476,7 +2505,7 @@ function renderBiasBars(diceSides, biasName){
     const subBars=sortedDice.map((sides,k)=>{
       const empty=!sides||!dieWeights[k]||slotN>sides;
       const h=empty?0:dieWeights[k][slotIdx]*100;
-      const bg=empty?'transparent':dieColor(sides);
+      const bg=empty?'transparent':BAR_COLOR;
       return `<div style="flex:1;display:flex;align-items:flex-end;height:100%;min-width:0"><div style="width:100%;height:${h}%;background:${bg};border-radius:0.1875rem 0.1875rem 0 0;transition:height .2s"></div></div>`;
     }).join('');
     return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0">
@@ -2486,7 +2515,7 @@ function renderBiasBars(diceSides, biasName){
   }).join('');
   const biasEntry = biasName ? BIAS_PRESETS.find(([k])=>k===biasName) : null;
   const labelBox = biasEntry
-    ? `<div class="bias-preset selected" style="flex:0 0 auto;max-width:none;height:${BAR_H};min-height:0;padding:var(--sz-0) var(--sz-1)"><span class="bias-word">Dice</span>${biasEntry[1]}<span class="bias-word">Bias</span></div>`
+    ? `<div class="bias-preset selected" style="background:${BAR_COLOR};color:var(--c-surface);flex:0 0 auto;max-width:none;height:${BAR_H};min-height:0;padding:var(--sz-0) var(--sz-1)"><span class="bias-word">Dice</span>${biasEntry[1]}<span class="bias-word">Bias</span></div>`
     : '';
   return `<div style="max-width:30rem;margin:0 auto;display:flex;gap:var(--sz-1);align-items:flex-start">${labelBox}<div style="flex:1;display:flex;gap:var(--sz-0);align-items:flex-end">${slots}</div></div>`;
 }
@@ -2550,9 +2579,8 @@ function g9UpdateSelectionUI(){
   const tokens=valid?12/n:null;
   const msg=document.getElementById('g9-msg');
   if(msg){
-    if(n===0) msg.textContent='Pick 1, 2, 3, 4, 6 or 12 lanes';
-    else if(valid) msg.textContent=`Selected ${n} lane${n===1?'':'s'} × ${tokens} token${tokens===1?'':'s'}`;
-    else msg.textContent=`${n} lane${n===1?'':'s'} — pick 1, 2, 3, 4, 6 or 12`;
+    if(valid && n>0) msg.textContent=`Selected ${n} lane${n===1?'':'s'} × ${tokens} token${tokens===1?'':'s'}`;
+    else msg.textContent='Pick 1, 2, 3, 4, 6 or 12 lanes';
   }
   const g9Btn=document.getElementById('g9-start-btn');
   if(g9Btn) g9Btn.disabled=!valid;
@@ -2565,15 +2593,13 @@ function g9TrackHTML(lanesLen, maxLen, animals, houseLane){
     const widthPct=(len/maxLen)*100;
     const isHouse = (h===houseLane);
     const houseTokens = isHouse ? g9CoinStackSVG(12) : '';
-    const houseFlag   = isHouse ? '🏆' : '';
     return `<div class="g8-lane" data-horse="${h}">
       <div class="g9-bet-cell house-cell">
         <span class="g9-lane-tokens g9-house-tokens" id="g9-house-tokens-${h}">${houseTokens}</span>
-        <div class="g8-flag g9-house-flag${isHouse?' selected':''}" id="g9-house-flag-${h}">${houseFlag}</div>
       </div>
       <div class="g9-bet-cell player-cell">
         <span class="g9-lane-tokens" id="g9-tokens-${h}"></span>
-        <div class="g8-flag" id="g9-flag-${h}" onclick="g9LaneToggle(${h})" title="Pick lane ${h}">🏆</div>
+        <div class="g8-flag g9-dot" id="g9-flag-${h}" onclick="g9LaneToggle(${h})" title="Pick lane ${h}">●</div>
       </div>
       <span class="g8-label">${h}</span>
       <div class="g8-bar-zone">
@@ -2884,7 +2910,17 @@ function renderGame10(){
     ? `<span role="button" onclick="startGame(${S.currentGame})" title="Generate a new hidden race" style="position:absolute;right:var(--sz-1);top:50%;transform:translateY(-50%);font-size:var(--sz-2);font-weight:var(--fw-bold);padding:0.0625rem 0.375rem;border-radius:var(--r-sm);background:var(--c-border);color:var(--c-text);cursor:pointer;user-select:none;line-height:1.2">New race</span>`
     : '';
 
+  // Game 11 has a fixed/given bias for the whole game — surface it at the top
+  // so the student always sees "this is your bias". Game 12 puts the picker +
+  // bars below the dice combos because the player is choosing the bias.
+  const biasTopForG11 = (S.currentGame === 11)
+    ? `<div id="g10-bias-bars-top"></div>`
+    : '';
+  const biasBottomForG12 = (S.currentGame === 11)
+    ? ''
+    : `<div id="g10-bias-buttons"></div><div id="g10-bias-bars"></div>`;
   Z.top.innerHTML = `<div class="g8-wrap" style="width:100%;margin:0 auto">
+    ${biasTopForG11}
     <div style="position:relative;display:flex;justify-content:center;align-items:center;min-height:1.5rem">
       <div class="t-sm" style="opacity:.7">results of the hidden race</div>
       ${newRaceBtn}
@@ -2892,8 +2928,7 @@ function renderGame10(){
     ${g10TrackHTML(rd.actualPositions, rd.animals, rd.trackLen, null, false)}
     ${gameDescHTML(11)}
     <div id="g10-dice-row" style="display:flex;justify-content:center;align-items:center;gap:var(--sz-1);margin:var(--sz-1) auto"></div>
-    <div id="g10-bias-buttons"></div>
-    <div id="g10-bias-bars"></div>
+    ${biasBottomForG12}
   </div>`;
 
   // Race! button lives in zone-next next to Next Round, like Games 8/9.
@@ -2948,9 +2983,11 @@ function g10RenderComboGrid(){
     </button>`;
   };
   // All 12 combos in one row; dice within each cell are stacked vertically.
-  row.innerHTML = `<div class="g10-combo-grid"><div class="g10-combo-row">${
+  // Leading hand 🤚 on the LHS matches the dice-reveal hand used in Games 8/9
+  // — visual hint that this row is "what you've picked to throw".
+  row.innerHTML = `<div class="g10-combo-grid"><div style="display:flex;align-items:center;gap:var(--sz-1)"><span class="g8-hand" style="flex:0 0 auto">🤚</span><div class="g10-combo-row" style="flex:1;min-width:0">${
     G10_VALID_COMBOS.map((combo,i)=>cell(combo, i)).join('')
-  }</div></div>`;
+  }</div></div></div>`;
 }
 function g10SelectCombo(idx){
   if(!S.g10 || S.g10.submitted) return;
@@ -2976,17 +3013,26 @@ function g10SetBias(preset){
 // A die with N sides only fills slots 1..N (slots N+1..10 stay empty for that sub-bar).
 function g10RenderBias(){
   const buttonsArea = document.getElementById('g10-bias-buttons');
-  const barsArea = document.getElementById('g10-bias-bars');
-  if(!buttonsArea || !barsArea) return;
+  // Game 11 mounts the bars at the top (id=g10-bias-bars-top); Game 12 keeps
+  // the bottom mount (id=g10-bias-bars) next to the picker.
+  const barsArea = document.getElementById('g10-bias-bars-top')
+                || document.getElementById('g10-bias-bars');
+  if(!barsArea) return;
   const disabled = S.g10.submitted;
   // DICE xxx BIAS picker row (Game 12 only — Game 11 (Guided) shows the given
   // bias via the label box on the left of the bar chart, no picker needed).
-  if(S.currentGame === 11){
-    buttonsArea.innerHTML = '';
-  } else {
-    buttonsArea.innerHTML = `<div style="display:flex;gap:var(--sz-0);justify-content:center;max-width:26rem;margin:0 auto var(--sz-0)">
-      ${BIAS_PRESETS.map(([k,lbl])=>`<button class="bias-preset${S.g10.bias===k?' selected':''}" data-preset="${k}" onclick="g10SetBias('${k}')"${disabled?' disabled':''}><span class="bias-word">Dice</span>${lbl}<span class="bias-word">Bias</span></button>`).join('')}
-    </div>`;
+  if(buttonsArea){
+    if(S.currentGame === 11){
+      buttonsArea.innerHTML = '';
+    } else {
+      buttonsArea.innerHTML = `<div style="display:flex;gap:var(--sz-0);justify-content:center;max-width:26rem;margin:0 auto var(--sz-0)">
+        ${BIAS_PRESETS.map(([k,lbl])=>{
+          const sel = S.g10.bias===k;
+          const styleOverride = sel ? 'background:var(--c-bias-bar);color:var(--c-surface)' : '';
+          return `<button class="bias-preset${sel?' selected':''}" data-preset="${k}" style="${styleOverride}" onclick="g10SetBias('${k}')"${disabled?' disabled':''}><span class="bias-word">Dice</span>${lbl}<span class="bias-word">Bias</span></button>`;
+        }).join('')}
+      </div>`;
+    }
   }
 
   // Bias bars — same layout as Games 9 and 10: bias label box on the left,
