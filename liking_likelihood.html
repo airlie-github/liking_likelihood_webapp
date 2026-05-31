@@ -75,7 +75,7 @@ button:active{transform:scale(.95)}
 
 /* ===== GAME SCREEN COMMON ===== */
 .game-header{display:flex;align-items:center;padding:var(--sz-1) var(--sz-2);background:var(--c-surface);border-bottom:var(--border-1) solid var(--c-border);flex-shrink:0}
-.game-header .back-btn{background:none;font-size:var(--sz-4);padding:var(--sz-0) var(--sz-1);color:var(--c-text)}
+.game-header .back-btn{background:none;font-size:var(--sz-5);padding:var(--sz-0) var(--sz-1);color:var(--c-text);line-height:1}
 .game-header .title{flex:1;font-size:var(--sz-2);font-weight:var(--fw-bold);margin-left:var(--sz-1)}
 .game-layout{flex:1;display:flex;flex-direction:column}
 .game-zone-top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:5rem var(--sz-2) var(--sz-1);gap:var(--sz-0);overflow:hidden;min-height:0;position:relative}
@@ -415,7 +415,7 @@ if('serviceWorker' in navigator){
 <!-- ===== GAME SCREEN (reused for all games) ===== -->
 <div id="game-screen" class="game-screen">
   <div class="game-header">
-    <button class="back-btn" onclick="exitGame()">&#8592;</button>
+    <button class="back-btn" onclick="exitGame()" aria-label="Back to menu" title="Back to menu">&#127968;</button>
     <span class="title" id="game-title"></span>
     <div class="tut-toggle"><div class="tut-switch" id="tut-switch" onclick="toggleTutorial()"></div><span id="tut-label">Tutorial</span></div>
   </div>
@@ -1064,18 +1064,7 @@ function startGame(id){
   if(id===8){S.scores[7]=0; S.houseScores[7]=0;}
   if(id===9){S.scores[8]=0; S.houseScores[8]=0;}
   if(id===10){S.scores[9]=0; S.houseScores[9]=0;}
-  // For games 8/9 (both titled "Central Limit Theorem"), append the desc as a
-  // small subtitle so the in-game header still tells them apart.
-  {
-    const g=GAMES[id-1];
-    const showSub=(id===8 || id===9) && g.desc;
-    const el=document.getElementById('game-title');
-    if(showSub){
-      el.innerHTML=`${g.title} <span style="opacity:.65;font-weight:var(--fw-normal);font-size:var(--sz-1)">· ${g.desc}</span>`;
-    } else {
-      el.textContent=g.title;
-    }
-  }
+  document.getElementById('game-title').textContent=`${id}. ${GAMES[id-1].title}`;
   updateTutToggle();
   updateHcapToggle();
   showPage('game-screen');
@@ -2562,8 +2551,12 @@ function g8RollStep(){
   // Animate dice
   for(let i=0;i<S.g8.diceSides.length;i++) g8SpinRoller('g8-r'+(i+1),dice[i],S.g8.diceSides[i]);
   if(sum>=1&&sum<=12) g8UpdateTokenPos(sum);
-  if(won){S.g8.winner=sum;setTimeout(g8Finish,350*diceSpeedFactor());return;}
-  setTimeout(g8RollStep,prefersReducedMotion()?30:500*diceSpeedFactor());
+  if(won){S.g8.winner=sum;setTimeout(g8Finish,200*diceSpeedFactor());return;}
+  // Dead rolls (sum outside 1..12) don't advance any horse — skip the visible
+  // pause and queue the next roll near-instantly so biased races don't stall.
+  const dead=(sum<1||sum>12);
+  const delay=prefersReducedMotion()?30:(dead?30:250*diceSpeedFactor());
+  setTimeout(g8RollStep,delay);
 }
 
 function g8Skip(){
@@ -2943,8 +2936,12 @@ function g9RollStep(){
   const won=g9AdvanceHorse(sum);
   for(let i=0;i<S.g9.diceSides.length;i++) g8SpinRoller('g8-r'+(i+1),dice[i],S.g9.diceSides[i]);
   if(sum>=1&&sum<=S.g9.maxSum) g9UpdateTokenPos(sum);
-  if(won){S.g9.winner=sum;setTimeout(g9Finish,350*diceSpeedFactor());return;}
-  setTimeout(g9RollStep,prefersReducedMotion()?30:500*diceSpeedFactor());
+  if(won){S.g9.winner=sum;setTimeout(g9Finish,200*diceSpeedFactor());return;}
+  // Dead rolls (sum outside 1..maxSum) don't advance any horse — skip the
+  // visible pause and queue the next roll near-instantly.
+  const dead=(sum<1||sum>S.g9.maxSum);
+  const delay=prefersReducedMotion()?30:(dead?30:250*diceSpeedFactor());
+  setTimeout(g9RollStep,delay);
 }
 
 function g9Skip(){
