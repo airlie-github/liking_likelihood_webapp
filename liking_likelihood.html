@@ -495,8 +495,8 @@ const S = {
   game3ConfPick: null,
   g5: null, // bias-detective token game state
   g8: null, // horse race state: {bet, trackLen, positions, rolls, winner, animating}
-  g8Handicap: false, // when true, animals start with a head-start that equalises win probability
-  g9Handicap: false, // same idea for the CLT biased horse-race
+  g8Handicap: true, // ON by default for Games 8 (Dice Sums) and 9 (Biased Dice Sums)
+  g9Handicap: false, // CLT biased horse-race (Game 10) — toggle off by default
   g10: null, // reverse-the-race state: {tray, slot, bias, submitted}
 };
 
