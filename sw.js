@@ -1,4 +1,4 @@
-const CACHE = 'liking-likelihood-v2';
+const CACHE = 'liking-likelihood-v3';
 const ASSETS = [
   './',
   './liking_likelihood.html',
