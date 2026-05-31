@@ -570,8 +570,8 @@ const GAMES = [
   {id:5, title:'Log-Likelihood', topic:'Section 6', desc:'House vs Player — find the bias!', color:'var(--c-purple)'},
   {id:6, title:"Bayes' Theorem", topic:'Section 8', desc:'Guess the dice again', color:'var(--c-danger)'},
   {id:7, title:'Marginalization', topic:'Section 9', desc:'Guess which box', color:'var(--c-amber)'},
-  {id:8, title:'Dice Sums', topic:'Horse Race', desc:'Guess the winner', color:'var(--c-teal)'},
-  {id:9, title:'Biased Dice Sums', topic:'Biased Race', desc:'Pick a lane — biased dice', color:'#00bcd4'},
+  {id:8, title:'Central Limit Theorem', topic:'Horse Race', desc:'Dice Sums', color:'var(--c-teal)'},
+  {id:9, title:'Central Limit Theorem', topic:'Biased Race', desc:'Biased Dice Sums', color:'#00bcd4'},
   {id:10, title:'Central Limit Theorem', topic:'Section 12', desc:'Spread your bet', color:'#6c5ce7'},
   {id:11, title:'Reverse the Race', topic:'Inference', desc:'Guess the dice given the bias', color:'var(--c-gold)'},
   {id:12, title:'Biased Reverse the Race', topic:'Inference', desc:'Guess the dice + bias!', color:'#ff6b6b'},
@@ -1064,7 +1064,18 @@ function startGame(id){
   if(id===8){S.scores[7]=0; S.houseScores[7]=0;}
   if(id===9){S.scores[8]=0; S.houseScores[8]=0;}
   if(id===10){S.scores[9]=0; S.houseScores[9]=0;}
-  document.getElementById('game-title').textContent=GAMES[id-1].title;
+  // For games 8/9 (both titled "Central Limit Theorem"), append the desc as a
+  // small subtitle so the in-game header still tells them apart.
+  {
+    const g=GAMES[id-1];
+    const showSub=(id===8 || id===9) && g.desc;
+    const el=document.getElementById('game-title');
+    if(showSub){
+      el.innerHTML=`${g.title} <span style="opacity:.65;font-weight:var(--fw-normal);font-size:var(--sz-1)">· ${g.desc}</span>`;
+    } else {
+      el.textContent=g.title;
+    }
+  }
   updateTutToggle();
   updateHcapToggle();
   showPage('game-screen');
